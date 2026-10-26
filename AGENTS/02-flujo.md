@@ -10,13 +10,13 @@
 2. `git switch -c feature/<nombre>-<tema>` (o `git switch` a tu rama y `git merge main`).
 3. Trabaja en cambios pequeños; prueba en local.
 4. Commit (abajo). Al acabar un bloque: `git push -u origin <tu-rama>` y abre una PR.
-5. Otra persona la revisa y la **acepta** (el enunciado exige aceptar cada PR). Si hay conflicto, se documenta qué pasó y cómo se resolvió en `docs/registro-versiones.md` (se crea cuando haga falta).
+5. Se fusiona a `main` (GitHub no obliga a una aprobación; conviene que mire la PR otra persona del equipo, y el reto 0614 pide que **todas las PR se acepten**). Si hay conflicto, se documenta qué pasó y cómo se resolvió en `docs/registro-versiones.md` (se crea cuando haga falta).
 
 ## Commits (Conventional Commits; en catalán o castellano)
 `feat:` · `fix:` · `docs:` · `style:` · `refactor:` · `test:` · `chore:`. Ej.: `feat(joc-2): desbloqueo del nivel 3`. Commits pequeños. El mensaje se escribe en un archivo y se usa `git commit -F` si lleva comillas o caracteres raros.
 
 ## Pull requests
-Título claro, plantilla de `.github/PULL_REQUEST_TEMPLATE.md`, capturas si hay interfaz. Una PR = una tarea. Revisor: otra persona (rotamos). No se fusiona una PR propia.
+Título claro, plantilla de `.github/PULL_REQUEST_TEMPLATE.md`, capturas si hay interfaz. Una PR = una tarea. Si puedes, que la mire otra persona antes de fusionar.
 
 ## Cómo trabajamos con IA
 - Cada persona usa su IA, pero todas leen `AGENTS.md` + `AGENTS/` al empezar.

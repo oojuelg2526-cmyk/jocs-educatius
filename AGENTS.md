@@ -9,7 +9,7 @@ Este repositorio lo trabajan **4 personas, cada una en su ordenador y con su pro
 4. Si todavía no está decidida la temática o la tecnología, **no la inventes**: lee [`propostes/`](propostes/README.md).
 
 ## Reglas que no se negocian
-- **Una persona, una tarea, una rama.** Nunca se hace push directo a `main`: todo entra por *pull request* revisada y aceptada por otra persona.
+- **Una persona, una tarea, una rama.** Nunca se hace push directo a `main`: todo entra por *pull request* y se fusiona a `main` (GitHub ya no exige aprobación; quien fusiona la PR la acepta, y el reto 0614 pide aceptar todas).
 - **No inventes datos ni requisitos.** Lo no confirmado se marca `[PENDENT]` en `AGENTS/04-decisiones-y-equipo.md`.
 - **Nada de secretos en Git** (`.env`, contraseñas, tokens, claves). Se comparte `.env.example` sin valores.
 - **La documentación se actualiza en el mismo commit** que el cambio que la afecta. Si cambias algo y `AGENTS/` queda desfasado, el trabajo no está terminado.
