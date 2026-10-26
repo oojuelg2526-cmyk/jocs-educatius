@@ -30,6 +30,7 @@ Gestión de tareas: `[PENDENT]` Airtable. Comunicación y dudas: chat de Gmail d
 | 26/10/2026 | Matiz: quien quiera puede trabajar desde casa (voluntario); dudas por chat de Gmail; tareas por fases semanales, repartidas sobre la marcha | Óscar | equipo |
 | 26/10/2026 | Nombre del repositorio = nombre del proyecto; creado desde la cuenta `oojuelg2526-cmyk` | Acuerdo de Óscar | Óscar |
 | 26/10/2026 | Rama principal `main` (salvo imposición del profesorado) | Acuerdo de Óscar | Óscar |
+| 26/10/2026 | Se quita de GitHub la aprobación obligatoria de las PR (sigue obligatorio abrir PR; no hay push directo) | Óscar no ve el sentido de la norma para este proyecto | Óscar |
 | 26/10/2026 | Temática y tecnología se deciden entre todos mediante `propostes/` | Acuerdo de Óscar | equipo |
 
 ## Pendientes `[PENDENT]`
