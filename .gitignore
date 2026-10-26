@@ -1,0 +1,27 @@
+# Sistema
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Secretos: mai al repositori
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependències i builds (Laravel / Node / Python)
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+/storage/*.key
+/storage/logs/
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Dades generades (es regeneren amb l'script de simulació)
+/metrics/data/*.csv
