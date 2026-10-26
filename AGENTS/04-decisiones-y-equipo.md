@@ -1,12 +1,12 @@
 # 04 · Equipo, decisiones y pendientes
 
 ## Equipo
-| Miembro | Juego | Área |
-|---|---|---|
-| Óscar Ojuel González | `[PENDENT]` | `[PENDENT]` |
-| Alex Campano | `[PENDENT]` | `[PENDENT]` |
-| Roger Durán | `[PENDENT]` | `[PENDENT]` |
-| Raúl Hernández | `[PENDENT]` | `[PENDENT]` |
+| Miembro | GitHub | Juego | Área |
+|---|---|---|---|
+| Óscar Ojuel González | oojuelg2526-cmyk | `[PENDENT]` | `[PENDENT]` |
+| Alex Campano | acampanoe2526 | `[PENDENT]` | `[PENDENT]` |
+| Roger Durán | rduran597 | `[PENDENT]` | `[PENDENT]` |
+| Raúl Hernández | raulhpolitecnics | `[PENDENT]` | `[PENDENT]` |
 
 Áreas a repartir: landing + multiidioma + CSS común · administración/BD · despliegue + Git/documentación · métricas/ML. (Cada persona, además, un juego.)
 Gestión de tareas: `[PENDENT]` Airtable. Comunicación y dudas: chat de Gmail del equipo. Las tareas se reparten por fases semanales, a medida que se avanza; trabajar desde casa es voluntario.
