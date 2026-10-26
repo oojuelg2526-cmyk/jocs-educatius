@@ -11,12 +11,12 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 - **Mètriques** dels jocs i vista de resultats d'aprenentatge automàtic.
 
 ## Equip
-| Persona | Joc / responsabilitat |
-|---|---|
-| Óscar Ojuel González | `[PENDENT]` |
-| Alex Campano | `[PENDENT]` |
-| Roger Durán | `[PENDENT]` |
-| Raúl Hernández | `[PENDENT]` |
+| Persona | GitHub | Joc / responsabilitat |
+|---|---|---|
+| Óscar Ojuel González | oojuelg2526-cmyk | `[PENDENT]` |
+| Alex Campano | acampanoe2526 | `[PENDENT]` |
+| Roger Durán | rduran597 | `[PENDENT]` |
+| Raúl Hernández | raulhpolitecnics | `[PENDENT]` |
 
 ## Abans de tocar res
 Llegeix [`AGENTS.md`](AGENTS.md) i la carpeta [`AGENTS/`](AGENTS/README.md): expliquen com treballem tots igual (cadascú al seu ordinador i amb la seva IA). Les idees de temàtica i tecnologia van a [`propostes/`](propostes/README.md).
