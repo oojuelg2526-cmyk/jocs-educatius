@@ -24,8 +24,8 @@ Todos usan solo HTML/CSS/JS con DOM y eventos (**sin `<canvas>`**). Quien prefie
 - **Estadísticas y récords** (diarios/semanales, por juego) visibles en la landing.
 - **Landing** con la historia, el equipo y sus roles, **multiidioma ca/es/en**, CSS común con los juegos.
 - **Administración:** administradores ven/modifican usuarios y puntuaciones; superadministrador gestiona administradores.
-- **Métricas/IA:** todos los juegos registran `username`, `session_id`, `date_time`, `session_length` + las propias; simulación Python (200-500 sesiones) y modelo para predecir si el jugador vuelve.
-- **Despliegue:** v1 antes del 17/11, final antes del 08/12 (ver `AGENTS/01-producto.md`).
+- **Métricas y ML:** todos los juegos registran `username`, `session_id`, `date_time`, `session_length` + las propias; simulación Python (200-500 sesiones) y modelo para predecir si el jugador vuelve.
+- **Despliegue:** v1 antes del 17/11, final antes del 08/12 (ver `docs/producto.md`).
 
 ## Tecnología propuesta (a decidir en equipo)
 Laravel + SQL Server (como en 0613 y como pide el reto de métricas), JavaScript sin librerías pesadas en los juegos, Python con Pyodide para la vista «Mètriques». Todo lo visto en el curso.
