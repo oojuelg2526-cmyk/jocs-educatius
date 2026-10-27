@@ -9,8 +9,8 @@ La **temática, el storytelling, la tecnología y la identidad visual** se decid
 2. Contenido mínimo: temática y público, hilo conductor, idea de los 4 juegos, tecnología, riesgos y qué aprenden los jugadores.
 3. Se sube en una rama `docs/propuesta-<nombre>` y una PR; no se editan las propuestas de otros.
 4. En una sesión de clase el equipo las revisa y **elige una** (votación; si hay empate, `[PENDENT]` a decidir).
-5. La elegida se anota en `../AGENTS/04-decisiones-y-equipo.md` (fecha, decisión, motivo, quién) y las demás se mueven a `descartades/`.
-6. Desde ese momento se actualizan `AGENTS/01`, `03` y `04`.
+5. La elegida se anota en `../docs/equipo-y-decisiones.md` (fecha, decisión, motivo, quién) y las demás se mueven a `descartades/`.
+6. Desde ese momento se actualizan `docs/producto.md`, `docs/convenciones.md` y `docs/equipo-y-decisiones.md`.
 
 ## Propuestas recibidas
 | Quién | Archivo | Estado |
