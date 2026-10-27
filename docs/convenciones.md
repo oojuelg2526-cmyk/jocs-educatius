@@ -1,6 +1,6 @@
-# 03 · Convenciones de código y diseño común
+# Convenciones de código y diseño común
 
-`[PENDENT]` hasta decidir la tecnología (ver `05` y `08`). Valores por defecto propuestos si se elige Laravel + JS:
+`[PENDENT]` hasta decidir la tecnología (ver `equipo-y-decisiones.md`). Valores por defecto propuestos si se elige Laravel + JS:
 - **Idiomas:** código y nombres en inglés (`game`, `score`), comentarios en catalán o castellano, **textos de interfaz solo vía archivos de idioma** (`lang/ca|es|en`).
 - **Nombres:** carpetas y archivos en minúsculas con guiones; clases en PascalCase; variables en camelCase; tablas en plural `snake_case`.
 - **JS:** `const`/`let` (nunca `var`), funciones pequeñas, módulos por juego en `public/games/game-N/`, sin librerías pesadas no acordadas, **sin `<canvas>`**, estado del juego separado del DOM.
@@ -19,6 +19,6 @@ El enunciado exige **estética compartida**: mismos personajes, botones, colores
 - Paleta, tipografías, personajes y logotipo: `[PENDENT]` (se fija tras elegir temática; guardar aquí tokens y referencias).
 - Accesibilidad: contraste, foco visible, `label` en formularios, uso en móvil (375 px) y escritorio, controles también por teclado.
 - Wireframes y prototipo: `docs/diseno/` (se crea cuando haga falta).
-- Multimedia propia (imágenes/audio, también con IA): guardar en `public/assets/` con su origen anotado en `docs/credits.md`.
+- Multimedia propia (imágenes/audio): guardar en `public/assets/` con su origen anotado en `docs/credits.md`.
 
 Catálogo de componentes: `[PENDENT]`, se rellena aquí a medida que se añaden.

@@ -1,4 +1,4 @@
-# 04 · Equipo, decisiones y pendientes
+# Equipo, decisiones y pendientes
 
 ## Equipo
 | Miembro | GitHub | Juego | Área |

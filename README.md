@@ -19,7 +19,7 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 | Raúl Hernández | raulhpolitecnics | `[PENDENT]` |
 
 ## Abans de tocar res
-Llegeix [`AGENTS.md`](AGENTS.md) i la carpeta [`AGENTS/`](AGENTS/README.md): expliquen com treballem tots igual (cadascú al seu ordinador i amb la seva IA). Les idees de temàtica i tecnologia van a [`propostes/`](propostes/README.md).
+Llegeix la carpeta [`docs/`](docs/README.md): hi ha el que cal construir, com treballem i què està decidit. Les idees de temàtica i tecnologia van a [`propostes/`](propostes/README.md).
 
 ## Tecnologia `[PENDENT]`
 Proposta: Laravel (PHP) + SQL Server, JavaScript sense `<canvas>`, Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
@@ -30,10 +30,10 @@ Proposta: Laravel (PHP) + SQL Server, JavaScript sense `<canvas>`, Python (Panda
 3. Instal·la dependències i arrenca el servidor (comandes segons la tecnologia triada).
 
 ## Com col·laborem
-- Branca principal protegida: només es fusiona amb *pull request* revisada i acceptada per una altra persona.
+- Branca principal protegida: només s'hi entra amb *pull request* (convé que la reviseu entre vosaltres).
 - Una branca per persona i tasca: `feature/<nom>-<tema>`.
 - Missatges de commit tipus *Conventional Commits* (`feat:`, `fix:`, `docs:`…).
-- Detall a [`AGENTS/02-flujo.md`](AGENTS/02-flujo.md).
+- Detall a [`docs/flujo-de-trabajo.md`](docs/flujo-de-trabajo.md).
 
 
 ## Llicència i crèdits
@@ -41,9 +41,8 @@ Projecte acadèmic. Recursos multimèdia de tercers amb atribució a `docs/credi
 
 ## Estructura
 ```
-AGENTS.md · CLAUDE.md   Entrada para personas e IA
-AGENTS/                 Reglas y memoria compartida (README + 01..04)
-propostes/              Una proposta per membre; la triada es registra a AGENTS/04
+docs/                   Documentació de l'equip (producte, flux de treball, convencions, decisions)
+propostes/              Una proposta per membre; la triada es registra a docs/equipo-y-decisiones.md
 .github/                Plantilla de pull request
 ```
-Les carpetes de l'aplicació (`app/`, `public/`, `lang/`, `tests/`…), `docs/` (memòria tècnica i desplegament) i `metrics/` (ML) es creen quan toquen, un cop triada la tecnologia.
+Les carpetes de l'aplicació (`app/`, `public/`, `lang/`, `tests/`…) i `metrics/` (ML) es creen quan toquen, un cop triada la tecnologia.
