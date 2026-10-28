@@ -12,7 +12,20 @@ La **temática, el storytelling, la tecnología y la identidad visual** se decid
 5. La elegida se anota en `../docs/equipo-y-decisiones.md` (fecha, decisión, motivo, quién) y las demás se mueven a `descartades/`.
 6. Desde ese momento se actualizan `docs/producto.md`, `docs/convenciones.md` y `docs/equipo-y-decisiones.md`.
 
+## Propuesta elegida
+El 28/10/2026 el equipo acuerda seguir con **«Cerdà perdió el plano»** ([oscar-cerda-perdio-el-plano.md](oscar-cerda-perdio-el-plano.md)): **un juego final de 4 niveles, cada nivel es un juego distinto** y todos comparten la misma temática (Barcelona) y el hilo de la historia. Los detalles que falten (reparto, niveles internos, tecnología) se concretan en `docs/equipo-y-decisiones.md`.
+
 ## Propuestas recibidas
 | Quién | Archivo | Estado |
 |---|---|---|
-| — | — | — |
+| Óscar | [oscar-cerda-perdio-el-plano.md](oscar-cerda-perdio-el-plano.md) | **Elegida** (28/10) |
+
+## Nivel × propuesta
+Cada nivel es un juego distinto. Si alguien quiere cambiar o mejorar un nivel, lo anota en su columna y se decide entre todos.
+
+| Nivel | Propuesta base (Óscar) | Cambios o alternativas | Responsable |
+|---|---|---|---|
+| 1 | Memory de Barcelona: parejas monumento ↔ barrio, con intentos y reloj | — | `[PENDENT]` |
+| 2 | Reconstruye el Eixample: puzle de manzanas en rejilla CSS | — | `[PENDENT]` |
+| 3 | Línea del tiempo: ordenar hitos de la ciudad contra reloj | — | `[PENDENT]` |
+| 4 | Laberinto de metro: mover una ficha hasta la parada | — | `[PENDENT]` |
