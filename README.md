@@ -13,10 +13,10 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 ## Equip
 | Persona | GitHub | Joc / responsabilitat |
 |---|---|---|
-| Óscar Ojuel González | oojuelg2526-cmyk | `[PENDENT]` |
-| Alex Campano | acampanoe2526 | `[PENDENT]` |
-| Roger Durán | rduran597 | `[PENDENT]` |
-| Raúl Hernández | raulhpolitecnics | `[PENDENT]` |
+| Óscar Ojuel González | oojuelg2526-cmyk | Nivel 1 · Memory de Barcelona |
+| Alex Campano | acampanoe2526 | Nivel 4 · Laberinto de metro |
+| Roger Durán | rduran597 | Nivel 2 · Reconstruye el Eixample |
+| Raúl Hernández | raulhpolitecnics | Nivel 3 · Línea del tiempo |
 
 ## Abans de tocar res
 Llegeix la carpeta [`docs/`](docs/README.md): hi ha el que cal construir, com treballem i què està decidit. Les idees de temàtica i tecnologia van a [`propostes/`](propostes/README.md).
