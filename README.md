@@ -19,7 +19,7 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 | Raúl Hernández | raulhpolitecnics | Nivell 3 · Línea del tiempo |
 
 ## Documentació
-Tot està a [`docs/`](docs/): la [proposta](docs/ildefons-cerda-perdio-el-plano.md), els [requisits](docs/requisitos.md) i la [guia de treball](docs/guia-de-trabajo.md).
+Les propostes són a [`propostes/`](propostes/): la [proposta final](propostes/propuesta-final-ildefons-cerda-perdio-el-plano.md) i la de cada joc. Els [requisits](docs/requisitos.md) i la [guia de treball](docs/guia-de-trabajo.md) són a [`docs/`](docs/).
 
 ## Tecnologia `[PENDENT]`
 Proposta: Laravel (PHP) + SQL Server, JavaScript sense `<canvas>`, Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
@@ -37,7 +37,8 @@ Projecte acadèmic. Els recursos multimèdia de tercers s'atribueixen en un fitx
 
 ## Estructura
 ```
-docs/        Proposta, requisits i guia de treball
+propostes/   Proposta final i una proposta per joc
+docs/        Requisits i guia de treball
 .github/     Plantilla de pull request
 ```
 Les carpetes de l'aplicació es creen quan toquen, un cop triada la tecnologia.

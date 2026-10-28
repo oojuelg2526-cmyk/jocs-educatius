@@ -1,6 +1,6 @@
 # Ildefons Cerdà perdió el plano
 
-Propuesta elegida por el equipo.
+Propuesta elegida por el equipo. Cada juego tiene su propio documento en esta carpeta.
 
 ## Temática y público
 Historia y geografía de **Barcelona**, para **gente de la ciudad** (jóvenes y adultos que viven aquí y creen conocerla). Tono ameno, con curiosidades («¿sabías que…?») en lugar de preguntas tipo test.
