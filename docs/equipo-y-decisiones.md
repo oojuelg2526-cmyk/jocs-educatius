@@ -32,10 +32,11 @@ Gestión de tareas: `[PENDENT]` Airtable. Comunicación y dudas: chat de Gmail d
 | 26/10/2026 | Rama principal `main` (salvo imposición del profesorado) | Acuerdo de Óscar | Óscar |
 | 26/10/2026 | Se quita de GitHub la aprobación obligatoria de las PR (sigue obligatorio abrir PR; no hay push directo) | Óscar no ve el sentido de la norma para este proyecto | Óscar |
 | 26/10/2026 | Temática y tecnología se deciden entre todos mediante `propostes/` | Acuerdo de Óscar | equipo |
+| 28/10/2026 | Se sigue con la propuesta «Cerdà perdió el plano»: juego final de 4 niveles, cada uno un juego distinto, unidos por la misma temática | Acuerdo del equipo | equipo |
 
 ## Pendientes `[PENDENT]`
 - Nombre del proyecto/repositorio (provisional: `jocs-educatius`).
-- Temática, storytelling, tecnología e identidad visual (vía `propostes/`).
+- Tecnología e identidad visual (la temática y el storytelling ya están decididos).
 - Reparto de juegos y áreas; herramienta de tareas (Airtable).
 - Dominio y hosting; año de la fecha final (Site dice 8/12/2025).
 - ¿Qué módulo evalúa la landing/multiidioma? ¿Rama `master` exigida? (preguntar al profesorado en persona).
