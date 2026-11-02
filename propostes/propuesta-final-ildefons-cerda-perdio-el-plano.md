@@ -26,7 +26,7 @@ Cada responsable define los niveles de dificultad internos y el esbozo de su jue
 - Administración: administradores ven y modifican usuarios y puntuaciones; el superadministrador gestiona a los administradores.
 - Métricas: todos los juegos registran `username`, `session_id`, `date_time`, `session_length` y las propias.
 
-## Tecnología propuesta `[PENDENT]`
+## Tecnología propuesta
 Laravel + SQL Server, JavaScript sin librerías pesadas en los juegos, Python con Pyodide para la vista «Mètriques».
 
 ## Riesgos
