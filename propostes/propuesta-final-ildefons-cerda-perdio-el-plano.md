@@ -18,14 +18,6 @@ Ildefons Cerdà ha perdido los planos del Eixample y la ciudad se ha desordenado
 
 Cada responsable define los niveles de dificultad internos y el esbozo de su juego `[PENDENT]`. Todos usan HTML, CSS y JavaScript con DOM y eventos, **sin `<canvas>`**.
 
-## Cómo cumple el enunciado
-- Se desbloquean en orden y se ve el total (los bloqueados aparecen bloqueados).
-- Progreso guardado en BD por usuario; se pueden rejugar los superados.
-- Estadísticas y récords (diarios/semanales, por juego) en la landing.
-- Landing con la historia, el equipo y sus roles, en ca/es/en, con CSS común a los juegos.
-- Administración: administradores ven y modifican usuarios y puntuaciones; el superadministrador gestiona a los administradores.
-- Métricas: todos los juegos registran `username`, `session_id`, `date_time`, `session_length` y las propias.
-
 ## Tecnología propuesta
 Laravel + SQL Server, JavaScript sin librerías pesadas en los juegos, Python con Pyodide para la vista «Mètriques».
 
