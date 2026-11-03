@@ -1,11 +1,10 @@
 # Línea del tiempo
 
 **Nivel 3 de «Ildefons Cerdà perdió el plano»**  
-**Responsable del juego:** Raúl Hernández  
-**Público objetivo:** Gente de la ciudad (jóvenes y adultos que viven en Barcelona y creen conocerla), con tono ameno y curiosidades («¿sabías que…?»).
+**Responsable del juego:** Raúl Hernández
 
 ## Qué se aprende
-Historia de la ciudad de Barcelona a través de sus hitos más representativos (época romana, Exposición Universal de 1888, Juegos Olímpicos de 1992, etc.).
+Historia de la ciudad de Barcelona a través de sus hitos más representativos (época romana, Exposición Universal de 1888, Juegos Olímpicos de 1992, etc.). Público: jóvenes y adultos que viven en la ciudad.
 
 ## Mecánica del juego
 - **Interacción:** El jugador debe ordenar cronológicamente las tarjetas de los hitos históricos arrastrándolas y soltándolas mediante la API de Drag & Drop en JavaScript nativo (HTML/CSS/JS).
