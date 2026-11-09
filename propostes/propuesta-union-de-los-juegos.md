@@ -34,7 +34,11 @@ Cerdà ha perdido el plano del Eixample y cada juego recupera una pieza, siguien
 4. **Mismo estilo:** papel sepia, tinta y regla antigua, con variables CSS comunes (colores, tipografías, botones).
 5. **Métricas con el mismo nombre cuando significan lo mismo:** `level_time`, `level_reached`, `final_score` y `help_clicks`; cada juego añade las suyas.
 
-## Por comprobar
-- Si Urquinaona cae en la Dreta de l'Eixample o en Sant Pere, Santa Caterina i la Ribera (hay que comprobarlo en una fuente oficial; el Palau de la Música sí está en Sant Pere).
-- Líneas y estaciones con el plano oficial de TMB.
-- Origen de las imágenes del plano de la landing (si es dibujado o generado, anotarlo).
+## Comprobado (10/11/2026)
+- Plaça d'Urquinaona está en el barrio de la **Dreta de l'Eixample** (Wikipedia), en el cruce de la Ronda de Sant Pere con el carrer d'Ausiàs Marc. El Palau de la Música sí está en Sant Pere, Santa Caterina i la Ribera.
+- La estación de Urquinaona tiene **L1 y L4**. En la L1 el orden es Universitat → Catalunya → Urquinaona → Arc de Triomf → Marina → Glòries.
+- La Torre Glòries está en **el Parc i la Llacuna del Poblenou** (Av. Diagonal 209-211) y el recinto de Sant Pau en **el Baix Guinardó**, declarado Patrimonio Mundial en 1997. Coincide con el banco de monumentos del Memory.
+
+## Pendiente
+- Contrastar las líneas y estaciones de los mapas de Alex con el plano oficial de TMB.
+- Anotar el origen de las imágenes del plano de la landing (si es dibujado o generado).
