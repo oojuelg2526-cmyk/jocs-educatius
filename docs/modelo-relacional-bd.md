@@ -3,6 +3,9 @@
 Borrador para validar con el equipo. Cubre los 4 juegos, el progreso por usuario, las métricas por sesión, los récords y la administración. Se pensó para MySQL/SQL Server (Laravel); los tipos son orientativos. Los diagramas usan Mermaid y se ven directamente en GitHub.
 
 ## Diagrama entidad-relación
+![Diagrama entidad-relación](img/modelo-relacional-bd.png)
+
+_Versión editable (Mermaid):_
 ```mermaid
 erDiagram
     USERS ||--o{ GAME_SESSIONS : juega
