@@ -1,6 +1,6 @@
 # Casos de uso (borrador)
 
-Borrador para validar con el equipo. Actores: **Visitante** (sin sesión), **Jugador** (registrado), **Administrador** y **Superadministrador**. El administrador hereda lo que hace un jugador y el superadministrador lo que hace un administrador.
+Borrador para validar con el equipo. Actores: **Visitante** (sin sesión), **Jugador** (registrado), **Administrador** y **Superadministrador**. En el diagrama, el jugador hereda lo que hace un visitante y el superadministrador lo que hace un administrador; además, un administrador también puede jugar como jugador.
 
 ## Diagrama general
 ![Diagrama de casos de uso](img/casos-de-uso-general.png)
