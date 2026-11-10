@@ -1,51 +1,11 @@
 # Casos de uso (borrador)
 
-Borrador para validar con el equipo. Actores: **Visitante** (sin sesión), **Jugador** (registrado), **Administrador** y **Superadministrador**. El administrador hereda lo que hace un jugador y el superadministrador lo que hace un administrador.
+Borrador para validar con el equipo. Actores: **Visitante** (sin sesión), **Jugador** (registrado), **Administrador** y **Superadministrador**. En el diagrama, el jugador hereda lo que hace un visitante y el superadministrador lo que hace un administrador; además, un administrador también puede jugar como jugador.
 
 ## Diagrama general
 ![Diagrama de casos de uso](img/casos-de-uso-general.png)
 
-_Versión editable (Mermaid):_
-```mermaid
-flowchart TB
-    V([Visitante])
-    J([Jugador])
-    A([Administrador])
-    S([Superadministrador])
-    V -. "se convierte en" .-> J
-    J -. "hereda" .-> A
-    A -. "hereda" .-> S
-
-    subgraph Landing
-        direction TB
-        U1([Ver proyecto y equipo])
-        U2([Cambiar idioma ca/es/en])
-        U3([Ver plano de Cerdà y récords])
-        U4([Registrarse])
-        U5([Iniciar sesión])
-    end
-    subgraph Juegos
-        direction TB
-        U6([Ver juegos y su estado])
-        U7([Jugar un juego])
-        U8([Retomar donde lo dejó])
-        U9([Rejugar un juego superado])
-        U10([Ver mis estadísticas])
-    end
-    subgraph Administración
-        direction TB
-        U11([Listar y buscar usuarios])
-        U12([Modificar usuario])
-        U13([Modificar o borrar puntuación])
-        U14([Ver estadísticas globales])
-        U15([Gestionar administradores])
-    end
-
-    V --> Landing
-    J --> Juegos
-    A --> U11 & U12 & U13 & U14
-    S --> U15
-```
+_Hecho con draw.io; el archivo editable es `img/casos-de-uso-general.drawio` (el PNG también lo lleva incrustado)._
 
 ## Casos de uso principales
 | ID | Caso de uso | Actor | Resumen | Resultado |
