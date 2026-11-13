@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laberinto de metro</title>
+  <link rel="stylesheet" href="css/metro.css">
+</head>
+<body>
+  <header class="top">
+    <h1 data-i18n="title">Laberinto de metro</h1>
+    <nav id="levels" class="levels" aria-label="Niveles"></nav>
+    <label class="lang"><span data-i18n="language">Idioma</span>
+      <select id="lang"></select>
+    </label>
+  </header>
+
+  <main class="layout">
+    <section class="board-wrap">
+      <div id="board" class="board" aria-label="Mapa del metro"></div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+      <div id="line-selector" class="line-selector" hidden>
+        <p data-i18n="line_prompt">Correspondencia: ¿qué línea coges?</p>
+        <div></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <p class="eyebrow" id="level-name"></p>
+      <h2 data-i18n="mission">Misión</h2>
+      <p id="mission-text"></p>
+
+      <dl class="stats">
+        <div><dt data-i18n="pieces">Trozos del plano</dt><dd id="pieces">0 / 0</dd></div>
+        <div><dt data-i18n="time">Tiempo</dt><dd id="time">00:00</dd></div>
+        <div><dt data-i18n="moves">Movimientos</dt><dd id="moves">0</dd></div>
+        <div><dt data-i18n="points">Puntos</dt><dd id="points">1000</dd></div>
+      </dl>
+
+      <ul class="legend" aria-label="Líneas">
+        <li><span class="swatch l1"></span>L1</li>
+        <li><span class="swatch l2"></span>L2</li>
+        <li><span class="swatch l4"></span>L4</li>
+      </ul>
+
+      <button id="help" class="btn" type="button" data-i18n="help">Mirar el plano (−50)</button>
+      <p class="hint" data-i18n="help_hint">Enseña los nombres durante 3 segundos.</p>
+      <button id="restart" class="btn secondary" type="button" data-i18n="restart">Empezar de nuevo</button>
+
+      <p class="hint" data-i18n="controls">Mueve la ficha con las flechas o WASD.</p>
+      <div class="dpad" aria-label="Cruceta">
+        <button type="button" data-dir="up" aria-label="Arriba">▲</button>
+        <button type="button" data-dir="left" aria-label="Izquierda">◀</button>
+        <button type="button" data-dir="down" aria-label="Abajo">▼</button>
+        <button type="button" data-dir="right" aria-label="Derecha">▶</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="overlay" class="overlay" hidden>
+    <div id="card" class="card" role="dialog" aria-modal="true" tabindex="-1"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
