@@ -112,8 +112,22 @@ class ApiTest extends TestCase
             ->assertJsonPath('progress.status', 'completed');
     }
 
+    public function test_modo_independiente_deja_guardar_sin_desbloquear(): void
+    {
+        $user = $this->player(); // el juego 4 está bloqueado, pero no se exige el orden
+        $this->actingAs($user)->putJson('/api/sessions/'.self::SESSION, $this->body([$this->attempt(1)]))
+            ->assertStatus(201)->assertJsonPath('progress.status', 'unlocked');
+    }
+
+    public function test_modo_integrado_avisa_al_juego_y_bloquea(): void
+    {
+        config(['games.enforce_order' => true]);
+        $this->get('/juegos/metro')->assertSee('integrated', false);
+    }
+
     public function test_juego_bloqueado_da_403(): void
     {
+        config(['games.enforce_order' => true]); // modo integrado: se exige el orden
         $user = $this->player();
         $this->actingAs($user)->putJson('/api/sessions/'.self::SESSION, $this->body([$this->attempt(1)]))
             ->assertStatus(403)->assertExactJson(['error' => 'game_locked']);

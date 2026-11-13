@@ -20,8 +20,15 @@ function save(progress) {
   }
 }
 
-// El juego 4 se abre al superar el juego 3. Con ?dev=1 se abre siempre (para probar).
+// Modo independiente (por defecto): el juego está siempre abierto, como si fuera un juego solo.
+// Modo integrado (cuando lo cargue la landing, con window.CERDA.integrated = true o ?integrated=1):
+// el juego 4 se abre al superar el juego 3. Con ?dev=1 se abre siempre (para probar).
+export function isIntegrated() {
+  return globalThis.CERDA?.integrated === true || new URLSearchParams(location.search).has("integrated");
+}
+
 export function isUnlocked() {
+  if (!isIntegrated()) return true;
   if (new URLSearchParams(location.search).has("dev")) return true;
   return load().games?.[3]?.status === "completed";
 }

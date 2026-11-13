@@ -11,7 +11,7 @@ Los módulos de JavaScript necesitan un servidor (no basta con abrir `index.html
 npx serve .
 ```
 
-Abre la dirección que te dé con `?dev=1` al final. Sin `?dev=1` el juego sale **bloqueado**, porque se desbloquea al superar el juego 3.
+El juego funciona **solo** (modo independiente): siempre está abierto. Cuando se una a la landing se activa el **modo integrado** (`?integrated=1`, o `GAMES_ENFORCE_ORDER=true` en Laravel) y entonces se desbloquea al superar el juego 3; con `?dev=1` se abre siempre.
 
 Pruebas de las reglas (no hace falta navegador):
 
