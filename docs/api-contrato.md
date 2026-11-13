@@ -76,7 +76,7 @@ Dónde se guarda cada campo:
 | `final_score` | `game_sessions.final_score` | Suma de los niveles ganados |
 | `attempts[].level` | `level_attempts.level_id` | El servidor busca el nivel con `games.id` y `levels.level_no` |
 | `attempts[].level_time` | `level_attempts.level_time` | Segundos |
-| `attempts[].moves_count` | `level_attempts.moves_count` | Si se pierde por tiempo, el juego envía 0 |
+| `attempts[].moves_count` | `level_attempts.moves_count` | Los que lleve al acabar el tiempo |
 | `attempts[].help_clicks` | `level_attempts.help_clicks` | |
 | `attempts[].score` | `level_attempts.score` | 0 si no se ha ganado |
 | `attempts[].stars` | `level_attempts.stars` | 0 a 3 |
@@ -115,7 +115,7 @@ Siempre JSON con un **código** (no un texto): los textos para el jugador viven 
 |---|---|---|---|
 | 401 | `unauthenticated` | No hay sesión de login | Pasa a modo local (`localStorage`) |
 | 403 | `game_locked` | El juego aún no está desbloqueado | Muestra la tarjeta de «bloqueado» |
-| 403 | `forbidden` | El `session_id` es de otro usuario | Crea un `session_id` nuevo y reintenta una vez |
+| 403 | `forbidden` | El `session_id` es de otro usuario | No reintenta; queda en local |
 | 419 | `csrf` | Token CSRF caducado | Recarga la página con el progreso local guardado |
 | 422 | `validation` | Datos que no cumplen las reglas | No reintenta; guarda en local |
 | 5xx o sin red | — | Servidor caído | Guarda en local y reintenta en la siguiente partida |
