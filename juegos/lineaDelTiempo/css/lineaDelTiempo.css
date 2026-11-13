@@ -1,0 +1,272 @@
+/*
+Estilo del juego Línea del Tiempo
+Las variables de colores y tipografías son las del estilo común del proyecto 
+(papel sepia, tinta y regla antigua); cuando exista el CSS común se importarán de allí. 
+*/
+
+:root {
+    --paper: #f3ead6;
+
+    --paper-2: #fbf6ea;
+
+    --ink: #2b2a28;
+
+    --ink-soft: #5a554a;
+
+    --line: #cbbd9c;
+
+    --red: #a63d2a;
+
+    --green: #35624f;
+
+    --blue: #2a4668;
+
+    --gold: #b8860b;
+
+    --font-title: Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+    --font-body: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+}
+
+h1,
+h2 {
+    font-family: var(--font-title);
+    margin: 0;
+}
+
+button,
+select {
+    font: inherit;
+}
+
+:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+}
+
+
+
+.top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.7rem 1rem;
+    background: var(--paper-2);
+    border-bottom: 2px solid var(--ink);
+}
+
+.top h1 {
+    font-size: 1.4rem;
+    margin-right: auto;
+}
+
+.levels {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.levels button {
+    min-height: 44px;
+    padding: 0.4rem 0.9rem;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: var(--paper);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.levels button[aria-current="true"] {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.levels button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.lang {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+
+.lang select {
+    min-height: 44px;
+    padding: 0.3rem 0.5rem;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink);
+}
+
+
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 1.25rem;
+    width: min(1100px, 100% - 2rem);
+    margin: 1.25rem auto;
+}
+
+/* =========================================
+   CSS ESPECÍFICO: LÍNEA DEL TIEMPO
+   ========================================= */
+
+/* Regla graduada (Línea del tiempo) */
+.timeline-ruler {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem 1rem 3rem 1rem;
+    background: linear-gradient(to bottom, #d4ba8a, #c0a068);
+    border: 3px solid var(--ink);
+    border-radius: 8px;
+    position: relative;
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Marcas de la regla en la parte inferior */
+.timeline-ruler::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20px;
+    background-image: repeating-linear-gradient(to right, var(--ink) 0, var(--ink) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(to right, var(--ink) 0, var(--ink) 1px, transparent 1px, transparent 5px);
+    background-size: 10px 20px, 5px 10px;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    border-top: 1px solid var(--ink);
+}
+
+/* Zonas donde soltar las tarjetas */
+.drop-zone {
+    flex: 1;
+    min-width: 100px;
+    height: 140px;
+    border: 2px dashed var(--ink-soft);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: all 0.2s;
+}
+
+/* Etiqueta de la época debajo del hueco */
+.drop-zone::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -28px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+}
+
+.drop-zone.drag-over {
+    background: rgba(184, 134, 11, 0.3);
+    /* Resplandor dorado */
+    border-color: var(--gold);
+    border-style: solid;
+}
+
+/* Contenedor de las tarjetas a elegir */
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    min-height: 160px;
+    padding: 1rem;
+    background: var(--paper-2);
+    border: 2px solid var(--line);
+    border-radius: 8px;
+}
+
+/* Tarjetas históricas (Draggables) */
+.history-card {
+    width: 100px;
+    height: 130px;
+    background: var(--paper);
+    border: 2px solid var(--ink-soft);
+    border-radius: 4px;
+    padding: 0.4rem;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.history-card:active {
+    cursor: grabbing;
+}
+
+.history-card.dragging {
+    opacity: 0.5;
+    transform: scale(1.05);
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    /* Sombra 3D al levantar */
+}
+
+.history-card .card-img {
+    width: 100%;
+    height: 60px;
+    background: #dcd0b8;
+    /* Placeholder para grabado monocromático */
+    border: 1px solid var(--ink-soft);
+    margin-bottom: 0.4rem;
+    background-image: repeating-linear-gradient(45deg, #ccc, #ccc 2px, #dcd0b8 2px, #dcd0b8 4px);
+}
+
+.history-card .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Animaciones de error/acierto */
+.error-shake {
+    animation: shake 0.4s;
+    border-color: var(--red);
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+}
