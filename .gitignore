@@ -25,3 +25,8 @@ __pycache__/
 
 # Dades generades (es regeneren amb l'script de simulació)
 /metrics/data/*.csv
+
+# Base de datos local de pruebas (SQLite)
+/database/*.sqlite
+/database/*.sqlite-journal
+.phpunit.result.cache
