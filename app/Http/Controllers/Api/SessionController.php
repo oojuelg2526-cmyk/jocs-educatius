@@ -41,9 +41,9 @@ class SessionController extends Controller
         $data = $validator->validated();
         $gameId = $data['game'];
 
-        // Un juego solo se puede jugar si está desbloqueado (el 1 siempre).
+        // En modo integrado, un juego solo se puede jugar si está desbloqueado (el 1 siempre).
         $progress = UserGameProgress::where('user_id', $user->id)->where('game_id', $gameId)->first();
-        if ($gameId != 1 && (!$progress || $progress->status === 'locked')) {
+        if (config('games.enforce_order') && $gameId != 1 && (!$progress || $progress->status === 'locked')) {
             return response()->json(['error' => 'game_locked'], 403);
         }
 

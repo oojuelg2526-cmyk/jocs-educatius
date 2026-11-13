@@ -14,10 +14,14 @@ class MetroController extends Controller
         // Se reutiliza el HTML del juego: solo se coge lo que hay dentro de <body>.
         preg_match('/<body>(.*)<\/body>/s', File::get(base_path('juegos/metro/index.html')), $m);
         $user = $request->user();
+        $integrated = (bool) config('games.enforce_order');
 
         return view('juegos.metro', [
             'page' => $m[1],
-            'cerda' => $user ? ['user' => ['username' => $user->username, 'language' => $user->language]] : null,
+            // integrated activa en el juego el bloqueo por orden; sin sesión también hay que avisarlo
+            'cerda' => $user
+                ? ['integrated' => $integrated, 'user' => ['username' => $user->username, 'language' => $user->language]]
+                : ($integrated ? ['integrated' => true] : null),
         ]);
     }
 
