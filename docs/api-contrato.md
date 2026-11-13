@@ -130,6 +130,12 @@ Siempre JSON con un **código** (no un texto): los textos para el jugador viven 
 - Todas las rutas van detrás de la comprobación de login y del token CSRF de Laravel.
 - El servidor no se fía de `final_score`, `stars` ni del progreso que diga el juego en el navegador: recalcula el progreso a partir de los intentos. Una puntuación manipulada desde el navegador se puede acotar, pero no impedir del todo en un juego que corre en el cliente; se deja anotado como limitación.
 
+## Cómo está hecho en Laravel
+- Las dos rutas están en `routes/web.php` (no en `api.php`) para tener sesión y CSRF. Controladores en `app/Http/Controllers/Api/`.
+- Registro abierto (`/register`) y entrada (`/login`); quien se registra es siempre `player` y empieza con el juego 1 abierto.
+- El juego se sirve en `/juegos/metro` (vista `resources/views/juegos/metro.blade.php`), que pone el token CSRF y `window.CERDA`.
+- Pruebas: `php artisan test` (usan SQLite en memoria).
+
 ## Por decidir con el equipo
 - ¿Se puede jugar como **invitado** (solo `localStorage`) o hace falta cuenta? Este contrato soporta ambas cosas.
 - Si Memory, Eixample y Línea del tiempo quieren la misma ruta `PUT /api/sessions/{id}`: solo cambia `game` y las columnas que usen.
