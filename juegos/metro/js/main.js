@@ -4,6 +4,7 @@ import { LEVELS } from "./levels.js";
 import { LANG_CODES, getLang, setLang, t } from "./lang.js";
 import { isUnlocked, lastLevelCompleted, saveLevelDone, username } from "./storage.js";
 import { newSession, addAttempt, saveSession } from "./metrics.js";
+import { syncFromServer, sendSession } from "./api.js";
 import * as ui from "./ui.js";
 
 const KEYS = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
@@ -52,7 +53,7 @@ function endLevel() {
   stopTimers();
   const res = result(game);
   addAttempt(session, res);
-  saveSession(session);
+  sendSession(saveSession(session)); // primero local; después, si hay servidor, se envía
 
   if (!res.won) {
     ui.showCard({
@@ -155,5 +156,6 @@ window.addEventListener("resize", () => game && ui.render(game));
 setLang(localStorage.getItem("cerda_lang") || document.documentElement.lang || "es");
 langSelect.value = getLang();
 ui.applyTexts();
+await syncFromServer(); // si hay servidor, trae el progreso; si no, no hace nada
 if (isUnlocked()) startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1));
 else showLocked();
