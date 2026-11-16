@@ -73,7 +73,7 @@ class JuegoLineaTiempo {
         // El mazo inicial también tiene que aceptar cartas por si el usuario se arrepiente y devuelve una
         this.asignarEventosDrop(mazo);
 
-        // 2. Crear las tarjetas arrastrables
+        // 2. Crear las tarjetas arrastrables sin usar innerHTML
         hitosDesordenados.forEach(hito => {
             const carta = document.createElement("div"); // RA6
             carta.classList.add("history-card");
@@ -82,10 +82,18 @@ class JuegoLineaTiempo {
             carta.dataset.orden = hito.orden;
             carta.dataset.pista = hito.pista;
 
-            carta.innerHTML = `
-        <div class="card-img"></div>
-        <span class="card-title">${hito.titulo}</span>
-      `;
+            // Creamos el div de la imagen
+            const cardImg = document.createElement("div");
+            cardImg.classList.add("card-img");
+
+            // Creamos el span del título e insertamos el texto
+            const cardTitle = document.createElement("span");
+            cardTitle.classList.add("card-title");
+            cardTitle.textContent = hito.titulo;
+
+            // Añadimos los elementos como hijos de la carta
+            carta.appendChild(cardImg);
+            carta.appendChild(cardTitle);
 
             this.asignarEventosDrag(carta); // RA5
             mazo.appendChild(carta); // RA6
