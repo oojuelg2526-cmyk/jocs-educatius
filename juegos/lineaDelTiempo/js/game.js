@@ -33,7 +33,8 @@ class JuegoLineaTiempo {
         this.hitos = datosNivel.map(dato => new HitoHistorico(dato.id, dato.title, dato.label, dato.order, dato.hint));
         this.metricas = new MetricasPartida();
 
-        this.tiempoRestante = 85; // 1 minuto y 25 segundos
+        // Ajuste Nivel 1: Tiempo holgado
+        this.tiempoRestante = 120; // 2 minutos
         this.puntos = 850;
         this.movimientos = 0;
         this.temporizador = null;
@@ -260,15 +261,13 @@ class JuegoLineaTiempo {
 // =========================================================
 // RA1, RA2: Inicio del script cliente
 // =========================================================
-const DATOS_NIVEL_3 = [
+
+// Ajuste Nivel 1: 4 hitos históricos con amplia diferencia de siglos
+const DATOS_NIVEL_1 = [
     { id: "m1", title: "Barcino romana", label: "Época romana", order: 1, hint: "Fundada por el emperador Augusto." },
     { id: "m2", title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
-    { id: "m3", title: "Exp. Universal", label: "1888", order: 3, hint: "Urbanizó el parque de la Ciutadella." },
-    { id: "m4", title: "El Eixample", label: "1860s", order: 4, hint: "Ildefons Cerdà ideó esta cuadrícula." },
-    { id: "m5", title: "Semana Trágica", label: "1909", order: 5, hint: "Revuelta popular con quema de edificios." },
-    { id: "m6", title: "Exp. Internacional", label: "1929", order: 6, hint: "Desarrollo de la montaña de Montjuïc." },
-    { id: "m7", title: "JJOO", label: "1992", order: 7, hint: "Abrió definitivamente la ciudad al mar." },
-    { id: "m8", title: "Fórum Culturas", label: "2004", order: 8, hint: "Renovación de la zona de Diagonal Mar." }
+    { id: "m3", title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
+    { id: "m4", title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -278,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (juegoAnteriorSuperado) {
         // Ejecutamos el juego solo si el anterior está superado
-        new JuegoLineaTiempo(DATOS_NIVEL_3);
+        new JuegoLineaTiempo(DATOS_NIVEL_1);
     } else {
         // Lógica si el usuario intenta acceder sin permiso
         console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
