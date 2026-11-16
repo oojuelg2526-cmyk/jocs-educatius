@@ -272,5 +272,19 @@ const DATOS_NIVEL_3 = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    new JuegoLineaTiempo(DATOS_NIVEL_3);
+    // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
+    // Si estás en fase de pruebas y quieres forzar el inicio, puedes cambiar esta variable a 'true'
+    const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
+
+    if (juegoAnteriorSuperado) {
+        // Ejecutamos el juego solo si el anterior está superado
+        new JuegoLineaTiempo(DATOS_NIVEL_3);
+    } else {
+        // Lógica si el usuario intenta acceder sin permiso
+        console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
+
+        // Opcional: Mostrar un mensaje visual al usuario o redirigirlo al menú
+        alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
+        // window.location.href = "index.html"; // Redirigir al menú principal
+    }
 });
