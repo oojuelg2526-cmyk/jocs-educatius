@@ -73,7 +73,7 @@ class JuegoLineaTiempo {
         // El mazo inicial también tiene que aceptar cartas por si el usuario se arrepiente y devuelve una
         this.asignarEventosDrop(mazo);
 
-        // 2. Crear las tarjetas arrastrables
+        // 2. Crear las tarjetas arrastrables sin usar innerHTML
         hitosDesordenados.forEach(hito => {
             const carta = document.createElement("div"); // RA6
             carta.classList.add("history-card");
@@ -82,10 +82,18 @@ class JuegoLineaTiempo {
             carta.dataset.orden = hito.orden;
             carta.dataset.pista = hito.pista;
 
-            carta.innerHTML = `
-        <div class="card-img"></div>
-        <span class="card-title">${hito.titulo}</span>
-      `;
+            // Creamos el div de la imagen
+            const cardImg = document.createElement("div");
+            cardImg.classList.add("card-img");
+
+            // Creamos el span del título e insertamos el texto
+            const cardTitle = document.createElement("span");
+            cardTitle.classList.add("card-title");
+            cardTitle.textContent = hito.titulo;
+
+            // Añadimos los elementos como hijos de la carta
+            carta.appendChild(cardImg);
+            carta.appendChild(cardTitle);
 
             this.asignarEventosDrag(carta); // RA5
             mazo.appendChild(carta); // RA6
@@ -264,5 +272,19 @@ const DATOS_NIVEL_3 = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    new JuegoLineaTiempo(DATOS_NIVEL_3);
+    // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
+    // Si estás en fase de pruebas y quieres forzar el inicio, puedes cambiar esta variable a 'true'
+    const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
+
+    if (juegoAnteriorSuperado) {
+        // Ejecutamos el juego solo si el anterior está superado
+        new JuegoLineaTiempo(DATOS_NIVEL_3);
+    } else {
+        // Lógica si el usuario intenta acceder sin permiso
+        console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
+
+        // Opcional: Mostrar un mensaje visual al usuario o redirigirlo al menú
+        alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
+        // window.location.href = "index.html"; // Redirigir al menú principal
+    }
 });
