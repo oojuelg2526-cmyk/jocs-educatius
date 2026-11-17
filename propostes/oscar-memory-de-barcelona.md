@@ -8,25 +8,26 @@ Monumentos de Barcelona, el barrio donde están y un dato histórico de cada uno
 Un Memory pensado para sorprender: cartas con giro 3D, mapa de Barcelona que se ilumina barrio a barrio, combos, cartas especiales y un modo contrarreloj. Todo con HTML, CSS y JS (DOM y eventos), **sin `<canvas>`**.
 
 ## Mecánica
-Parejas de cartas con intentos limitados y reloj. Lo que forma cada pareja cambia con el nivel (ver abajo).
+Parejas de cartas: siempre **ilustración del monumento + un texto**; el texto cambia con el nivel (ver abajo). No se pierde nunca: los fallos solo quitan estrellas y el reloj de los niveles 2 y 3 da puntos de bonus. Cada nivel empieza con una tarjeta de instrucciones con un ejemplo animado, y al acertar sale una tarjeta con el monumento, su barrio y su dato.
 
 - **Combos:** aciertos seguidos suben el multiplicador de puntos (×2, ×3, ×4). Un fallo lo reinicia.
 - **Cartas especiales** (entre las cartas del tablero; al girarlas actúan y desaparecen, sin gastar intento):
   - Comodín «Lupa de Cerdà» (dorada): enseña todas las cartas 3 segundos.
-  - Trampa «Plano desordenado» (roja): baraja las cartas que aún no se han acertado.
+  - Trampa «Plano desordenado» (roja): baraja las cartas que aún no se han acertado (solo nivel 3).
+- **Pista** (3 por nivel): ilumina una pareja. Reinicia el combo.
 - **Mapa de Barcelona:** panel lateral con los barrios; cada pareja acertada ilumina su barrio.
 - **Modo contrarreloj** (modo extra, se desbloquea al superar el nivel 3): 8 parejas al azar del banco de monumentos, 90 s; cada acierto suma 3 s y cada fallo resta 2 s. Cuenta para el récord.
 - **Estrellas** (1 a 3) según los fallos cometidos. Se puede rejugar cualquier nivel superado.
 - **Sonido:** girar carta, acierto, fallo, combo, comodín, trampa y nivel superado. Con botón para silenciar.
 
 ## Niveles de dificultad internos
-| Nivel | Parejas | Qué se une | Fallos permitidos | Reloj | Especiales |
+| Nivel | Parejas | Qué se une | 3 / 2 estrellas | Reloj | Especiales |
 |---|---|---|---|---|---|
-| 1 · Reconoce | 6 | foto del monumento ↔ su nombre | 8 | sin reloj (se aprende) | ninguna |
-| 2 · Sitúa | 8 | monumento ↔ su barrio | 8 | 150 s | 1 comodín + 1 trampa |
-| 3 · Recuerda | 12 | monumento ↔ dato histórico | 10 | 240 s | 1 comodín + 2 trampas |
+| 1 · Reconoce | 4 | ilustración ↔ su nombre (placa) | hasta 2 / 5 fallos | solo cuenta | ninguna |
+| 2 · Sitúa | 6 | ilustración ↔ su barrio (chincheta) | hasta 3 / 7 fallos | bonus de 120 s | 2 comodines |
+| 3 · Recuerda | 8 | ilustración ↔ dato histórico (pergamino) | hasta 4 / 9 fallos | bonus de 180 s | 1 comodín + 1 trampa |
 
-La dificultad sube también en lo educativo: reconocer → situar en el mapa → recordar historia. `[PENDENT]` Ajustar fallos y tiempos tras probar el juego.
+La dificultad sube también en lo educativo: reconocer → situar en el mapa → recordar historia. Cambio tras la primera prueba (17/11): era demasiado difícil y no se entendía qué se unía, así que ahora no se pierde, hay menos parejas, instrucciones por nivel y más animaciones.
 
 ### Banco de monumentos (propuesta, a contrastar con fuentes antes de publicar)
 | Monumento | Barrio | Dato (nivel 3) |

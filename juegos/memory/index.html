@@ -3,19 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#efe2c2">
   <title>Memory de Barcelona</title>
   <link rel="stylesheet" href="css/memory.css">
 </head>
 <body>
+  <!-- Decoración de fondo: plano antiguo con la cuadrícula de Cerdà y una rosa de los vientos -->
+  <div class="plano" aria-hidden="true">
+    <svg class="plano-rose" viewBox="-60 -60 120 120">
+      <circle r="52" class="rose-ring"/>
+      <circle r="44" class="rose-ring thin"/>
+      <path d="M0-56L7-7 56 0 7 7 0 56-7 7-56 0-7-7Z" class="rose-star"/>
+      <path d="M0-40L4-4 40 0 4 4 0 40-4 4-40 0-4-4Z" transform="rotate(45)" class="rose-star light"/>
+      <text y="-58">N</text>
+    </svg>
+  </div>
+
   <header class="top">
-    <div>
-      <h1 data-i18n="title">Memory de Barcelona</h1>
-      <p class="subtitle" data-i18n="subtitle"></p>
+    <div class="brand">
+      <svg class="seal" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22"/>
+        <path d="M14 10h8l4 4v8l-4 4h-8l-4-4v-8z M28 22h8l4 4v8l-4 4h-8l-4-4v-8z M14 28h6l3 3v6l-3 3h-6l-3-3v-6z M30 8h6l3 3v6l-3 3h-6l-3-3v-6z"/>
+      </svg>
+      <div>
+        <h1 data-i18n="title">Memory de Barcelona</h1>
+        <p class="subtitle" data-i18n="subtitle"></p>
+      </div>
     </div>
-    <nav id="levels" class="levels" aria-label="Niveles"></nav>
+    <nav id="levels" class="levels"></nav>
     <div class="tools">
+      <button id="help" class="tool" type="button"></button>
       <button id="mute" class="tool" type="button"></button>
-      <label class="lang"><span data-i18n="language">Idioma</span>
+      <label class="lang"><span class="sr-only" data-i18n="language">Idioma</span>
         <select id="lang"></select>
       </label>
     </div>
@@ -23,30 +42,82 @@
 
   <main class="layout">
     <section class="board-wrap">
-      <p id="mission-text" class="mission"></p>
-      <div id="board" class="board" aria-label="Cartas"></div>
-      <p id="message" class="message" role="status" aria-live="polite"></p>
+      <div class="mission-bar">
+        <div class="mission">
+          <p class="eyebrow" id="level-name"></p>
+          <p id="mission-text" class="mission-text"></p>
+          <p id="pair-rule" class="pair-rule" role="note"></p>
+        </div>
+        <button id="hint" class="hint-btn" type="button"></button>
+      </div>
+
+      <div id="progress" class="progress" role="progressbar" aria-valuemin="0">
+        <span class="progress-track"><span id="progress-fill" class="progress-fill"></span></span>
+        <span id="progress-text" class="progress-text"></span>
+      </div>
+
+      <div id="board" class="board" role="group" data-i18n-aria="board_label"></div>
+
+      <div class="cerda-row">
+        <svg id="cerda" class="cerda" viewBox="0 0 80 90" role="img" data-i18n-aria="cerda">
+          <path class="c-coat" d="M8 90C10 70 22 61 40 61s30 9 32 29z"/>
+          <path class="c-shirt" d="M32 61l8 16 8-16z"/>
+          <path class="c-tie" d="M33 66l7 3.5 7-3.5v7l-7-3.5-7 3.5z"/>
+          <ellipse class="c-skin" cx="40" cy="35" rx="16" ry="19"/>
+          <path class="c-hair" d="M24 32c-1-10 4-16 8-17-2 4-3 8-3 12zM56 32c1-10-4-16-8-17 2 4 3 8 3 12z"/>
+          <path class="c-beard" d="M23 36c0 17 8 27 17 27s17-10 17-27c-3 7-8 9-17 9s-14-2-17-9z"/>
+          <path class="c-moustache" d="M31 46c3-3 6-3 9-1 3-2 6-2 9 1-3 3-6 3-9 1-3 2-6 2-9-1z"/>
+          <g class="c-eyes"><circle cx="34" cy="35" r="1.8"/><circle cx="46" cy="35" r="1.8"/></g>
+          <path class="c-brow" d="M30.5 31q3.5-2 7 0M42.5 31q3.5-2 7 0"/>
+          <path class="c-nose" d="M40 36v5l-2 1.5"/>
+          <g class="c-roll"><path d="M50 78l24-12 4 8-24 12z"/><path d="M54 79l18-9M56 82l14-7" class="c-roll-line"/></g>
+        </svg>
+        <p id="message" class="bubble" role="status" aria-live="polite"></p>
+      </div>
     </section>
 
     <aside class="panel">
-      <p class="eyebrow" id="level-name"></p>
-      <dl class="stats">
-        <div><dt data-i18n="errors">Fallos</dt><dd id="errors">0</dd></div>
-        <div><dt data-i18n="time">Tiempo</dt><dd id="time">—</dd></div>
-        <div><dt data-i18n="combo">Combo</dt><dd id="combo">×1</dd></div>
-        <div><dt data-i18n="points">Puntos</dt><dd id="points">0</dd></div>
-      </dl>
-      <h2 data-i18n="barrios">Barrios descubiertos</h2>
-      <ul id="barrios" class="barrios"></ul>
-      <button id="restart" class="primary" type="button" data-i18n="restart">Empezar de nuevo</button>
+      <div class="stats">
+        <div class="stat stat-stars">
+          <span class="stat-label" data-i18n="stars_now">Estrellas</span>
+          <span id="live-stars" class="live-stars" role="img"></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="points">Puntos</span>
+          <span id="points" class="stat-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="combo">Combo</span>
+          <span id="combo" class="stat-value">×1</span>
+        </div>
+        <div class="stat" id="time-box">
+          <span class="stat-label" id="time-label"></span>
+          <span id="time" class="stat-value"></span>
+          <span id="time-bar" class="time-bar" aria-hidden="true"></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="errors">Fallos</span>
+          <span id="errors" class="stat-value">0</span>
+        </div>
+      </div>
+
+      <section class="map-box" aria-labelledby="map-title">
+        <h2 id="map-title" data-i18n="map_title">Mapa de Barcelona</h2>
+        <svg id="map" class="map" role="img" aria-labelledby="map-title map-count"></svg>
+        <p class="map-foot"><span id="map-count" class="map-count"></span><span id="map-caption" class="map-caption"></span></p>
+      </section>
+
+      <button id="restart" class="btn ghost" type="button"></button>
     </aside>
   </main>
 
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
   <div id="card" class="overlay" hidden>
     <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="card-title">
+      <p id="card-eyebrow" class="dialog-eyebrow"></p>
       <h2 id="card-title"></h2>
-      <p id="card-text"></p>
-      <div id="card-extra"></div>
+      <div id="card-body" class="dialog-body"></div>
       <div id="card-buttons" class="buttons"></div>
     </div>
   </div>

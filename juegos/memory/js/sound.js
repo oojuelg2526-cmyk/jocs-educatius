@@ -27,12 +27,11 @@ function tone(freq, start, length, type = "sine", volume = 0.15) {
 const SOUNDS = {
   flip: () => tone(520, 0, 0.06, "triangle"),
   match: () => { tone(660, 0, 0.12); tone(880, 0.1, 0.18); },
-  miss: () => { tone(220, 0, 0.18, "sawtooth", 0.1); },
+  miss: () => { tone(330, 0, 0.14, "triangle", 0.1); tone(262, 0.12, 0.2, "triangle", 0.1); },
   combo: () => { tone(660, 0, 0.1); tone(880, 0.08, 0.1); tone(1100, 0.16, 0.2); },
   lupa: () => { tone(900, 0, 0.1); tone(1200, 0.1, 0.25); },
   trampa: () => { tone(300, 0, 0.12, "square", 0.08); tone(200, 0.1, 0.2, "square", 0.08); },
   win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, 0.25)),
-  lose: () => [330, 262, 196].forEach((f, i) => tone(f, i * 0.15, 0.3, "sawtooth", 0.1)),
 };
 
 export function play(name) {

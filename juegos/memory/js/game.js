@@ -1,5 +1,7 @@
 // Las reglas del Memory. No toca la página: así se puede probar con `npm test`.
-import { MONUMENTS, LEVELS } from "./levels.js";
+// Reglas fáciles: no se pierde nunca. Los fallos solo bajan las estrellas y el reloj
+// de los niveles 2 y 3 es un bonus de puntos (no hay tiempo límite).
+import { MONUMENTS, LEVELS, BONUS_PER_SECOND } from "./levels.js";
 
 export function shuffle(list, rng = Math.random) {
   const a = [...list];
@@ -26,19 +28,13 @@ function pickMonuments(level, rng) {
   return out;
 }
 
-const FACES = {
-  name: ["image", "name"],
-  barrio: ["name", "barrio"],
-  fact: ["name", "fact"],
-};
-
 export function createGame(level, rng = Math.random) {
-  const [kindA, kindB] = FACES[level.mode];
   const monuments = pickMonuments(level, rng);
   const cards = [];
+  // Siempre: una carta con la ilustración y otra con el texto del nivel.
   for (const m of monuments) {
-    cards.push({ pair: m.id, kind: kindA, state: "down" });
-    cards.push({ pair: m.id, kind: kindB, state: "down" });
+    cards.push({ pair: m.id, kind: "image", state: "down" });
+    cards.push({ pair: m.id, kind: level.mode, state: "down" });
   }
   for (let i = 0; i < level.lupas; i++) cards.push({ special: "lupa", state: "down" });
   for (let i = 0; i < level.trampas; i++) cards.push({ special: "trampa", state: "down" });
@@ -54,16 +50,24 @@ export function createGame(level, rng = Math.random) {
     bestCombo: 0,
     matched: 0,
     score: 0,
+    bonus: 0,
     seconds: 0,
-    timeLeft: level.timeLimit,
+    hintsLeft: level.hints,
     helps: 0,
     moves: 0,
     locked: false, // true mientras se enseña la lupa o se espera a tapar un fallo
-    status: "playing", // playing | won | lost | timeout
+    status: "playing", // playing | won
   };
 }
 
 export const multiplier = (combo) => Math.min(4, Math.max(1, combo));
+
+// Puntos extra por terminar pronto (solo en los niveles con bonusTime).
+export function timeBonus(game) {
+  const { bonusTime } = game.level;
+  if (!bonusTime) return 0;
+  return Math.max(0, bonusTime - game.seconds) * BONUS_PER_SECOND;
+}
 
 // Gira una carta. Devuelve qué ha pasado para que la pantalla lo cuente.
 export function flip(game, uid) {
@@ -72,7 +76,7 @@ export function flip(game, uid) {
   if (!card || card.state !== "down") return { type: "ignored" };
 
   if (card.special) {
-    card.state = "used"; // no gasta intento
+    card.state = "used"; // no gasta intento ni rompe el combo
     game.helps += 1;
     if (card.special === "lupa") return { type: "lupa", uid };
     shuffleHidden(game);
@@ -95,10 +99,11 @@ export function flip(game, uid) {
     game.score += gained;
     const won = game.matched === game.level.pairs;
     if (won) {
-      game.score += game.timeLeft * 2;
+      game.bonus = timeBonus(game);
+      game.score += game.bonus;
       game.status = "won";
     }
-    return { type: "match", pair: a.pair, combo: game.combo, gained, won };
+    return { type: "match", pair: a.pair, uids: [a.uid, b.uid], combo: game.combo, gained, won };
   }
 
   game.errors += 1;
@@ -112,7 +117,25 @@ export function clearMismatch(game) {
   for (const c of game.up) c.state = "down";
   game.up = [];
   game.locked = false;
-  if (game.errors >= game.level.maxErrors && game.status === "playing") game.status = "lost";
+}
+
+// Pista: ilumina una pareja. Si ya hay una carta girada, ilumina la que le falta.
+// Gasta una pista y reinicia el combo (es una ayuda, no un acierto).
+export function hint(game) {
+  if (game.status !== "playing" || game.locked || game.hintsLeft <= 0) return { type: "ignored" };
+  let uids;
+  if (game.up.length === 1) {
+    const open = game.up[0];
+    uids = game.cards.filter((c) => c.pair === open.pair && c.uid !== open.uid).map((c) => c.uid);
+  } else {
+    const pending = game.monuments.filter((m) => game.cards.some((c) => c.pair === m.id && c.state === "down"));
+    const m = pending[Math.floor(game.rng() * pending.length)];
+    uids = game.cards.filter((c) => c.pair === m.id).map((c) => c.uid);
+  }
+  game.hintsLeft -= 1;
+  game.helps += 1;
+  game.combo = 0;
+  return { type: "hint", uids, left: game.hintsLeft };
 }
 
 // Trampa «Plano desordenado»: baraja de sitio las cartas que aún están tapadas.
@@ -122,24 +145,17 @@ export function shuffleHidden(game) {
   slots.forEach((slot, k) => (game.cards[slot] = moved[k]));
 }
 
-// Pasa un segundo. Con reloj, se acaba el tiempo al llegar a 0.
+// Pasa un segundo. Solo cuenta: no hay tiempo límite.
 export function tickSecond(game) {
   if (game.status !== "playing") return;
   game.seconds += 1;
-  if (game.level.timeLimit) {
-    game.timeLeft -= 1;
-    if (game.timeLeft <= 0) {
-      game.timeLeft = 0;
-      game.status = "timeout";
-    }
-  }
 }
 
-// 3 estrellas con muy pocos fallos, 1 si se ha ganado por los pelos.
+// Estrellas según los fallos: level.stars = [máximo para 3, máximo para 2]. Siempre al menos 1.
 export function stars(game) {
-  const ratio = game.errors / game.level.maxErrors;
-  if (ratio <= 0.25) return 3;
-  if (ratio <= 0.6) return 2;
+  const [three, two] = game.level.stars;
+  if (game.errors <= three) return 3;
+  if (game.errors <= two) return 2;
   return 1;
 }
 
@@ -152,6 +168,7 @@ export function result(game) {
     moves: game.moves,
     helps: game.helps,
     score: game.status === "won" ? game.score : 0,
+    bonus: game.bonus,
     stars: game.status === "won" ? stars(game) : 0,
     bestCombo: game.bestCombo,
   };
