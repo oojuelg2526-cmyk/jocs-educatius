@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Lógica si el usuario intenta acceder sin permiso
         console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
 
-        // Opcional: Mostrar un mensaje visual al usuario o redirigirlo al menú
+        // Mostrar un mensaje visual al usuario
         alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
         // window.location.href = "index.html"; // Redirigir al menú principal
     }
