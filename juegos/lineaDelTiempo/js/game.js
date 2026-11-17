@@ -272,7 +272,6 @@ const DATOS_NIVEL_1 = [
 
 document.addEventListener("DOMContentLoaded", () => {
     // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
-    // Si estás en fase de pruebas y quieres forzar el inicio, puedes cambiar esta variable a 'true'
     const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
 
     if (juegoAnteriorSuperado) {
