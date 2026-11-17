@@ -272,7 +272,6 @@ const DATOS_NIVEL_1 = [
 
 document.addEventListener("DOMContentLoaded", () => {
     // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
-    // Si estás en fase de pruebas y quieres forzar el inicio, puedes cambiar esta variable a 'true'
     const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
 
     if (juegoAnteriorSuperado) {
@@ -282,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Lógica si el usuario intenta acceder sin permiso
         console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
 
-        // Opcional: Mostrar un mensaje visual al usuario o redirigirlo al menú
+        // Mostrar un mensaje visual al usuario
         alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
         // window.location.href = "index.html"; // Redirigir al menú principal
     }
