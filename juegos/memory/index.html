@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory de Barcelona</title>
+  <link rel="stylesheet" href="css/memory.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1 data-i18n="title">Memory de Barcelona</h1>
+      <p class="subtitle" data-i18n="subtitle"></p>
+    </div>
+    <nav id="levels" class="levels" aria-label="Niveles"></nav>
+    <div class="tools">
+      <button id="mute" class="tool" type="button"></button>
+      <label class="lang"><span data-i18n="language">Idioma</span>
+        <select id="lang"></select>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="board-wrap">
+      <p id="mission-text" class="mission"></p>
+      <div id="board" class="board" aria-label="Cartas"></div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </section>
+
+    <aside class="panel">
+      <p class="eyebrow" id="level-name"></p>
+      <dl class="stats">
+        <div><dt data-i18n="errors">Fallos</dt><dd id="errors">0</dd></div>
+        <div><dt data-i18n="time">Tiempo</dt><dd id="time">—</dd></div>
+        <div><dt data-i18n="combo">Combo</dt><dd id="combo">×1</dd></div>
+        <div><dt data-i18n="points">Puntos</dt><dd id="points">0</dd></div>
+      </dl>
+      <h2 data-i18n="barrios">Barrios descubiertos</h2>
+      <ul id="barrios" class="barrios"></ul>
+      <button id="restart" class="primary" type="button" data-i18n="restart">Empezar de nuevo</button>
+    </aside>
+  </main>
+
+  <div id="card" class="overlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="card-title">
+      <h2 id="card-title"></h2>
+      <p id="card-text"></p>
+      <div id="card-extra"></div>
+      <div id="card-buttons" class="buttons"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
