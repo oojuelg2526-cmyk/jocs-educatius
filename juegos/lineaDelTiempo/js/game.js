@@ -278,11 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Ejecutamos el juego solo si el anterior está superado
         new JuegoLineaTiempo(DATOS_NIVEL_1);
     } else {
-        // Lógica si el usuario intenta acceder sin permiso
-        console.warn("Juego bloqueado. Debes superar 'Reconstruye el Eixample' primero.");
-
-        // Mostrar un mensaje visual al usuario
+        // Mostrar mensaje si el usuario intenta acceder sin permiso
         alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
-        // window.location.href = "index.html"; // Redirigir al menú principal
     }
 });
