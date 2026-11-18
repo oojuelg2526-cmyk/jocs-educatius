@@ -28,19 +28,23 @@ class MetricasPartida {
 
 // Clase principal que maneja toda la lógica del juego
 class JuegoLineaTiempo {
-    constructor(datosNivel) {
-        // RA3: Uso de map() de Array para instanciar nuestros propios objetos (RA4)
+    // Añadimos 'tiempo' y 'nivelActual' como parámetros
+    constructor(datosNivel, tiempo, nivelActual) {
         this.hitos = datosNivel.map(dato => new HitoHistorico(dato.id, dato.title, dato.label, dato.order, dato.hint));
         this.metricas = new MetricasPartida();
 
-        // Ajuste Nivel 1: Tiempo holgado
-        this.tiempoRestante = 120; // 2 minutos
+        this.nivelActual = nivelActual;
+        this.tiempoRestante = tiempo; // Asignación dinámica del tiempo
         this.puntos = 850;
         this.movimientos = 0;
         this.temporizador = null;
 
-        // RA5: Asignar evento al botón de verificar usando función flecha
-        document.getElementById("btn-verify").addEventListener("click", () => {
+        // Limpiar event listeners previos clonando el botón para evitar que se acumulen clics de niveles anteriores
+        const oldBtn = document.getElementById("btn-verify");
+        const newBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+        newBtn.addEventListener("click", () => {
             this.comprobarOrden();
         });
 
@@ -54,6 +58,10 @@ class JuegoLineaTiempo {
     prepararTablero() {
         const timeline = document.getElementById("timeline");
         const mazo = document.getElementById("cards-deck");
+
+        // Al superar el nivel anterior, limpiamos el tablero anterior antes de pasar al siguiente nivel
+        timeline.innerHTML = '';
+        mazo.innerHTML = '';
 
         // Clonamos los arrays para no modificar el original al ordenar
         const hitosOrdenados = [...this.hitos].sort((a, b) => a.orden - b.orden);
@@ -233,28 +241,38 @@ class JuegoLineaTiempo {
     }
 
     terminarJuego(victoria) {
-        // Puntuación = puntos base + (segundos sobrantes * 2)
         this.metricas.puntuacionFinal = this.puntos + (this.tiempoRestante * 2);
         const tiempoReal = this.metricas.calcularTiempoTotal();
 
         const tituloFinal = document.getElementById("end-title");
         const mensajeFinal = document.getElementById("end-message");
+        const pantallaFinal = document.getElementById("end-screen");
 
         if (victoria) {
-            tituloFinal.innerText = "¡Nivel Completado!";
+            tituloFinal.innerText = `¡Nivel ${this.nivelActual} Completado!`;
             tituloFinal.style.color = "var(--green)";
-            mensajeFinal.innerText = `Has recuperado la pieza.\nTiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
+            mensajeFinal.innerText = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
 
-            // Aquí se enviaría el objeto this.metricas al servidor (fetch/AJAX)
-            console.log("Datos para guardar en la base de datos:", this.metricas);
+            pantallaFinal.removeAttribute("hidden");
+
+            // Lógica de como pasamos de un nivel a otro
+            if (this.nivelActual === 1) {
+                setTimeout(() => {
+                    alert("¡Prepárate para el Nivel 2!");
+                    pantallaFinal.setAttribute("hidden", true);
+                    // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
+                }, 3000); // Pasa al siguiente nivel tras 3 segundos
+            } else {
+                mensajeFinal.innerText += "\n¡Has completado todos los niveles!";
+            }
+
         } else {
             tituloFinal.innerText = "Tiempo agotado";
             tituloFinal.style.color = "var(--red)";
-            mensajeFinal.innerText = "Ildefons Cerdà tendrá que esperar. Inténtalo de nuevo.";
+            mensajeFinal.innerText = "Inténtalo de nuevo.";
+            pantallaFinal.removeAttribute("hidden");
         }
-
-        // RA6: Mostramos la pantalla final quitando el atributo hidden de la capa overlay
-        document.getElementById("end-screen").removeAttribute("hidden");
     }
 }
 
@@ -268,6 +286,16 @@ const DATOS_NIVEL_1 = [
     { id: "m2", title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
     { id: "m3", title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
     { id: "m4", title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
+];
+
+// Ajuste Nivel 2: 6 hitos con eventos de la Edad Media, Moderna y Contemporánea.
+const DATOS_NIVEL_2 = [
+    { id: "n2_1", title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
+    { id: "n2_2", title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
+    { id: "n2_3", title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
+    { id: "n2_4", title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
+    { id: "n2_5", title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
+    { id: "n2_6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
