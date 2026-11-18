@@ -40,20 +40,34 @@ Todas las parejas son **ilustración del monumento + un texto**. Lo que cambia e
 - Cada nivel empieza con una **tarjeta de instrucciones** con un ejemplo animado de pareja; se puede volver a abrir con el botón «?».
 - Al acertar sale una **tarjeta de aprendizaje** con el monumento, su barrio y su dato, y el barrio se ilumina en el **mapa**.
 
+## Cómo está organizado
+Las reglas y la pantalla van separadas: `game.js` decide **qué pasa** y no toca la página; `main.js` recibe los clics, pregunta a `game.js` y pide a los módulos de pantalla que **lo enseñen**. Explicación paso a paso para la defensa: [`docs/como-funciona.md`](docs/como-funciona.md).
+
+```
+clic en una carta → main.js → game.js (flip) → evento (match, mismatch, lupa...)
+                       └→ cards.js · panel.js · map.js · dialogs.js · effects.js · sound.js
+```
+
 ## Qué hace cada archivo
 | Archivo | Para qué sirve |
 |---|---|
+| `index.html` | Estructura de la página, Cerdà y el dibujo del mapa en SVG |
+| `css/memory.css` | Todo el estilo: colores, cartas, giro 3D, animaciones y versión móvil |
 | `js/levels.js` | Los 12 monumentos (color, silueta y posición en el mapa) y los 3 niveles |
 | `js/game.js` | Las reglas: girar, parejas, combos, fallos, pista, lupa, trampa, bonus, puntos y estrellas. No toca la página |
-| `js/ui.js` | Dibuja tablero, cartas, panel, tarjeta de aprendizaje, instrucciones y final de nivel |
-| `js/map.js` | Mapa esquemático de Barcelona en SVG con los barrios que se iluminan |
-| `js/effects.js` | Chispas, confeti, números que flotan, sacudidas y movimiento de cartas (respeta «reducir movimiento») |
-| `js/icons.js` | Iconos SVG y siluetas de reserva de cada monumento |
 | `js/main.js` | Une todo: clics, reloj, sonidos y paso de un nivel a otro |
-| `js/lang.js` | Todos los textos en catalán, castellano e inglés |
+| `js/cards.js` | Dibuja cada carta y el tablero, y enseña su estado (tapada, girada, acertada) |
+| `js/panel.js` | Pestañas de nivel, misión, marcadores, bocadillo de Cerdà y tarjeta de aprendizaje |
+| `js/dialogs.js` | Ventana de instrucciones (con ejemplo animado) y de final de nivel |
+| `js/map.js` | Pone los barrios en el mapa y los ilumina al acertar |
+| `js/effects.js` | Chispas, confeti, números que flotan y movimiento de cartas (respeta «reducir movimiento») |
+| `js/dom.js` | Atajos para buscar y crear elementos (`$`, `make`, `text`) |
+| `js/icons.js` | Iconos SVG y siluetas de reserva de cada monumento |
+| `js/lang.js` | Todos los textos en catalán, castellano e inglés, y el idioma elegido |
 | `js/storage.js` | Progreso del jugador (de momento en `localStorage`) |
 | `js/metrics.js` | Métricas de sesión: comunes (`username`, `session_id`, `date_time`, `session_length`) y propias (`attempts`, `errors_made`, `level_reached`, `level_time`) |
 | `js/sound.js` | Sonidos con Web Audio y botón de silencio |
+| `test/game.test.js` | Pruebas de las reglas (`npm test`) |
 | `img/<id>.png` | Renders 3D de los monumentos (512 × 512, fondo transparente). Si falta alguno, la carta enseña una silueta y el nombre |
 
 ## Accesibilidad

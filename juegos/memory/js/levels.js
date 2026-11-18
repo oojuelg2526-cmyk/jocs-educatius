@@ -18,6 +18,9 @@ export const MONUMENTS = [
   { id: "pedralbes", name: "Monestir de Pedralbes", barrio: "Pedralbes", hue: 60, shape: "cloister", map: [54, 96] },
 ];
 
+// Busca un monumento por su id («sagrada», «guell»...).
+export const monument = (id) => MONUMENTS.find((m) => m.id === id);
+
 // Todas las parejas son «ilustración del monumento ↔ texto». mode dice qué texto:
 //   name   → su nombre (placa)
 //   barrio → su barrio (chincheta del mapa)

@@ -68,12 +68,18 @@ export function confetti(count = 90) {
   }
 }
 
-// Añade una clase de animación y la quita al terminar (para poder repetirla).
+// Vuelve a poner una clase para que su animación empiece de nuevo aunque ya estuviera.
+// Medir el elemento obliga al navegador a notar que la clase se quitó.
+export function replay(el, className) {
+  el.classList.remove(className);
+  el.getBoundingClientRect();
+  el.classList.add(className);
+}
+
+// Como replay, pero la clase se quita al terminar la animación.
 export function pulse(el, className) {
   if (!el) return;
-  el.classList.remove(className);
-  void el.offsetWidth;
-  el.classList.add(className);
+  replay(el, className);
   el.addEventListener("animationend", () => el.classList.remove(className), { once: true });
 }
 

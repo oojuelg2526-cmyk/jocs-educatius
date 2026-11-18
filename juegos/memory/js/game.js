@@ -1,7 +1,7 @@
 // Las reglas del Memory. No toca la página: así se puede probar con `npm test`.
 // Reglas fáciles: no se pierde nunca. Los fallos solo bajan las estrellas y el reloj
 // de los niveles 2 y 3 es un bonus de puntos (no hay tiempo límite).
-import { MONUMENTS, LEVELS, BONUS_PER_SECOND } from "./levels.js";
+import { MONUMENTS, BONUS_PER_SECOND } from "./levels.js";
 
 export function shuffle(list, rng = Math.random) {
   const a = [...list];
@@ -60,6 +60,7 @@ export function createGame(level, rng = Math.random) {
   };
 }
 
+// Multiplicador del combo: ×1 sin racha y como mucho ×4.
 export const multiplier = (combo) => Math.min(4, Math.max(1, combo));
 
 // Puntos extra por terminar pronto (solo en los niveles con bonusTime).
@@ -174,4 +175,3 @@ export function result(game) {
   };
 }
 
-export { LEVELS };

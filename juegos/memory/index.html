@@ -103,7 +103,38 @@
 
       <section class="map-box" aria-labelledby="map-title">
         <h2 id="map-title" data-i18n="map_title">Mapa de Barcelona</h2>
-        <svg id="map" class="map" role="img" aria-labelledby="map-title map-count"></svg>
+        <!-- Mapa esquemático de Barcelona. Los puntos de los barrios los añade js/map.js -->
+        <svg id="map" class="map" role="img" aria-labelledby="map-title map-count" viewBox="0 0 320 260">
+          <defs>
+            <!-- Manzanas del Eixample con chaflanes, giradas como en el plano real -->
+            <pattern id="map-eixample" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-44)">
+              <path d="M2.5 1h5l1.5 1.5v5L7.5 9h-5L1 7.5v-5z" class="map-block"/>
+            </pattern>
+            <clipPath id="map-eixample-clip"><path d="M92 118 L150 92 L232 120 L250 150 L206 168 L150 172 L104 160 Z"/></clipPath>
+          </defs>
+          <rect x="0" y="0" width="320" height="260" class="map-land"/>
+          <!-- Collserola (arriba) y Montjuïc (abajo a la izquierda) -->
+          <path d="M0 0H320V40C290 58 262 44 236 56S186 46 160 54 110 40 84 52 34 42 0 58Z" class="map-hill"/>
+          <path d="M0 8C30 24 54 14 80 26S128 18 150 30" class="map-contour"/>
+          <path d="M52 196C56 176 82 168 100 182S106 214 86 218 50 214 52 196Z" class="map-hill"/>
+          <!-- Ríos Llobregat y Besòs -->
+          <path d="M14 60C20 120 8 180 26 248" class="map-river"/>
+          <path d="M300 40C292 80 304 112 296 140" class="map-river"/>
+          <!-- Eixample, Ciutat Vella y la Diagonal -->
+          <rect x="80" y="80" width="180" height="100" fill="url(#map-eixample)" clip-path="url(#map-eixample-clip)"/>
+          <path d="M112 168C122 160 152 158 176 166L170 190C150 196 126 194 112 186Z" class="map-old"/>
+          <path d="M36 102L150 128L250 150L300 146" class="map-avenue"/>
+          <path d="M120 172L168 118" class="map-avenue thin"/>
+          <!-- Mar -->
+          <path d="M0 248C40 236 64 222 96 212S150 196 186 184 260 156 320 128V260H0Z" class="map-sea"/>
+          <path d="M200 214q8-4 16 0t16 0M240 196q8-4 16 0t16 0M150 236q8-4 16 0t16 0" class="map-wave"/>
+          <text x="250" y="236" class="map-label sea" data-i18n="map_sea"></text>
+          <text x="196" y="22" class="map-label hill" data-i18n="map_mountain"></text>
+          <g class="map-rose" transform="translate(292 210)">
+            <path d="M0-14L3-3 14 0 3 3 0 14-3 3-14 0-3-3Z"/>
+            <text x="0" y="-17" class="map-label rose-n">N</text>
+          </g>
+        </svg>
         <p class="map-foot"><span id="map-count" class="map-count"></span><span id="map-caption" class="map-caption"></span></p>
       </section>
 

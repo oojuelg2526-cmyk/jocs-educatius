@@ -80,8 +80,6 @@ const TEXTS = {
     msg_last: "¡Solo te queda una pareja!",
     // Tarjeta de aprendizaje
     learn_title: "Lo has descubierto",
-    learn_barrio: "Barrio",
-    learn_fact: "Dato",
     // Final de nivel
     win_title: "¡Nivel superado!",
     sum_pairs: "Parejas",
@@ -181,8 +179,6 @@ const TEXTS = {
     msg_trampa: "Ui! S'ha desordenat el pla: les cartes tapades han canviat de lloc.",
     msg_last: "Només et queda una parella!",
     learn_title: "Ho has descobert",
-    learn_barrio: "Barri",
-    learn_fact: "Dada",
     win_title: "Nivell superat!",
     sum_pairs: "Parelles",
     sum_errors: "Errors",
@@ -281,8 +277,6 @@ const TEXTS = {
     msg_trampa: "Oops! The plan got scrambled: the face-down cards have moved.",
     msg_last: "Only one pair left!",
     learn_title: "You discovered",
-    learn_barrio: "Neighbourhood",
-    learn_fact: "Fact",
     win_title: "Level complete!",
     sum_pairs: "Pairs",
     sum_errors: "Mistakes",
@@ -310,12 +304,17 @@ const TEXTS = {
   },
 };
 
-let current = "es";
-
 export const LANG_CODES = Object.keys(TEXTS);
+
+// Idioma actual. El que elige el jugador se recuerda en el navegador (cerda_lang).
+let current = "es";
+try { setLang(localStorage.getItem("cerda_lang")); } catch { /* sin almacenamiento: castellano */ }
+
 export const getLang = () => current;
 export function setLang(code) {
-  if (TEXTS[code]) current = code;
+  if (!TEXTS[code]) return;
+  current = code;
+  try { localStorage.setItem("cerda_lang", code); } catch { /* nada */ }
 }
 
 // Devuelve el texto de la clave en el idioma actual. {nombre} se sustituye por vars.nombre.
