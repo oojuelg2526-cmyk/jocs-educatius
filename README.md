@@ -32,6 +32,9 @@ Laravel 13 (PHP) + SQL Server per a la landing, el login, l'administració i el 
 5. `php artisan serve` i obre http://localhost:8000
 6. Els jocs són a `/juegos/memory/`, `/juegos/lineaDelTiempo/` i `/juegos/metro/`.
 
-Per connectar amb SQL Server cal l'extensió `pdo_sqlsrv` de PHP (i el driver ODBC de Microsoft).
+Per connectar amb SQL Server, PHP necessita una de les extensions `pdo_sqlsrv`, `pdo_dblib` o `pdo_odbc` (Laravel les detecta soles).
+
+### Base de dades
+Les taules del [model relacional](docs/modelo-relacional-bd.md) són a `database/migrations/` i les dades inicials (4 jocs, 3 nivells cadascun i mètriques pròpies) a `database/seeders/`. Un cop omplert el `.env`: `php artisan migrate --seed`.
 
 Proves d'un joc: `cd public/juegos/memory && npm test` (igual per a `metro`). Proves de Laravel: `php artisan test`.

@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['username', 'email', 'password', 'role', 'language', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,8 +27,25 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'superadmin'], true);
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(GameSession::class);
+    }
+
+    public function games(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'user_game_progress')
+            ->withPivot('status', 'last_level_completed', 'best_score', 'completed_at');
     }
 }
