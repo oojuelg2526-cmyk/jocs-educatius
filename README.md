@@ -21,24 +21,17 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 ## Documentació
 Les propostes són a [`propostes/`](propostes/): la [proposta final](propostes/propuesta-final-ildefons-cerda-perdio-el-plano.md) i la de cada joc. Els [requisits](docs/requisitos.md) i la [guia de treball](docs/guia-de-trabajo.md) són a [`docs/`](docs/).
 
-## Tecnologia `[PENDENT]`
-Proposta: Laravel (PHP) + SQL Server, JavaScript sense `<canvas>`, Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
+## Tecnologia
+Laravel 13 (PHP) + SQL Server per a la landing, el login, l'administració i el desat de progrés i mètriques. Els jocs són HTML, CSS i JavaScript sense `<canvas>` i viuen a [`public/juegos/`](public/juegos/), tal com estaven (només ha canviat la ruta). Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
 
-## Com executar-ho en local `[PENDENT]`
-1. Clona el repositori: `git clone <url>`
-2. Copia `.env.example` a `.env` i omple els valors (**mai** el pugis al repositori).
-3. Instal·la dependències i arrenca el servidor (comandes segons la tecnologia triada).
+## Com executar-ho en local
+1. Clona el repositori i entra a la carpeta.
+2. `composer install`
+3. Copia `.env.example` a `.env` (**mai** el pugis al repositori) i omple `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` i `DB_PASSWORD` amb les dades de SQL Server. Per veure la landing i els jocs no cal base de dades.
+4. `php artisan key:generate`
+5. `php artisan serve` i obre http://localhost:8000
+6. Els jocs són a `/juegos/memory/`, `/juegos/lineaDelTiempo/` i `/juegos/metro/`.
 
-## Com col·laborem
-Branca `main` protegida: només s'hi entra amb *pull request*. Una branca per persona i tasca (`feature/<nom>-<tema>`) i commits tipus *Conventional Commits*. Detall a la [guia de treball](docs/guia-de-trabajo.md).
+Per connectar amb SQL Server cal l'extensió `pdo_sqlsrv` de PHP (i el driver ODBC de Microsoft).
 
-## Llicència i crèdits
-Projecte acadèmic. Els recursos multimèdia de tercers s'atribueixen en un fitxer de crèdits (quan es creï).
-
-## Estructura
-```
-propostes/   Proposta final i una proposta per joc
-docs/        Requisits i guia de treball
-.github/     Plantilla de pull request
-```
-Les carpetes de l'aplicació es creen quan toquen, un cop triada la tecnologia.
+Proves d'un joc: `cd public/juegos/memory && npm test` (igual per a `metro`). Proves de Laravel: `php artisan test`.
