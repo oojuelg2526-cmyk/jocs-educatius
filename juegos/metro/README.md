@@ -1,51 +1,32 @@
-# Laberinto de metro (juego 4)
+# Laberinto de metro (juego 4) · versión de revisión
 
-Último juego de «Ildefons Cerdà perdió el plano». El jugador baja al metro con la llave de Universitat, recoge los trozos del plano y llega a Urquinaona, donde se junta el plano completo. La ficha del juego está en [`propostes/alex-laberinto-de-metro.md`](../../propostes/alex-laberinto-de-metro.md).
+Último juego de «Ildefons Cerdà perdió el plano». El jugador baja al metro en Universitat, recoge el trozo del plano en Catalunya y llega a Urquinaona. Ficha del juego: [`propostes/alex-laberinto-de-metro.md`](../../propostes/alex-laberinto-de-metro.md).
 
-HTML, CSS y JavaScript puros, sin librerías y **sin `<canvas>`**: el tablero son `div` dentro de un CSS Grid.
+Esta versión tiene **solo el nivel 1**, funciona sola y no usa servidor. HTML, CSS y JavaScript puros, sin librerías y **sin `<canvas>`**: el tablero son `div` en un CSS Grid. El juego completo está en la rama `feature/alex-integracion-laravel`.
 
 ## Cómo probarlo
-Los módulos de JavaScript necesitan un servidor (no basta con abrir `index.html`). Desde esta carpeta:
+Desde esta carpeta:
 
 ```bash
 npx serve .
 ```
 
-El juego funciona **solo** (modo independiente): siempre está abierto. Cuando se una a la landing se activa el **modo integrado** (`?integrated=1`, o `GAMES_ENFORCE_ORDER=true` en Laravel) y entonces se desbloquea al superar el juego 3; con `?dev=1` se abre siempre.
-
-Pruebas de las reglas (no hace falta navegador):
-
-```bash
-npm test
-```
+Se mueve la ficha con las flechas o WASD.
 
 ## Qué hace cada archivo
 | Archivo | Para qué sirve |
 |---|---|
-| `js/levels.js` | Los 3 niveles: mapas, estaciones, trozos, obras, hora punta y tiempo límite |
-| `js/game.js` | Las reglas: mover, cambiar de línea, recoger trozos, ganar, puntos y estrellas. No toca la página |
-| `js/ui.js` | Dibuja el tablero y el panel y enseña mensajes y tarjetas |
-| `js/main.js` | Une todo: teclas, reloj (`setInterval`), hora punta y paso de un nivel a otro |
+| `js/levels.js` | El nivel: mapa, estaciones y trozo del plano |
 | `js/lang.js` | Todos los textos en catalán, castellano e inglés |
-| `js/api.js` | Habla con el servidor (si lo hay) y reenvía lo pendiente; sin servidor no hace nada |
-| `js/storage.js` | Progreso del jugador (de momento en `localStorage`) |
-| `js/metrics.js` | Métricas de cada sesión |
+| `js/game.js` | Las reglas: mover, recoger, ganar, puntos y estrellas. No toca la página |
+| `js/ui.js` | Dibuja el tablero y el panel y enseña mensajes y tarjetas |
+| `js/storage.js` | Guarda mejor puntuación y partidas en `localStorage` |
+| `js/main.js` | Une todo: teclas, botones, reloj e idioma |
 | `css/metro.css` | Estilo (variables de color y tipografía del proyecto) |
-| `test/game.test.js` | Pruebas de las reglas y comprobación de que cada nivel tiene solución |
 
-## Cómo funciona, en pocas palabras
-1. **El mapa** es una lista de textos. Cada letra es una casilla: `#` nada, `1`, `2` o `4` vía de esa línea, y una letra mayúscula es una estación.
-2. **Mover la ficha:** una tecla llama a `move()`. La ficha solo entra en una casilla si es de la línea en la que viaja; no puede pasar por una estación cerrada ni por la casilla de hora punta cuando está cerrada.
-3. **Cambiar de línea** solo se puede en una estación con varias líneas, con los botones de línea.
-4. **Ganar:** llegar a Urquinaona con todos los trozos del plano.
-5. **Puntos:** 1000 − 5 por movimiento − 50 por ayuda + 100 por trozo. Estrellas según los movimientos de más respecto a la mejor ruta (`bestMoves`).
-
-## Datos que guarda
-- **Progreso** (`cerda_progress`), con el mismo formato que la tabla `user_game_progress`: estado, último nivel superado y mejor puntuación.
-- **Sesiones** (`cerda_sessions`): `username`, `session_id`, `date_time`, `session_length`, y por cada intento `level_time`, `moves_count`, `help_clicks`, `score`, `stars`, además de `level_reached` y `final_score`.
+Guion para explicarlo: [`docs/guion-revision.md`](../../docs/guion-revision.md).
 
 ## Pendiente
-- Lado Laravel (rutas `/api/progress` y `/api/sessions/{id}`, según `docs/api-contrato.md`): `api.js` ya está listo pero no probado contra un servidor real.
-- Usar el CSS común del equipo cuando exista.
-- Comprobar las estaciones y las líneas con el plano oficial de TMB y los datos de «¿Sabías que…?».
-- Cuando el juego 3 guarde su progreso, comprobar que el desbloqueo funciona con su formato real.
+- Niveles 2 y 3.
+- Conectar con la base de datos (SQL Server) y el login.
+- Unir con los otros juegos en la landing y usar su CSS común.
