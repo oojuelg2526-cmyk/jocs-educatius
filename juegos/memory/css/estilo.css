@@ -63,7 +63,7 @@ button, select { font: inherit; color: inherit; cursor: pointer; }
 .sello { width: 44px; height: 44px; flex: none; }
 .sello circle { fill: var(--teal); stroke: var(--gold); stroke-width: 2; }
 .sello path { fill: var(--gold-hi); }
-h1 { margin: 0; font-size: 1.7rem; font-variant: small-caps; line-height: 1.1; }
+h1 { margin: 0; font-size: 2rem; font-variant: small-caps; line-height: 1.1; }
 .subtitulo { margin: 3px 0 0; font-style: italic; font-size: .9rem; color: var(--ink-soft); }
 
 .niveles, .herramientas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -203,7 +203,7 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 #estrellas { color: var(--gold); font-size: 1.6rem; letter-spacing: 2px; }
 
 .caja-mapa { padding: 12px 14px; }
-.caja-mapa h2 { margin: 0 0 8px; font-size: 1rem; font-variant: small-caps; }
+.caja-mapa h2 { margin: 0 0 8px; font-size: 1.25rem; font-variant: small-caps; }
 .mapa { display: block; width: 100%; border-radius: 10px; border: 1.5px solid rgba(42, 31, 22, .5); }
 .cuenta-mapa { margin: 8px 0 0; font-size: .85rem; font-weight: 700; }
 .tierra { fill: #f4e8c8; }
@@ -249,7 +249,7 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 }
 @media (max-width: 640px) {
   .cabecera { padding: 10px 16px; }
-  h1 { font-size: 1.2rem; }
+  h1 { font-size: 1.45rem; }
   .subtitulo { display: none; }
   .niveles { order: 3; width: 100%; }
   .pestana { flex: 1; padding: 6px 4px; font-size: .8rem; }
