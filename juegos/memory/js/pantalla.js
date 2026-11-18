@@ -358,7 +358,10 @@ function guardarProgreso(numero, puntos) {
   juego.last_level_completed = Math.max(juego.last_level_completed, numero);
   juego.level_scores[numero] = Math.max(juego.level_scores[numero] || 0, puntos);
   juego.best_score = NIVELES.reduce((suma, nivel) => suma + (juego.level_scores[nivel.numero] || 0), 0);
-  if (juego.last_level_completed === NIVELES.length) juego.status = "completed"; // abre el juego 2
+  if (juego.last_level_completed === NIVELES.length) {
+    juego.status = "completed"; // abre el juego 2
+    localStorage.setItem("juego1Superado", "true"); // aviso simple para la landing y el juego 2
+  }
   progreso.games[ID_JUEGO] = juego;
   localStorage.setItem("cerda_progress", JSON.stringify(progreso));
 }
