@@ -158,7 +158,7 @@ function pintarMarcadores() {
   document.getElementById("tiempo").textContent = formatoReloj(partida.segundos);
 
   const total = partida.nivel.parejas;
-  document.getElementById("relleno").style.width = `${(partida.aciertos / total) * 100}%`;
+  document.getElementById("relleno").style.transform = `scaleX(${partida.aciertos / total})`;
   document.getElementById("texto-progreso").textContent = t("progreso", partida.aciertos, total);
 
   const pista = document.getElementById("boton-pista");

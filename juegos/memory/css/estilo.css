@@ -108,7 +108,7 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 
 .progreso { display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: .85rem; font-weight: 700; color: var(--ink-soft); }
 .barra { flex: 1; height: 10px; border-radius: 999px; background: rgba(90, 62, 30, .15); overflow: hidden; }
-.relleno { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width .5s; }
+.relleno { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); transform: scaleX(0); transform-origin: left; transition: transform .5s; }
 
 /* ---------- Tablero y cartas ---------- */
 .tablero {
@@ -183,14 +183,14 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 .tipo-dato .texto { font-size: .8rem; font-style: italic; color: #4a2c12; }
 
 /* Pareja encontrada: borde verde con brillo. Pista: borde dorado que late */
-.carta.acertada .frente { box-shadow: 0 0 0 3px var(--green), 0 0 18px 2px rgba(60, 122, 58, .45); transition: box-shadow .4s .3s; }
+.carta.acertada .frente { box-shadow: 0 0 0 3px var(--green); transition: box-shadow .4s .3s; }
 .carta.pista .cara { animation: brillo .5s ease-in-out infinite alternate; }
 @keyframes brillo {
   from { box-shadow: 0 0 0 3px var(--gold-hi); }
-  to { box-shadow: 0 0 0 5px var(--gold-hi), 0 0 24px 6px rgba(236, 198, 94, .9); }
+  to { box-shadow: 0 0 0 6px var(--gold-hi); }
 }
 
-.mensaje { min-height: 3em; margin: 14px 0 0; padding: 10px 16px; border-left: 4px solid var(--gold); background: rgba(251, 244, 226, .7); border-radius: 0 10px 10px 0; line-height: 1.35; }
+.mensaje { min-height: 3em; margin: 14px 0 0; padding: 10px 16px; border: 1.5px solid var(--gold); background: rgba(251, 244, 226, .7); border-radius: 10px; line-height: 1.35; }
 
 /* ---------- Panel: marcadores y mapa ---------- */
 .panel { display: flex; flex-direction: column; gap: 16px; }
