@@ -32,6 +32,6 @@ class MetroController extends Controller
         abort_unless(is_file($path), 404);
 
         $type = $folder === 'js' ? 'text/javascript' : 'text/css';
-        return response()->file($path, ['Content-Type' => $type]);
+        return response()->file($path, ['Content-Type' => $type, 'Cache-Control' => 'no-cache']);
     }
 }
