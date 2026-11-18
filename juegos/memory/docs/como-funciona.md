@@ -40,6 +40,7 @@ Cada carta tiene un `estado`: `"tapada"`, `"girada"` o `"acertada"`. La pantalla
 Con `localStorage`, lo mínimo, en tres claves que comparten los cuatro juegos:
 - `cerda_lang`: el idioma elegido (`"ca"`, `"es"` o `"en"`).
 - `cerda_progress`: el progreso. Para el Memory (juego 1): `last_level_completed`, `level_scores`, `best_score` y `status` (`"completed"` al superar el nivel 3, lo que abre el juego 2).
+- `juego1Superado`: se pone a `"true"` al superar el nivel 3. Es el aviso que acordó el equipo para desbloquear el siguiente juego (el juego 2 mira esa clave, igual que el 3 mira `juego2Superado`).
 - `cerda_sessions`: las métricas de cada visita: `username`, `session_id`, `date_time`, `session_length`, `level_reached` y una fila por nivel con `level_time`, `errors_made`, `moves_count`, `help_clicks`, `score` y `stars`.
 
 Como `localStorage` solo guarda texto, se usa `JSON.stringify` para guardar y `JSON.parse` para leer. Los nombres son los de las columnas de la base de datos (tablas `user_game_progress`, `game_sessions` y `level_attempts`), para que más adelante se puedan enviar al servidor sin cambiarlos. De momento también se enseñan con `console.log`.
