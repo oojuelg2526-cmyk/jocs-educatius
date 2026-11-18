@@ -290,12 +290,12 @@ const DATOS_NIVEL_1 = [
 
 // Ajuste Nivel 2: 6 hitos con eventos de la Edad Media, Moderna y Contemporánea.
 const DATOS_NIVEL_2 = [
-    { id: "n2_1", title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
-    { id: "n2_2", title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
-    { id: "n2_3", title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
-    { id: "n2_4", title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
-    { id: "n2_5", title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
-    { id: "n2_6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
+    { id: "m1", title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
+    { id: "m2", title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
+    { id: "m3", title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
+    { id: "m4", title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
+    { id: "m5", title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
+    { id: "m6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
