@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory de Barcelona</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca">
+      <!-- Sello: el mismo dibujo que el reverso de las cartas -->
+      <svg class="sello" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22"/>
+        <path d="M24 8l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/>
+      </svg>
+      <div>
+        <h1 data-texto="titulo">Memory de Barcelona</h1>
+        <p class="subtitulo" data-texto="subtitulo"></p>
+      </div>
+    </div>
+    <!-- Pestañas de nivel: las crea pantalla.js -->
+    <nav id="niveles" class="niveles"></nav>
+    <div class="herramientas">
+      <button id="boton-ayuda" class="boton-redondo" type="button">?</button>
+      <label>
+        <span class="solo-lector" data-texto="idioma">Idioma</span>
+        <select id="idioma">
+          <option value="ca">CA</option>
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <section class="zona-tablero">
+      <div class="mision">
+        <div>
+          <p id="nombre-nivel" class="etiqueta-roja"></p>
+          <p id="texto-mision" class="texto-mision"></p>
+          <p id="regla-pareja" class="regla-pareja"></p>
+        </div>
+        <button id="boton-pista" class="boton boton-pista" type="button"></button>
+      </div>
+
+      <div class="progreso">
+        <span class="barra"><span id="relleno" class="relleno"></span></span>
+        <span id="texto-progreso"></span>
+      </div>
+
+      <!-- Las cartas las crea pantalla.js. data-nivel sirve al CSS para saber cuántas columnas poner -->
+      <div id="tablero" class="tablero" role="group" data-nivel="1"></div>
+
+      <!-- Mensajes del juego y, al acertar, «Monumento — barrio — dato» -->
+      <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
+    </section>
+
+    <aside class="panel">
+      <div class="marcadores">
+        <p class="marcador marcador-estrellas"><span data-texto="estrellas">Estrellas</span><b id="estrellas" role="img"></b></p>
+        <p class="marcador"><span data-texto="puntos">Puntos</span><b id="puntos">0</b></p>
+        <p class="marcador"><span data-texto="tiempo">Tiempo</span><b id="tiempo">00:00</b></p>
+        <p class="marcador"><span data-texto="fallos">Fallos</span><b id="fallos">0</b></p>
+      </div>
+
+      <section class="caja-mapa">
+        <h2 data-texto="mapa_titulo">Mapa de Barcelona</h2>
+        <!-- Mapa esquemático de Barcelona. Cada <g class="punto"> es el barrio de un monumento:
+             pantalla.js le pone la clase «objetivo» si está en el nivel e «iluminado» al acertarlo -->
+        <svg id="mapa" class="mapa" viewBox="0 0 320 260" aria-hidden="true">
+          <rect width="320" height="260" class="tierra"/>
+          <path d="M0 0H320V40C290 58 262 44 236 56S186 46 160 54 110 40 84 52 34 42 0 58Z" class="monte"/>
+          <path d="M52 196C56 176 82 168 100 182S106 214 86 218 50 214 52 196Z" class="monte"/>
+          <path d="M14 60C20 120 8 180 26 248M300 40C292 80 304 112 296 140" class="rio"/>
+          <path d="M92 118L150 92 232 120 250 150 206 168 150 172 104 160Z" class="eixample"/>
+          <path d="M112 168C122 160 152 158 176 166L170 190C150 196 126 194 112 186Z" class="ciutat-vella"/>
+          <path d="M36 102L150 128 250 150 300 146M120 172L168 118" class="avenida"/>
+          <path d="M0 248C40 236 64 222 96 212S150 196 186 184 260 156 320 128V260H0Z" class="mar"/>
+          <text x="250" y="236" class="nombre-mar" data-texto="mar"></text>
+
+          <g class="punto" data-id="sagrada" style="--color:28" transform="translate(184 120)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="guell" style="--color:95" transform="translate(152 78)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="batllo" style="--color:190" transform="translate(156 140)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="pedrera" style="--color:35" transform="translate(128 132)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="catedral" style="--color:215" transform="translate(150 182)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="palau" style="--color:350" transform="translate(168 172)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="montjuic" style="--color:140" transform="translate(78 200)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="santpau" style="--color:15" transform="translate(202 100)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="glories" style="--color:270" transform="translate(236 142)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="boqueria" style="--color:5" transform="translate(128 182)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="tibidabo" style="--color:240" transform="translate(104 34)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="pedralbes" style="--color:60" transform="translate(54 96)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+        </svg>
+        <p id="cuenta-mapa" class="cuenta-mapa"></p>
+      </section>
+
+      <button id="boton-reiniciar" class="boton boton-secundario" type="button" data-texto="reiniciar"></button>
+    </aside>
+  </main>
+
+  <!-- Ventana para las instrucciones y el final de nivel. pantalla.js cambia lo que lleva dentro -->
+  <div id="fondo-ventana" class="fondo-ventana" hidden>
+    <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="titulo-ventana">
+      <p id="antetitulo-ventana" class="etiqueta-roja"></p>
+      <h2 id="titulo-ventana"></h2>
+      <div id="cuerpo-ventana"></div>
+      <div id="botones-ventana" class="botones"></div>
+    </div>
+  </div>
+
+  <!-- Scripts normales (sin módulos), en orden: primero los datos, luego las reglas y al final la pantalla -->
+  <script src="js/datos.js"></script>
+  <script src="js/reglas.js"></script>
+  <script src="js/pantalla.js"></script>
+</body>
+</html>
