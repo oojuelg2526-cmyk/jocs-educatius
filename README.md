@@ -37,4 +37,9 @@ Per connectar amb SQL Server, PHP necessita una de les extensions `pdo_sqlsrv`, 
 ### Base de dades
 Les taules del [model relacional](docs/modelo-relacional-bd.md) són a `database/migrations/` i les dades inicials (4 jocs, 3 nivells cadascun i mètriques pròpies) a `database/seeders/`. Un cop omplert el `.env`: `php artisan migrate --seed`.
 
+### Entrar i administrar
+- Pàgina d'entrada: `/login` (usuari i contrasenya; màxim 5 intents per minut). `/admin` només és per a rols `admin` i `superadmin`; un jugador rep un 403 i qui no ha entrat va al login.
+- El primer superadministrador es crea una sola vegada amb `php artisan usuario:superadmin`. Demana l'usuari, el correu i la contrasenya (mínim 12 caràcters) per teclat: **no hi ha cap contrasenya per defecte ni va al codi**.
+- No hi ha registre públic: queda pendent de decidir amb l'equip.
+
 Proves d'un joc: `cd public/juegos/memory && npm test` (igual per a `metro`). Proves de Laravel: `php artisan test`.
