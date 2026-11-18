@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Historia de Barcelona - Nivel 3</title>
+    <link rel="stylesheet" href="./css/lineaDelTiempo.css">
+</head>
+
+<body>
+    <!-- Cabecera común -->
+    <header class="top">
+        <h1>Historia de Barcelona <span style="font-size: 1rem; font-weight: normal; color: var(--ink-soft);">Nivel 3 ·
+                Línea del tiempo</span></h1>
+        <div class="lang">
+            <span style="color: var(--gold); font-size: 1.2rem;">★★★</span>
+            <button style="background:none; border:none; cursor:pointer; font-size: 1.2rem;">🔊</button>
+            <button style="background:none; border:none; cursor:pointer; font-size: 1.2rem;">⏸</button>
+        </div>
+    </header>
+
+    <!-- Layout principal -->
+    <main class="layout">
+        <!-- Área de juego (Izquierda) -->
+        <section class="board-wrap">
+
+            <!-- Regla de la línea del tiempo -->
+            <div class="timeline-ruler" id="timeline">
+                <!-- Las zonas de destino (drop zones) se generarán con JS -->
+            </div>
+
+            <!-- Contenedor de las tarjetas desordenadas -->
+            <div class="cards-container" id="cards-deck">
+                <!-- Las tarjetas se generarán con JS -->
+            </div>
+
+            <!-- Caja de pistas -->
+            <div class="message hint-box" id="hint-box">
+                <p>💡 <strong>¿Sabías que...?</strong> <span id="hint-text">Arrastra las tarjetas a la línea del tiempo
+                        en orden cronológico.</span></p>
+            </div>
+        </section>
+
+        <!-- Panel de estado (Derecha) -->
+        <aside class="panel">
+            <p class="eyebrow">Misión</p>
+            <h2>Ordena los hitos de Barcelona</h2>
+            <p style="color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 1rem;">NIVEL 3 de 3<br>Ildefons Cerdà
+                perdió el plano</p>
+
+            <dl class="stats">
+                <div>
+                    <dt>⏱ Tiempo</dt>
+                    <dd id="time-display">01:25</dd>
+                </div>
+                <div>
+                    <dt>👣 Movimientos</dt>
+                    <dd id="moves-display">0</dd>
+                </div>
+                <div>
+                    <dt>🏆 Puntos</dt>
+                    <dd id="points-display">850</dd>
+                </div>
+            </dl>
+
+            <button class="btn" id="btn-verify">Verificar</button>
+        </aside>
+    </main>
+
+    <!-- Tarjeta final oculta (Overlay común) -->
+    <div class="overlay" id="end-screen" hidden>
+        <div class="card">
+            <h2 id="end-title">¡Nivel Completado!</h2>
+            <div class="stars">★★★</div>
+            <p id="end-message">Has recuperado la tercera pieza del plano.</p>
+            <div class="card-buttons">
+                <button class="btn" onclick="location.reload()">Siguiente Juego</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/game.js"></script>
+</body>
+
+</html>

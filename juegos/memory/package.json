@@ -1,0 +1,7 @@
+{
+  "name": "memory-de-barcelona",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
