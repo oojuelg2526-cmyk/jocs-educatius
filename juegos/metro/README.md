@@ -11,7 +11,7 @@ Los módulos de JavaScript necesitan un servidor (no basta con abrir `index.html
 npx serve .
 ```
 
-Abre la dirección que te dé con `?dev=1` al final. Sin `?dev=1` el juego sale **bloqueado**, porque se desbloquea al superar el juego 3.
+El juego funciona **solo** (modo independiente): siempre está abierto. Cuando se una a la landing se activa el **modo integrado** (`?integrated=1`, o `GAMES_ENFORCE_ORDER=true` en Laravel) y entonces se desbloquea al superar el juego 3; con `?dev=1` se abre siempre.
 
 Pruebas de las reglas (no hace falta navegador):
 
@@ -27,6 +27,7 @@ npm test
 | `js/ui.js` | Dibuja el tablero y el panel y enseña mensajes y tarjetas |
 | `js/main.js` | Une todo: teclas, reloj (`setInterval`), hora punta y paso de un nivel a otro |
 | `js/lang.js` | Todos los textos en catalán, castellano e inglés |
+| `js/api.js` | Habla con el servidor (si lo hay) y reenvía lo pendiente; sin servidor no hace nada |
 | `js/storage.js` | Progreso del jugador (de momento en `localStorage`) |
 | `js/metrics.js` | Métricas de cada sesión |
 | `css/metro.css` | Estilo (variables de color y tipografía del proyecto) |
@@ -44,7 +45,7 @@ npm test
 - **Sesiones** (`cerda_sessions`): `username`, `session_id`, `date_time`, `session_length`, y por cada intento `level_time`, `moves_count`, `help_clicks`, `score`, `stars`, además de `level_reached` y `final_score`.
 
 ## Pendiente
-- Conectar `storage.js` y `metrics.js` con Laravel y SQL Server (hoy solo escriben en el navegador).
+- Lado Laravel (rutas `/api/progress` y `/api/sessions/{id}`, según `docs/api-contrato.md`): `api.js` ya está listo pero no probado contra un servidor real.
 - Usar el CSS común del equipo cuando exista.
 - Comprobar las estaciones y las líneas con el plano oficial de TMB y los datos de «¿Sabías que…?».
 - Cuando el juego 3 guarde su progreso, comprobar que el desbloqueo funciona con su formato real.

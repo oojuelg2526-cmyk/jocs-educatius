@@ -5,6 +5,9 @@ const TEXTS = {
   es: {
     title: "Laberinto de metro",
     language: "Idioma",
+    skip: "Saltar al contenido",
+    brand: "Cerdà perdió el plano",
+    footer: "Juego 4 de 4 · Historia y geografía de Barcelona",
     level: "Nivel",
     level1_name: "Primer viaje",
     level2_name: "Correspondencias",
@@ -50,6 +53,9 @@ const TEXTS = {
   ca: {
     title: "Laberint de metro",
     language: "Idioma",
+    skip: "Salta al contingut",
+    brand: "Cerdà va perdre el pla",
+    footer: "Joc 4 de 4 · Història i geografia de Barcelona",
     level: "Nivell",
     level1_name: "Primer viatge",
     level2_name: "Correspondències",
@@ -95,6 +101,9 @@ const TEXTS = {
   en: {
     title: "Metro Maze",
     language: "Language",
+    skip: "Skip to content",
+    brand: "Cerdà lost the plan",
+    footer: "Game 4 of 4 · History and geography of Barcelona",
     level: "Level",
     level1_name: "First trip",
     level2_name: "Changing lines",

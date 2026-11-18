@@ -20,8 +20,15 @@ function save(progress) {
   }
 }
 
-// El juego 4 se abre al superar el juego 3. Con ?dev=1 se abre siempre (para probar).
+// Modo independiente (por defecto): el juego está siempre abierto, como si fuera un juego solo.
+// Modo integrado (cuando lo cargue la landing, con window.CERDA.integrated = true o ?integrated=1):
+// el juego 4 se abre al superar el juego 3. Con ?dev=1 se abre siempre (para probar).
+export function isIntegrated() {
+  return globalThis.CERDA?.integrated === true || new URLSearchParams(location.search).has("integrated");
+}
+
 export function isUnlocked() {
+  if (!isIntegrated()) return true;
   if (new URLSearchParams(location.search).has("dev")) return true;
   return load().games?.[3]?.status === "completed";
 }
@@ -31,7 +38,23 @@ export function lastLevelCompleted() {
 }
 
 export function username() {
-  return localStorage.getItem("cerda_username") || "invitado";
+  return globalThis.CERDA?.user?.username || localStorage.getItem("cerda_username") || "invitado";
+}
+
+const RANK = { locked: 0, unlocked: 1, completed: 2 };
+
+// Junta el progreso del servidor con el local: en cada dato se queda con el mejor.
+// games tiene el formato de GET /api/progress: { "3": { status, last_level_completed, best_score }, ... }
+export function mergeProgress(games) {
+  const progress = load();
+  for (const [id, server] of Object.entries(games)) {
+    const local = progress.games[id] ?? { status: "locked", last_level_completed: 0, level_scores: {}, best_score: 0 };
+    if (RANK[server.status] > RANK[local.status]) local.status = server.status;
+    local.last_level_completed = Math.max(local.last_level_completed, server.last_level_completed ?? 0);
+    local.best_score = Math.max(local.best_score ?? 0, server.best_score ?? 0);
+    progress.games[id] = local;
+  }
+  save(progress);
 }
 
 // Apunta que se ha superado un nivel con esa puntuación.
