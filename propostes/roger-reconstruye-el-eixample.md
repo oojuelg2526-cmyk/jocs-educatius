@@ -22,9 +22,9 @@ Cerdà ha perdido los planos del Eixample y cada juego recupera una pieza. Este 
 
 ### Niveles de dificultad internos
 
-- **Nivel 1:** Cuadrícula de $3 \times 3$. Reglas básicas de combinación entre manzanas de uso residencial y zonas verdes.
-- **Nivel 2:** Cuadrícula de $4 \times 4$. Incorporación de restricciones adicionales sobre la ubicación obligatoria de equipamientos públicos y vías de paso.
-- **Nivel 3:** Cuadrícula de $5 \times 5$. Exigencia de un equilibrio complejo entre vías de circulación principal, densidad de vivienda, iluminación y amplias zonas verdes.
+- **Nivel 1:** Cuadrícula de $5 \times 5$. Reglas básicas de combinación entre manzanas de uso residencial y zonas verdes.
+- **Nivel 2:** Cuadrícula de $7 \times 7$. Incorporación de restricciones adicionales sobre la ubicación obligatoria de equipamientos públicos y vías de paso.
+- **Nivel 3:** Cuadrícula de $9 \times 9$. Exigencia de un equilibrio complejo entre vías de circulación principal, densidad de vivienda, iluminación y amplias zonas verdes.
 
 ### Estilo visual
 
