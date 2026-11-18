@@ -3,156 +3,116 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#efe2c2">
   <title>Memory de Barcelona</title>
-  <link rel="stylesheet" href="css/memory.css">
+  <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <!-- Decoración de fondo: plano antiguo con la cuadrícula de Cerdà y una rosa de los vientos -->
-  <div class="plano" aria-hidden="true">
-    <svg class="plano-rose" viewBox="-60 -60 120 120">
-      <circle r="52" class="rose-ring"/>
-      <circle r="44" class="rose-ring thin"/>
-      <path d="M0-56L7-7 56 0 7 7 0 56-7 7-56 0-7-7Z" class="rose-star"/>
-      <path d="M0-40L4-4 40 0 4 4 0 40-4 4-40 0-4-4Z" transform="rotate(45)" class="rose-star light"/>
-      <text y="-58">N</text>
-    </svg>
-  </div>
-
-  <header class="top">
-    <div class="brand">
-      <svg class="seal" viewBox="0 0 48 48" aria-hidden="true">
+  <header class="cabecera">
+    <div class="marca">
+      <!-- Sello: el mismo dibujo que el reverso de las cartas -->
+      <svg class="sello" viewBox="0 0 48 48" aria-hidden="true">
         <circle cx="24" cy="24" r="22"/>
-        <path d="M14 10h8l4 4v8l-4 4h-8l-4-4v-8z M28 22h8l4 4v8l-4 4h-8l-4-4v-8z M14 28h6l3 3v6l-3 3h-6l-3-3v-6z M30 8h6l3 3v6l-3 3h-6l-3-3v-6z"/>
+        <path d="M24 8l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/>
       </svg>
       <div>
-        <h1 data-i18n="title">Memory de Barcelona</h1>
-        <p class="subtitle" data-i18n="subtitle"></p>
+        <h1 data-texto="titulo">Memory de Barcelona</h1>
+        <p class="subtitulo" data-texto="subtitulo"></p>
       </div>
     </div>
-    <nav id="levels" class="levels"></nav>
-    <div class="tools">
-      <button id="help" class="tool" type="button"></button>
-      <button id="mute" class="tool" type="button"></button>
-      <label class="lang"><span class="sr-only" data-i18n="language">Idioma</span>
-        <select id="lang"></select>
+    <!-- Pestañas de nivel: las crea pantalla.js -->
+    <nav id="niveles" class="niveles"></nav>
+    <div class="herramientas">
+      <button id="boton-ayuda" class="boton-redondo" type="button">?</button>
+      <label>
+        <span class="solo-lector" data-texto="idioma">Idioma</span>
+        <select id="idioma">
+          <option value="ca">CA</option>
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+        </select>
       </label>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="board-wrap">
-      <div class="mission-bar">
-        <div class="mission">
-          <p class="eyebrow" id="level-name"></p>
-          <p id="mission-text" class="mission-text"></p>
-          <p id="pair-rule" class="pair-rule" role="note"></p>
+  <main class="contenido">
+    <section class="zona-tablero">
+      <div class="mision">
+        <div>
+          <p id="nombre-nivel" class="etiqueta-roja"></p>
+          <p id="texto-mision" class="texto-mision"></p>
+          <p id="regla-pareja" class="regla-pareja"></p>
         </div>
-        <button id="hint" class="hint-btn" type="button"></button>
+        <button id="boton-pista" class="boton boton-pista" type="button"></button>
       </div>
 
-      <div id="progress" class="progress" role="progressbar" aria-valuemin="0">
-        <span class="progress-track"><span id="progress-fill" class="progress-fill"></span></span>
-        <span id="progress-text" class="progress-text"></span>
+      <div class="progreso">
+        <span class="barra"><span id="relleno" class="relleno"></span></span>
+        <span id="texto-progreso"></span>
       </div>
 
-      <div id="board" class="board" role="group" data-i18n-aria="board_label"></div>
+      <!-- Las cartas las crea pantalla.js. data-nivel sirve al CSS para saber cuántas columnas poner -->
+      <div id="tablero" class="tablero" role="group" data-nivel="1"></div>
 
-      <div class="cerda-row">
-        <svg id="cerda" class="cerda" viewBox="0 0 80 90" role="img" data-i18n-aria="cerda">
-          <path class="c-coat" d="M8 90C10 70 22 61 40 61s30 9 32 29z"/>
-          <path class="c-shirt" d="M32 61l8 16 8-16z"/>
-          <path class="c-tie" d="M33 66l7 3.5 7-3.5v7l-7-3.5-7 3.5z"/>
-          <ellipse class="c-skin" cx="40" cy="35" rx="16" ry="19"/>
-          <path class="c-hair" d="M24 32c-1-10 4-16 8-17-2 4-3 8-3 12zM56 32c1-10-4-16-8-17 2 4 3 8 3 12z"/>
-          <path class="c-beard" d="M23 36c0 17 8 27 17 27s17-10 17-27c-3 7-8 9-17 9s-14-2-17-9z"/>
-          <path class="c-moustache" d="M31 46c3-3 6-3 9-1 3-2 6-2 9 1-3 3-6 3-9 1-3 2-6 2-9-1z"/>
-          <g class="c-eyes"><circle cx="34" cy="35" r="1.8"/><circle cx="46" cy="35" r="1.8"/></g>
-          <path class="c-brow" d="M30.5 31q3.5-2 7 0M42.5 31q3.5-2 7 0"/>
-          <path class="c-nose" d="M40 36v5l-2 1.5"/>
-          <g class="c-roll"><path d="M50 78l24-12 4 8-24 12z"/><path d="M54 79l18-9M56 82l14-7" class="c-roll-line"/></g>
-        </svg>
-        <p id="message" class="bubble" role="status" aria-live="polite"></p>
-      </div>
+      <!-- Mensajes del juego y, al acertar, «Monumento — barrio — dato» -->
+      <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
     </section>
 
     <aside class="panel">
-      <div class="stats">
-        <div class="stat stat-stars">
-          <span class="stat-label" data-i18n="stars_now">Estrellas</span>
-          <span id="live-stars" class="live-stars" role="img"></span>
-        </div>
-        <div class="stat">
-          <span class="stat-label" data-i18n="points">Puntos</span>
-          <span id="points" class="stat-value">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label" data-i18n="combo">Combo</span>
-          <span id="combo" class="stat-value">×1</span>
-        </div>
-        <div class="stat" id="time-box">
-          <span class="stat-label" id="time-label"></span>
-          <span id="time" class="stat-value"></span>
-          <span id="time-bar" class="time-bar" aria-hidden="true"></span>
-        </div>
-        <div class="stat">
-          <span class="stat-label" data-i18n="errors">Fallos</span>
-          <span id="errors" class="stat-value">0</span>
-        </div>
+      <div class="marcadores">
+        <p class="marcador marcador-estrellas"><span data-texto="estrellas">Estrellas</span><b id="estrellas" role="img"></b></p>
+        <p class="marcador"><span data-texto="puntos">Puntos</span><b id="puntos">0</b></p>
+        <p class="marcador"><span data-texto="tiempo">Tiempo</span><b id="tiempo">00:00</b></p>
+        <p class="marcador"><span data-texto="fallos">Fallos</span><b id="fallos">0</b></p>
       </div>
 
-      <section class="map-box" aria-labelledby="map-title">
-        <h2 id="map-title" data-i18n="map_title">Mapa de Barcelona</h2>
-        <!-- Mapa esquemático de Barcelona. Los puntos de los barrios los añade js/map.js -->
-        <svg id="map" class="map" role="img" aria-labelledby="map-title map-count" viewBox="0 0 320 260">
-          <defs>
-            <!-- Manzanas del Eixample con chaflanes, giradas como en el plano real -->
-            <pattern id="map-eixample" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-44)">
-              <path d="M2.5 1h5l1.5 1.5v5L7.5 9h-5L1 7.5v-5z" class="map-block"/>
-            </pattern>
-            <clipPath id="map-eixample-clip"><path d="M92 118 L150 92 L232 120 L250 150 L206 168 L150 172 L104 160 Z"/></clipPath>
-          </defs>
-          <rect x="0" y="0" width="320" height="260" class="map-land"/>
-          <!-- Collserola (arriba) y Montjuïc (abajo a la izquierda) -->
-          <path d="M0 0H320V40C290 58 262 44 236 56S186 46 160 54 110 40 84 52 34 42 0 58Z" class="map-hill"/>
-          <path d="M0 8C30 24 54 14 80 26S128 18 150 30" class="map-contour"/>
-          <path d="M52 196C56 176 82 168 100 182S106 214 86 218 50 214 52 196Z" class="map-hill"/>
-          <!-- Ríos Llobregat y Besòs -->
-          <path d="M14 60C20 120 8 180 26 248" class="map-river"/>
-          <path d="M300 40C292 80 304 112 296 140" class="map-river"/>
-          <!-- Eixample, Ciutat Vella y la Diagonal -->
-          <rect x="80" y="80" width="180" height="100" fill="url(#map-eixample)" clip-path="url(#map-eixample-clip)"/>
-          <path d="M112 168C122 160 152 158 176 166L170 190C150 196 126 194 112 186Z" class="map-old"/>
-          <path d="M36 102L150 128L250 150L300 146" class="map-avenue"/>
-          <path d="M120 172L168 118" class="map-avenue thin"/>
-          <!-- Mar -->
-          <path d="M0 248C40 236 64 222 96 212S150 196 186 184 260 156 320 128V260H0Z" class="map-sea"/>
-          <path d="M200 214q8-4 16 0t16 0M240 196q8-4 16 0t16 0M150 236q8-4 16 0t16 0" class="map-wave"/>
-          <text x="250" y="236" class="map-label sea" data-i18n="map_sea"></text>
-          <text x="196" y="22" class="map-label hill" data-i18n="map_mountain"></text>
-          <g class="map-rose" transform="translate(292 210)">
-            <path d="M0-14L3-3 14 0 3 3 0 14-3 3-14 0-3-3Z"/>
-            <text x="0" y="-17" class="map-label rose-n">N</text>
-          </g>
+      <section class="caja-mapa">
+        <h2 data-texto="mapa_titulo">Mapa de Barcelona</h2>
+        <!-- Mapa esquemático de Barcelona. Cada <g class="punto"> es el barrio de un monumento:
+             pantalla.js le pone la clase «objetivo» si está en el nivel e «iluminado» al acertarlo -->
+        <svg id="mapa" class="mapa" viewBox="0 0 320 260" aria-hidden="true">
+          <rect width="320" height="260" class="tierra"/>
+          <path d="M0 0H320V40C290 58 262 44 236 56S186 46 160 54 110 40 84 52 34 42 0 58Z" class="monte"/>
+          <path d="M52 196C56 176 82 168 100 182S106 214 86 218 50 214 52 196Z" class="monte"/>
+          <path d="M14 60C20 120 8 180 26 248M300 40C292 80 304 112 296 140" class="rio"/>
+          <path d="M92 118L150 92 232 120 250 150 206 168 150 172 104 160Z" class="eixample"/>
+          <path d="M112 168C122 160 152 158 176 166L170 190C150 196 126 194 112 186Z" class="ciutat-vella"/>
+          <path d="M36 102L150 128 250 150 300 146M120 172L168 118" class="avenida"/>
+          <path d="M0 248C40 236 64 222 96 212S150 196 186 184 260 156 320 128V260H0Z" class="mar"/>
+          <text x="250" y="236" class="nombre-mar" data-texto="mar"></text>
+
+          <g class="punto" data-id="sagrada" style="--color:28" transform="translate(184 120)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="guell" style="--color:95" transform="translate(152 78)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="batllo" style="--color:190" transform="translate(156 140)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="pedrera" style="--color:35" transform="translate(128 132)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="catedral" style="--color:215" transform="translate(150 182)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="palau" style="--color:350" transform="translate(168 172)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="montjuic" style="--color:140" transform="translate(78 200)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="santpau" style="--color:15" transform="translate(202 100)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="glories" style="--color:270" transform="translate(236 142)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="boqueria" style="--color:5" transform="translate(128 182)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="tibidabo" style="--color:240" transform="translate(104 34)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
+          <g class="punto" data-id="pedralbes" style="--color:60" transform="translate(54 96)"><circle r="13" class="halo"/><circle r="5" class="centro"/></g>
         </svg>
-        <p class="map-foot"><span id="map-count" class="map-count"></span><span id="map-caption" class="map-caption"></span></p>
+        <p id="cuenta-mapa" class="cuenta-mapa"></p>
       </section>
 
-      <button id="restart" class="btn ghost" type="button"></button>
+      <button id="boton-reiniciar" class="boton boton-secundario" type="button" data-texto="reiniciar"></button>
     </aside>
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-
-  <div id="card" class="overlay" hidden>
-    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="card-title">
-      <p id="card-eyebrow" class="dialog-eyebrow"></p>
-      <h2 id="card-title"></h2>
-      <div id="card-body" class="dialog-body"></div>
-      <div id="card-buttons" class="buttons"></div>
+  <!-- Ventana para las instrucciones y el final de nivel. pantalla.js cambia lo que lleva dentro -->
+  <div id="fondo-ventana" class="fondo-ventana" hidden>
+    <div class="ventana" role="dialog" aria-modal="true" aria-labelledby="titulo-ventana">
+      <p id="antetitulo-ventana" class="etiqueta-roja"></p>
+      <h2 id="titulo-ventana"></h2>
+      <div id="cuerpo-ventana"></div>
+      <div id="botones-ventana" class="botones"></div>
     </div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- Scripts normales (sin módulos), en orden: primero los datos, luego las reglas y al final la pantalla -->
+  <script src="js/datos.js"></script>
+  <script src="js/reglas.js"></script>
+  <script src="js/pantalla.js"></script>
 </body>
 </html>

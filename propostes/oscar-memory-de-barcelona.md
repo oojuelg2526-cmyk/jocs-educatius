@@ -5,29 +5,28 @@
 Monumentos de Barcelona, el barrio donde están y un dato histórico de cada uno. Público: jóvenes y adultos que viven en la ciudad.
 
 ## Idea
-Un Memory pensado para sorprender: cartas con giro 3D, mapa de Barcelona que se ilumina barrio a barrio, combos, cartas especiales y un modo contrarreloj. Todo con HTML, CSS y JS (DOM y eventos), **sin `<canvas>`**.
+Un Memory sencillo y bien hecho: cartas con giro 3D, ilustraciones 3D de los monumentos y un mapa de Barcelona que se ilumina barrio a barrio. Todo con HTML, CSS y JS (DOM y eventos), **sin `<canvas>`**.
 
 ## Mecánica
-Parejas de cartas: siempre **ilustración del monumento + un texto**; el texto cambia con el nivel (ver abajo). No se pierde nunca: los fallos solo quitan estrellas y el reloj de los niveles 2 y 3 da puntos de bonus. Cada nivel empieza con una tarjeta de instrucciones con un ejemplo animado, y al acertar sale una tarjeta con el monumento, su barrio y su dato.
+Parejas de cartas: siempre **ilustración del monumento + un texto**; el texto cambia con el nivel (ver abajo). No se pierde nunca: los fallos solo quitan estrellas y el reloj solo cuenta hacia arriba. Cada nivel empieza con una tarjeta de instrucciones con una pareja de ejemplo.
 
-- **Combos:** aciertos seguidos suben el multiplicador de puntos (×2, ×3, ×4). Un fallo lo reinicia.
-- **Cartas especiales** (entre las cartas del tablero; al girarlas actúan y desaparecen, sin gastar intento):
-  - Comodín «Lupa de Cerdà» (dorada): enseña todas las cartas 3 segundos.
-  - Trampa «Plano desordenado» (roja): baraja las cartas que aún no se han acertado (solo nivel 3).
-- **Pista** (3 por nivel): ilumina una pareja. Reinicia el combo.
+- **Al acertar:** las cartas brillan en verde, el barrio se ilumina en el mapa y debajo del tablero sale «Monumento — barrio — dato».
+- **Al fallar:** las dos cartas se ven un momento y se tapan solas.
+- **Pista** (3 por nivel): dos cartas de una pareja brillan 2 segundos.
 - **Mapa de Barcelona:** panel lateral con los barrios; cada pareja acertada ilumina su barrio.
-- **Modo contrarreloj** (modo extra, se desbloquea al superar el nivel 3): 8 parejas al azar del banco de monumentos, 90 s; cada acierto suma 3 s y cada fallo resta 2 s. Cuenta para el récord.
-- **Estrellas** (1 a 3) según los fallos cometidos. Se puede rejugar cualquier nivel superado.
-- **Sonido:** girar carta, acierto, fallo, combo, comodín, trampa y nivel superado. Con botón para silenciar.
+- **Estrellas** (1 a 3) según los fallos. **Puntos:** 100 por pareja y 10 menos por fallo. Se puede rejugar cualquier nivel superado.
+- **Efectos:** solo el giro 3D, el brillo de acierto y de pista, la barra de progreso y el mapa. Sin sonido.
 
 ## Niveles de dificultad internos
-| Nivel | Parejas | Qué se une | 3 / 2 estrellas | Reloj | Especiales |
-|---|---|---|---|---|---|
-| 1 · Reconoce | 4 | ilustración ↔ su nombre (placa) | hasta 2 / 5 fallos | solo cuenta | ninguna |
-| 2 · Sitúa | 6 | ilustración ↔ su barrio (chincheta) | hasta 3 / 7 fallos | bonus de 120 s | 2 comodines |
-| 3 · Recuerda | 8 | ilustración ↔ dato histórico (pergamino) | hasta 4 / 9 fallos | bonus de 180 s | 1 comodín + 1 trampa |
+| Nivel | Parejas | Qué se une | 3 / 2 estrellas |
+|---|---|---|---|
+| 1 · Reconoce | 4 | ilustración ↔ su nombre (placa) | hasta 2 / 5 fallos |
+| 2 · Sitúa | 6 | ilustración ↔ su barrio (plano) | hasta 3 / 7 fallos |
+| 3 · Recuerda | 8 | ilustración ↔ dato histórico (pergamino) | hasta 4 / 9 fallos |
 
-La dificultad sube también en lo educativo: reconocer → situar en el mapa → recordar historia. Cambio tras la primera prueba (17/11): era demasiado difícil y no se entendía qué se unía, así que ahora no se pierde, hay menos parejas, instrucciones por nivel y más animaciones.
+La dificultad sube también en lo educativo: reconocer → situar en el mapa → recordar historia. Cambio tras la primera prueba (17/11): era demasiado difícil y no se entendía qué se unía, así que ahora no se pierde, hay menos parejas e instrucciones por nivel. Segundo cambio (18/11): versión final más corta y fácil de explicar, sin cartas especiales, combos, bonus de tiempo ni sonido.
+
+**Mejoras opcionales pendientes** (solo si sobra tiempo): modo contrarreloj, sonido, mapa con los contornos reales de los barrios.
 
 ### Banco de monumentos (propuesta, a contrastar con fuentes antes de publicar)
 | Monumento | Barrio | Dato (nivel 3) |
@@ -45,7 +44,7 @@ La dificultad sube también en lo educativo: reconocer → situar en el mapa →
 | Temple del Tibidabo | Vallvidrera, el Tibidabo i les Planes | Se construyó entre 1902 y 1961 |
 | Monestir de Pedralbes | Pedralbes | Fundado en 1326 |
 
-`[PENDENT]` Contrastar cada barrio y dato con una fuente fiable y anotarla.
+`[PENDENT]` Contrastar cada barrio y dato con una fuente fiable y anotarla. Nota: la Casa Batlló y La Pedrera comparten barrio, así que en el nivel de barrios nunca salen los dos a la vez.
 
 ## Estilo visual
 Plano antiguo de Cerdà: papel envejecido, tinta, líneas rectas. El reverso de las cartas lleva la trama de manzanas del Eixample con sus chaflanes. Giro de carta con transformaciones 3D de CSS (`rotateY`).
@@ -53,7 +52,7 @@ Plano antiguo de Cerdà: papel envejecido, tinta, líneas rectas. El reverso de 
 ## Esbozo de la interfaz
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ Memory de Barcelona   Nivel 2 · Sitúa    ★★☆   🔊        │
+│ Memory de Barcelona   Nivel 2 · Sitúa    ★★☆   ?  ES     │
 ├───────────────────────────────────────┬──────────────────┤
 │  ┌───┐ ┌───┐ ┌───┐ ┌───┐              │   MAPA DE        │
 │  │ ? │ │ ? │ │ ? │ │ ? │              │   BARCELONA      │
@@ -62,7 +61,7 @@ Plano antiguo de Cerdà: papel envejecido, tinta, líneas rectas. El reverso de 
 │  │ ? │ │ ? │ │ ? │ │ ? │              │   al acertar)    │
 │  └───┘ └───┘ └───┘ └───┘              │                  │
 ├───────────────────────────────────────┴──────────────────┤
-│ Fallos 3/8 · Tiempo 01:32 · Combo ×3 · Puntos 1.450      │
+│ Fallos 3 · Tiempo 01:32 · Puntos 450 · Pista (2)         │
 └──────────────────────────────────────────────────────────┘
 ```
 `[PENDENT]` Dibujo final de la interfaz (wireframe) para el diseño.
@@ -76,5 +75,4 @@ Propuesta inicial: `attempts`, `errors_made`, `level_reached`, `level_time`. Ade
 ## Riesgos
 - Imágenes de monumentos: fotos de dominio público, con licencia libre o generadas, con el origen anotado de cada una.
 - Mapa de barrios: partir de datos abiertos del Ayuntamiento (Open Data BCN) `[PENDENT]` verificar licencia.
-- Sonidos: usar sonidos de licencia libre anotando el origen `[PENDENT]` elegirlos.
-- Mucho contenido para un solo juego: priorizar nivel 1 y 2 jugables antes del 17/11 y dejar combos, especiales y contrarreloj para después.
+- Mucho contenido para un solo juego: resuelto con la versión corta del 18/11; el contrarreloj y el sonido quedan como mejoras opcionales.

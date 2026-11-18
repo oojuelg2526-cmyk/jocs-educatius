@@ -1,0 +1,273 @@
+/* Memory de Barcelona · estilo «plano antiguo de Cerdà»: papel envejecido, tinta y manzanas con chaflán.
+   Los colores son los de docs/guia-de-estilo.html. */
+
+:root {
+  --paper: #efe2c2;
+  --paper-2: #e4d1a5;
+  --paper-hi: #fbf4e2;
+  --ink: #2a1f16;
+  --ink-soft: #5b4733;
+  --sepia: #8a6a3e;
+  --line: rgba(90, 62, 30, .22);
+  --red: #a3361f;
+  --gold: #c8962a;
+  --gold-hi: #ecc65e;
+  --green: #3c7a3a;
+  --teal: #24485a;
+  --sea: #b9d2d4;
+  --name: #2a1f16;
+  --barrio: #2f6f5c;
+  --fact: #8a4b22;
+  --radius: 14px;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 10px 24px -12px rgba(60, 38, 12, .55);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--serif);
+  color: var(--ink);
+  background-color: var(--paper);
+  /* Papel: luz arriba a la izquierda y borde más oscuro */
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(255, 250, 230, .7), transparent 55%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(110, 70, 25, .22));
+  background-attachment: fixed;
+}
+
+/* Fondo: la cuadrícula del Eixample girada, como en el plano de Cerdà */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: -1;
+  transform: rotate(-44deg);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M14 5h36l9 9v36l-9 9H14l-9-9V14z' fill='none' stroke='%238a6a3e' stroke-opacity='.2'/%3E%3C/svg%3E");
+}
+
+button, select { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+  display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 3px double var(--ink);
+  background: rgba(251, 244, 226, .6);
+}
+.marca { display: flex; gap: 12px; align-items: center; }
+.sello { width: 44px; height: 44px; flex: none; }
+.sello circle { fill: var(--teal); stroke: var(--gold); stroke-width: 2; }
+.sello path { fill: var(--gold-hi); }
+h1 { margin: 0; font-size: 1.7rem; font-variant: small-caps; line-height: 1.1; }
+.subtitulo { margin: 3px 0 0; font-style: italic; font-size: .9rem; color: var(--ink-soft); }
+
+.niveles, .herramientas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pestana, .boton-redondo, select { border: 1.5px solid var(--ink); background: var(--paper-hi); border-radius: 999px; }
+.pestana { padding: 6px 14px; font-weight: 700; }
+.pestana.superado { border-color: var(--green); color: var(--green); }
+.pestana[aria-current="true"] { background: var(--ink); color: var(--paper-hi); }
+.pestana:disabled { opacity: .5; border-style: dashed; cursor: not-allowed; }
+.boton-redondo { width: 40px; height: 40px; font-weight: 700; font-size: 1.1rem; }
+select { height: 40px; padding: 0 10px; font-weight: 700; }
+
+/* ---------- Distribución: tablero a la izquierda y panel a la derecha ---------- */
+.contenido {
+  display: grid; grid-template-columns: 1fr 300px; gap: 24px;
+  max-width: 1240px; margin: 0 auto; padding: 20px 24px 40px;
+}
+.mision { display: flex; gap: 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.mision p { margin: 0; }
+.etiqueta-roja { margin: 0; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--red); }
+.texto-mision { font-size: 1.35rem; font-weight: 700; }
+.mision .regla-pareja { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.regla-pareja span, .etiqueta {
+  padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; color: #fff; background: var(--ink);
+}
+.mas, .regla-pareja .mas { padding: 0; background: none; font-size: 1.2rem; color: var(--ink-soft); }
+
+/* Colores de cada tipo de carta (etiquetas de las cartas y chips de la misión) */
+.tipo-imagen .etiqueta, .regla-pareja .chip-imagen { background: var(--gold-hi); color: var(--ink); }
+.tipo-barrio .etiqueta, .regla-pareja .chip-barrio { background: var(--barrio); }
+.tipo-dato .etiqueta, .regla-pareja .chip-dato { background: var(--fact); }
+
+/* Botones con relieve: sombra sólida abajo que se hunde al pulsar */
+.boton {
+  padding: 10px 18px; border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--paper-hi); font-weight: 700; box-shadow: 0 3px 0 var(--ink);
+}
+.boton:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.boton-principal { background: var(--red); border-color: #6e1f10; color: #fff; box-shadow: 0 3px 0 #6e1f10; }
+.boton-secundario { background: transparent; box-shadow: none; border-style: dashed; }
+.boton-pista { border-color: var(--gold); box-shadow: 0 3px 0 var(--gold); }
+.boton:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+.progreso { display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: .85rem; font-weight: 700; color: var(--ink-soft); }
+.barra { flex: 1; height: 10px; border-radius: 999px; background: rgba(90, 62, 30, .15); overflow: hidden; }
+.relleno { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width .5s; }
+
+/* ---------- Tablero y cartas ---------- */
+.tablero {
+  --columnas: 4;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+  padding: 16px; border-radius: 22px;
+  background: rgba(251, 244, 226, .45);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+.tablero[data-nivel="2"], .tablero[data-nivel="3"] { --columnas: 6; }
+
+.carta {
+  /* Ancho según las columnas del nivel, como mucho 160 px. Proporción 3:4 */
+  width: calc((100% - (var(--columnas) - 1) * 12px) / var(--columnas));
+  max-width: 160px;
+  aspect-ratio: 3 / 4;
+  padding: 0; border: 0; background: none;
+  perspective: 800px;
+}
+.tablero[data-nivel="3"] .carta { max-width: min(150px, 17vh); }
+.carta[aria-disabled="true"] { cursor: default; }
+.carta:focus-visible { border-radius: var(--radius); }
+
+/* El giro: .interior lleva las dos caras y gira 180° en el eje Y cuando la carta tiene .girada */
+.interior {
+  position: relative; display: block; width: 100%; height: 100%;
+  transform-style: preserve-3d; transition: transform .5s;
+}
+.carta.girada .interior { transform: rotateY(180deg); }
+
+.cara {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 26px 8px 8px; border-radius: var(--radius); overflow: hidden; text-align: center;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; /* la cara de espaldas no se ve */
+  box-shadow: 0 6px 14px -6px rgba(50, 30, 10, .55);
+}
+.frente { transform: rotateY(180deg); background: var(--paper-hi); }
+
+/* Reverso: sello dorado sobre azul de plano con la trama de manzanas */
+.reverso {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30 -30 60 60'%3E%3Ccircle r='27' fill='%23fbf4e2' stroke='%23c8962a' stroke-width='3'/%3E%3Cpath d='M0-19l4 15 15 4-15 4-4 15-4-15-15-4 15-4z' fill='%2324485a'/%3E%3C/svg%3E") center / 46% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Cpath d='M5 2h12l3 3v12l-3 3H5l-3-3V5z' fill='none' stroke='%23ecc65e' stroke-opacity='.35'/%3E%3C/svg%3E") center / 22px,
+    var(--teal);
+  border: 3px solid #183340;
+}
+
+.etiqueta { position: absolute; top: 6px; left: 6px; z-index: 2; padding: 2px 7px; font-size: .6rem; text-transform: uppercase; letter-spacing: .04em; }
+.texto { font-size: .9rem; line-height: 1.2; overflow-wrap: break-word; }
+
+/* Monumento: marco dorado y la ilustración sobre un fondo de su color */
+.tipo-imagen { padding: 6px; background: linear-gradient(145deg, var(--gold-hi), #a77a20 60%, var(--gold-hi)); }
+.ilustracion {
+  position: relative; display: grid; place-items: center; width: 100%; height: 100%; border-radius: 9px;
+  background: radial-gradient(circle at 50% 38%, hsl(var(--color) 75% 86%), hsl(var(--color) 50% 62%) 60%, hsl(var(--color) 45% 42%));
+}
+.ilustracion img { width: 94%; height: 94%; object-fit: contain; }
+.nombre-reserva { padding: 6px; font-weight: 700; font-variant: small-caps; color: hsl(var(--color) 55% 14%); }
+.ilustracion img + .nombre-reserva { display: none; } /* si la imagen existe, el nombre no se ve */
+
+/* Nombre: placa blanca con filete, como las de las calles */
+.tipo-nombre { background: linear-gradient(160deg, #fffdf7, #e8e3d6); }
+.tipo-nombre .texto { width: 100%; padding: 14% 6%; border-radius: 4px; background: #fff; font-weight: 700; box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4.5px var(--ink); }
+
+/* Barrio: trozo de plano en verde */
+.tipo-barrio { background: repeating-linear-gradient(46deg, #eef3e4 0 14px, #d8e6d0 14px 16px); }
+.tipo-barrio .texto { padding: 4px 6px; border-radius: 6px; background: rgba(255, 255, 255, .8); font-weight: 700; color: #183f33; }
+
+/* Dato: pergamino */
+.tipo-dato { background: radial-gradient(ellipse at 50% 40%, #fbf0cf, #ecd7a4 75%, #d9bd80); }
+.tipo-dato .texto { font-size: .8rem; font-style: italic; color: #4a2c12; }
+
+/* Pareja encontrada: borde verde con brillo. Pista: borde dorado que late */
+.carta.acertada .frente { box-shadow: 0 0 0 3px var(--green), 0 0 18px 2px rgba(60, 122, 58, .45); transition: box-shadow .4s .3s; }
+.carta.pista .cara { animation: brillo .5s ease-in-out infinite alternate; }
+@keyframes brillo {
+  from { box-shadow: 0 0 0 3px var(--gold-hi); }
+  to { box-shadow: 0 0 0 5px var(--gold-hi), 0 0 24px 6px rgba(236, 198, 94, .9); }
+}
+
+.mensaje { min-height: 3em; margin: 14px 0 0; padding: 10px 16px; border-left: 4px solid var(--gold); background: rgba(251, 244, 226, .7); border-radius: 0 10px 10px 0; line-height: 1.35; }
+
+/* ---------- Panel: marcadores y mapa ---------- */
+.panel { display: flex; flex-direction: column; gap: 16px; }
+.marcadores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.marcador, .caja-mapa { margin: 0; border-radius: var(--radius); background: var(--paper-hi); border: 1.5px solid var(--line); box-shadow: var(--shadow); }
+.marcador { display: flex; flex-direction: column; padding: 10px 12px; }
+.marcador span { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+.marcador b { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.marcador-estrellas { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+#estrellas { color: var(--gold); font-size: 1.6rem; letter-spacing: 2px; }
+
+.caja-mapa { padding: 12px 14px; }
+.caja-mapa h2 { margin: 0 0 8px; font-size: 1rem; font-variant: small-caps; }
+.mapa { display: block; width: 100%; border-radius: 10px; border: 1.5px solid rgba(42, 31, 22, .5); }
+.cuenta-mapa { margin: 8px 0 0; font-size: .85rem; font-weight: 700; }
+.tierra { fill: #f4e8c8; }
+.monte { fill: #d8d0a2; }
+.rio { fill: none; stroke: #8db1c0; stroke-width: 2.5; }
+.eixample { fill: #e7d3a6; stroke: #b49564; stroke-dasharray: 4 3; }
+.ciutat-vella { fill: #e2c393; stroke: #b49564; }
+.avenida { fill: none; stroke: #b0784a; stroke-width: 2; opacity: .7; }
+.mar { fill: var(--sea); }
+.nombre-mar { font: italic 9px var(--serif); fill: #5f7c84; text-anchor: middle; }
+
+/* Puntos de los barrios: gris si no están en el nivel, tinta si están y de su color al acertarlos */
+.punto .halo { fill: hsl(var(--color) 75% 55%); opacity: 0; transition: opacity .5s; }
+.punto .centro { fill: #b8aa8c; stroke: var(--paper-hi); stroke-width: 1.5; transition: fill .4s; }
+.punto.objetivo .centro { fill: var(--ink-soft); }
+.punto.iluminado .halo { opacity: .45; }
+.punto.iluminado .centro { fill: hsl(var(--color) 75% 42%); }
+
+/* ---------- Ventana ---------- */
+.fondo-ventana { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: rgba(30, 22, 14, .55); }
+.fondo-ventana[hidden] { display: none; }
+.ventana {
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 24px;
+  border-radius: 22px; text-align: center; background: var(--paper-hi);
+  border: 3px double var(--ink); box-shadow: 0 30px 60px -20px rgba(20, 12, 4, .7);
+}
+.ventana h2 { margin: 2px 0 10px; font-size: 1.8rem; font-variant: small-caps; }
+.intro { font-size: 1.05rem; line-height: 1.45; }
+.apartado { margin: 14px 0 8px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); }
+.ejemplo { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px; border-radius: 16px; border: 1.5px dashed var(--line); }
+.ejemplo .cara { position: relative; width: 110px; aspect-ratio: 3 / 4; transform: none; }
+.reglas { margin: 0; padding-left: 20px; text-align: left; line-height: 1.4; }
+.estrellas-final { margin: 4px 0; font-size: 3rem; color: var(--gold); letter-spacing: 6px; }
+.resumen { font-weight: 700; }
+.botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+
+/* ---------- Tablet y móvil ---------- */
+@media (max-width: 900px) {
+  .contenido { grid-template-columns: 1fr; }
+  .marcadores { grid-template-columns: repeat(4, 1fr); }
+  .marcador-estrellas { grid-column: auto; flex-direction: column; align-items: flex-start; }
+  .caja-mapa { max-width: 420px; }
+}
+@media (max-width: 640px) {
+  .cabecera { padding: 10px 16px; }
+  h1 { font-size: 1.2rem; }
+  .subtitulo { display: none; }
+  .niveles { order: 3; width: 100%; }
+  .pestana { flex: 1; padding: 6px 4px; font-size: .8rem; }
+  .contenido { padding: 14px 16px 30px; gap: 16px; }
+  .texto-mision { font-size: 1.1rem; }
+  .tablero { gap: 8px; padding: 8px; }
+  .tablero[data-nivel] { --columnas: 3; }
+  .tablero[data-nivel="3"] .carta { max-width: 160px; }
+  .cara { padding: 22px 5px 5px; border-radius: 10px; }
+  .texto { font-size: .78rem; }
+  .tipo-dato .texto { font-size: .7rem; }
+  .marcadores { grid-template-columns: repeat(2, 1fr); }
+  .marcador b { font-size: 1.1rem; }
+  .ejemplo .cara { width: 96px; }
+}
+
+/* Si el sistema pide menos movimiento, las cartas cambian sin girar */
+@media (prefers-reduced-motion: reduce) {
+  .interior, .relleno { transition: none; }
+  .carta.pista .cara { animation: none; box-shadow: 0 0 0 4px var(--gold-hi); }
+}

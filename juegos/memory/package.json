@@ -1,7 +1,6 @@
 {
   "name": "memory-de-barcelona",
   "private": true,
-  "type": "module",
   "scripts": {
     "test": "node --test"
   }
