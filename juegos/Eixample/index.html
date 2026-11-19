@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reconstruye el Eixample</title>
+
+    <link rel="stylesheet" href="css/estilo.css">
+
+    <script type="module" src="js/principal.js"></script>
+</head>
+
+<body>
+
+    <header class="cabecera">
+        <div class="marca">
+            <div>
+                <h1>El plano perdido de <span class="notranslate">Cerdà</span></h1>
+                <p>Una reconstrucción de <span class="notranslate">Barcelona</span></p>
+            </div>
+        </div>
+
+        <div class="idioma notranslate">
+            <label for="selector-idioma">Idioma:</label>
+            <select id="selector-idioma">
+                <option value="es">Castellano</option>
+                <option value="ca">Català</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <div id="google_translate_element" style="position:absolute; left:-9999px;"></div>
+    </header>
+
+    <main class="contenedor">
+
+        <!-- INTRODUCCIÓN DE LA HISTORIA -->
+        <section id="introduccion" class="papel introduccion">
+
+            <p class="etiqueta">DOCUMENTO N.º 02 · CUADERNO DE CERDÀ</p>
+
+            <h2>Reconstruye el Eixample</h2>
+
+            <p>
+                Después de recuperar la cuadrícula en el Memory de Barcelona,
+                has llegado al antiguo estudio de Ildefons Cerdà.
+            </p>
+
+            <p>
+                Sobre su mesa encontrarás el calco que has conseguido.
+                Cerdà necesita tu ayuda para reconstruir las manzanas
+                del Eixample y recuperar unos documentos desaparecidos.
+            </p>
+
+            <p class="nota">
+                «Cada pieza del plano es importante.
+                No podemos reconstruir Barcelona sin ellas».
+            </p>
+
+            <button id="boton-empezar" class="boton">
+                Comenzar reconstrucción
+            </button>
+
+        </section>
+
+        <!-- ZONA PRINCIPAL DEL JUEGO -->
+        <section id="zona-juego" class="zona-juego" hidden>
+
+            <div class="informacion-nivel papel">
+
+                <div>
+                    <p class="etiqueta">CUADERNO DE RECONSTRUCCIÓN</p>
+                    <h2 id="titulo-nivel">Nivel 1</h2>
+                    <p id="descripcion-nivel">
+                        Reconstruye las primeras manzanas.
+                    </p>
+                </div>
+
+                <div class="estadisticas">
+
+                    <div class="dato">
+                        <span>Tiempo</span>
+                        <strong id="tiempo">00:00</strong>
+                    </div>
+
+                    <div class="dato">
+                        <span>Movimientos</span>
+                        <strong id="movimientos">0</strong>
+                    </div>
+
+                    <div class="dato">
+                        <span>Ayudas</span>
+                        <strong id="ayudas">0</strong>
+                    </div>
+
+                    <div class="dato">
+                        <span>Puntuación</span>
+                        <strong id="puntuacion">1000</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="zona-tablero papel">
+
+                <div class="titulo-tablero">
+                    <h3>Plano de las manzanas</h3>
+                    <span>ESTUDIO DE CERDÀ · BARCELONA</span>
+                </div>
+
+                <div id="tablero" class="tablero">
+                    <!-- JavaScript creará aquí las casillas -->
+                </div>
+
+                <p id="mensaje" class="mensaje" aria-live="polite">
+                    Selecciona una pieza para comenzar.
+                </p>
+
+            </div>
+
+            <aside class="panel-lateral papel">
+
+                <h3>Materiales disponibles</h3>
+
+                <p>
+                    Selecciona una pieza y después pulsa una casilla
+                    vacía del plano.
+                </p>
+
+                <div id="piezas" class="piezas">
+                    <!-- JavaScript creará aquí las piezas -->
+                </div>
+
+                <div class="acciones">
+
+                    <button id="boton-ayuda" class="boton secundario">
+                        Consultar pista
+                    </button>
+
+                    <button id="boton-retirar" class="boton secundario">
+                        Retirar pieza
+                    </button>
+
+                    <button id="boton-reiniciar" class="boton secundario">
+                        Reiniciar nivel
+                    </button>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+        <!-- PROGRESO DE LOS TRES NIVELES -->
+        <section class="progreso papel">
+
+            <h3>Reconstrucción del plano</h3>
+
+            <div id="niveles" class="niveles">
+                <a href="js/niveles.js" class="nivel activo">Nivel 1</a>
+                <a href="js/niveles.js" class="nivel bloqueado">Nivel 2</a>
+                <a href="js/niveles.js" class="nivel bloqueado">Nivel 3</a>
+            </div>
+        </section>
+
+    </main>
+
+        <footer>
+        <p>Proyecto educativo · <span class="notranslate">Ildefons Cerdà</span> perdió el plano</p>
+        <p>Juego 2 · Reconstruye el <span class="notranslate">Eixample</span></p>
+    </footer>
+
+        <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'es',
+                includedLanguages: 'es,ca,en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+
+        // Conectar tu desplegable con el motor de Google
+        document.getElementById('selector-idioma').addEventListener('change', function () {
+            const idiomaElegido = this.value;
+            const comboGoogle = document.querySelector('.goog-te-combo');
+
+            if (comboGoogle) {
+                comboGoogle.value = idiomaElegido;
+                comboGoogle.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Cargar el script oficial de Google Translate de forma segura
+        (function() {
+            const gtScript = document.createElement('script');
+            gtScript.type = 'text/javascript';
+            gtScript.async = true;
+            gtScript.src = 'https://translate.google.com' + '/translate_a/element.js?cb=googleTranslateElementInit';
+            document.body.appendChild(gtScript);
+        })();
+    </script>
+</body>
+</html>
+
