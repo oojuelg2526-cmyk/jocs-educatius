@@ -199,7 +199,10 @@ function showCard(title, text, buttons, extras) {
   });
   card.appendChild(row);
   $("overlay").hidden = false;
-  row.querySelector("button").focus();
+  const first = row.querySelector("button");
+  if (first !== null) {
+    first.focus();
+  }
 }
 
 function hideCard() {

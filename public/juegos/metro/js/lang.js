@@ -52,6 +52,8 @@ const TEXTS = {
     final_title: "¡El plano está completo!",
     final_text: "Las cuatro piezas se juntan en Urquinaona. Gracias por devolverme el plano: del Eixample a la plaza donde estudiáis, todo vuelve a encajar. — Ildefons Cerdà",
     stars: "{n} de 3 estrellas",
+    locked_title: "Este juego aún está bloqueado",
+    locked_text: "Supera antes el juego 3 (Línea del tiempo) para conseguir la llave de la estación de Universitat.",
   },
   ca: {
     title: "Laberint de metro",
@@ -102,6 +104,8 @@ const TEXTS = {
     final_title: "El pla és complet!",
     final_text: "Les quatre peces s'ajunten a Urquinaona. Gràcies per tornar-me el pla: de l'Eixample a la plaça on estudieu, tot torna a encaixar. — Ildefons Cerdà",
     stars: "{n} de 3 estrelles",
+    locked_title: "Aquest joc encara està bloquejat",
+    locked_text: "Supera abans el joc 3 (Línia del temps) per aconseguir la clau de l'estació d'Universitat.",
   },
   en: {
     title: "Metro Maze",
@@ -152,6 +156,8 @@ const TEXTS = {
     final_title: "The plan is complete!",
     final_text: "The four pieces come together at Urquinaona. Thank you for bringing my plan back: from the Eixample to the square where you study, everything fits again. — Ildefons Cerdà",
     stars: "{n} of 3 stars",
+    locked_title: "This game is still locked",
+    locked_text: "Beat game 3 (Timeline) first to get the key to Universitat station.",
   },
 };
 

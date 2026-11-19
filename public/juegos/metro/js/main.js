@@ -132,7 +132,11 @@ document.getElementById("help").addEventListener("click", () => {
   render(game);
 });
 
-document.getElementById("restart").addEventListener("click", () => startLevel(game.level.id));
+document.getElementById("restart").addEventListener("click", () => {
+  if (game !== null) {
+    startLevel(game.level.id);
+  }
+});
 
 // Selector de idioma
 const langSelect = document.getElementById("lang");
@@ -144,6 +148,9 @@ langSelect.addEventListener("change", () => {
   setLang(langSelect.value);
   localStorage.setItem("cerda_lang", langSelect.value);
   applyTexts();
+  if (game === null) {
+    return; // juego bloqueado: no hay nivel que dibujar
+  }
   // se vuelve a dibujar el nivel (los nombres cambian de idioma) sin perder la partida
   buildBoard(game);
   renderMission(game);
@@ -162,4 +169,8 @@ const savedLang = localStorage.getItem("cerda_lang");
 setLang(savedLang || "es");
 langSelect.value = savedLang || "es";
 applyTexts();
-startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1)); // continúa por el nivel que toca
+if (isUnlocked()) {
+  startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1)); // continúa por el nivel que toca
+} else {
+  showCard(t("locked_title"), t("locked_text"), []);
+}

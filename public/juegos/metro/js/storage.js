@@ -1,46 +1,93 @@
 // Guarda el progreso y las partidas en el navegador (localStorage).
+//
+// El progreso usa el mismo formato que los otros juegos y la tabla user_game_progress:
+//   cerda_progress = { games: { 4: { status, last_level_completed, level_scores, best_score } } }
+// Además, al superar el nivel 3 se guarda "juego4Superado" = "true", el aviso que acordó el equipo.
 
 const PROGRESS_KEY = "cerda_progress";
 const SESSIONS_KEY = "cerda_sessions";
+const GAME_ID = 4;
+
+// Si es true, el juego está siempre abierto (juego independiente).
+// Cuando la landing una los 4 juegos hay que poner false: entonces el juego 4 solo se abre
+// al superar el juego 3 (juego3Superado). Con ?dev=1 en la dirección se abre siempre, para probar.
+const JUEGO_INDEPENDIENTE = true;
+
+// ----- ¿está abierto el juego? -----
+
+function isUnlocked() {
+  if (JUEGO_INDEPENDIENTE || location.search.indexOf("dev=1") !== -1) {
+    return true;
+  }
+  return localStorage.getItem("juego3Superado") === "true";
+}
 
 // ----- progreso: hasta qué nivel has llegado y la mejor puntuación de cada uno -----
 
 function loadProgress() {
   const saved = localStorage.getItem(PROGRESS_KEY);
   const progress = saved === null ? {} : JSON.parse(saved);
-  if (!progress.last_level_completed) {
-    progress.last_level_completed = 0;
+  if (!progress.games) {
+    progress.games = {};
   }
-  if (!progress.scores) {
-    progress.scores = {};
+  if (!progress.games[GAME_ID]) {
+    progress.games[GAME_ID] = { status: "unlocked", last_level_completed: 0, level_scores: {}, best_score: 0 };
   }
   return progress;
 }
 
 function lastLevelCompleted() {
-  return loadProgress().last_level_completed;
+  return loadProgress().games[GAME_ID].last_level_completed;
 }
 
 // Apunta que se ha superado un nivel con esos puntos.
 function saveLevelDone(level, points) {
   const progress = loadProgress();
-  if (level > progress.last_level_completed) {
-    progress.last_level_completed = level;
+  const game = progress.games[GAME_ID];
+  if (level > game.last_level_completed) {
+    game.last_level_completed = level;
   }
-  if (!progress.scores[level] || points > progress.scores[level]) {
-    progress.scores[level] = points;
+  if (!game.level_scores[level] || points > game.level_scores[level]) {
+    game.level_scores[level] = points;
+  }
+  // mejor puntuación = suma de la mejor de cada nivel
+  game.best_score = 0;
+  for (const n in game.level_scores) {
+    game.best_score += game.level_scores[n];
+  }
+  if (game.last_level_completed >= 3) {
+    game.status = "completed";
+    localStorage.setItem("juego4Superado", "true"); // aviso simple para la landing
   }
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
 }
 
 // ----- sesiones: una por cada vez que se abre el juego, con un intento por nivel jugado -----
 
+// Un identificador con forma de UUID (la base de datos guarda session_id como UUID).
+function newId() {
+  const hex = "0123456789abcdef";
+  let id = "";
+  for (let i = 0; i < 36; i++) {
+    if (i === 8 || i === 13 || i === 18 || i === 23) {
+      id += "-";
+    } else if (i === 14) {
+      id += "4"; // versión 4
+    } else if (i === 19) {
+      id += "89ab"[Math.floor(Math.random() * 4)]; // variante
+    } else {
+      id += hex[Math.floor(Math.random() * 16)];
+    }
+  }
+  return id;
+}
+
 // Datos comunes de la sesión: username, session_id y date_time.
 // session_length se calcula al guardar.
 function newSession() {
   return {
     username: "invitado",
-    session_id: Date.now(),
+    session_id: newId(),
     date_time: new Date().toISOString(),
     level_reached: 1,
     final_score: 0,
