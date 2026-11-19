@@ -49,7 +49,7 @@ Se cargan con `<script>` en este orden y cada uno puede usar lo de los anteriore
 5. **Puntos:** 1000 − 5 por movimiento − 50 por ayuda + 100 por trozo. Estrellas según los movimientos de más respecto a la mejor ruta (`bestMoves`).
 
 ## Aviso entre juegos
-El equipo se avisa con `localStorage`: este juego se abre con `juego3Superado` y, al superar el nivel 3, guarda `juego4Superado = "true"`. Ahora mismo el juego está siempre abierto (`JUEGO_INDEPENDIENTE = true` al principio de `js/storage.js`); cuando la landing una los 4 juegos hay que ponerlo en `false`. Con `?dev=1` se abre siempre.
+El equipo se avisa con `localStorage`: este juego se abre con `juego3Superado` y, al superar el nivel 3, guarda `juego4Superado = "true"`. El juego 4 solo se abre al superar el juego 3 (`JUEGO_INDEPENDIENTE = false` al principio de `js/storage.js`; en `true` se abriría siempre, para jugarlo solo). Con `?dev=1` se abre siempre.
 
 ## Datos que guarda
 - **Progreso** (`cerda_progress`, mismo formato que los otros juegos): `games[4]` con `status`, `last_level_completed`, `level_scores` y `best_score`.

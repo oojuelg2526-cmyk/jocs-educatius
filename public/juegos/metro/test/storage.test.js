@@ -17,7 +17,7 @@ function cargar(independiente, search) {
     },
     location: { search: search || "" },
   });
-  vm.runInContext(codigo.replace("const JUEGO_INDEPENDIENTE = true;", "const JUEGO_INDEPENDIENTE = " + independiente + ";"), contexto);
+  vm.runInContext(codigo.replace(/const JUEGO_INDEPENDIENTE = (true|false);/, "const JUEGO_INDEPENDIENTE = " + independiente + ";"), contexto);
   return { datos, run: (c) => vm.runInContext(c, contexto) };
 }
 

@@ -11,7 +11,7 @@ const GAME_ID = 4;
 // Si es true, el juego está siempre abierto (juego independiente).
 // Cuando la landing una los 4 juegos hay que poner false: entonces el juego 4 solo se abre
 // al superar el juego 3 (juego3Superado). Con ?dev=1 en la dirección se abre siempre, para probar.
-const JUEGO_INDEPENDIENTE = true;
+const JUEGO_INDEPENDIENTE = false;
 
 // ----- ¿está abierto el juego? -----
 
