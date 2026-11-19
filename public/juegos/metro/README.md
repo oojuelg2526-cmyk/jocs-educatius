@@ -1,14 +1,20 @@
 # Laberinto de metro (juego 4)
 
-Último juego de «Ildefons Cerdà perdió el plano». El jugador recorre el metro de Barcelona recogiendo los trozos del plano y llega a Urquinaona. Ficha del juego: [`propostes/alex-laberinto-de-metro.md`](../../propostes/alex-laberinto-de-metro.md).
+Último juego de «Ildefons Cerdà perdió el plano». El jugador recorre el metro de Barcelona recogiendo los trozos del plano y llega a Urquinaona. Ficha del juego: [`propostes/alex-laberinto-de-metro.md`](../../../propostes/alex-laberinto-de-metro.md).
 
-HTML, CSS y JavaScript puros, sin librerías y **sin `<canvas>`**: el tablero son `div` en un CSS Grid. Funciona solo, sin servidor.
+HTML, CSS y JavaScript puros, sin librerías y **sin `<canvas>`**: el tablero son `div` en un CSS Grid. Funciona solo, sin servidor; vive en `public/juegos/metro/` y Laravel lo sirve en `/juegos/metro/`.
 
 ## Cómo probarlo
-Desde esta carpeta:
+Con el proyecto Laravel en marcha (`php artisan serve`) se abre en `http://localhost:8000/juegos/metro/`. Sin Laravel, desde esta carpeta:
 
 ```bash
 npx serve .
+```
+
+Pruebas (los 3 niveles tienen solución y la mejor ruta es la que dice `bestMoves`):
+
+```bash
+npm test
 ```
 
 Se mueve la ficha con las flechas o WASD (o la cruceta en el móvil).
@@ -31,7 +37,7 @@ Se cargan con `<script>` en este orden y cada uno puede usar lo de los anteriore
 | `js/lang.js` | Todos los textos en catalán, castellano e inglés y la función `t("clave")` |
 | `js/game.js` | Las reglas: mover, cambiar de línea, recoger trozos, ganar, puntos y estrellas. No toca la página |
 | `js/ui.js` | Dibuja el tablero y el panel y enseña mensajes y tarjetas |
-| `js/storage.js` | Guarda el progreso y las sesiones (con sus métricas) en `localStorage` |
+| `js/storage.js` | Guarda el progreso y las sesiones (con sus métricas) en `localStorage` y decide si el juego está abierto |
 | `js/main.js` | Une todo: teclas, botones, reloj e idioma |
 | `css/metro.css` | Estilo (variables de color y tipografía del proyecto) |
 
@@ -42,11 +48,14 @@ Se cargan con `<script>` en este orden y cada uno puede usar lo de los anteriore
 4. **Ganar:** llegar a Urquinaona con todos los trozos del plano.
 5. **Puntos:** 1000 − 5 por movimiento − 50 por ayuda + 100 por trozo. Estrellas según los movimientos de más respecto a la mejor ruta (`bestMoves`).
 
+## Aviso entre juegos
+El equipo se avisa con `localStorage`: este juego se abre con `juego3Superado` y, al superar el nivel 3, guarda `juego4Superado = "true"`. Ahora mismo el juego está siempre abierto (`JUEGO_INDEPENDIENTE = true` al principio de `js/storage.js`); cuando la landing una los 4 juegos hay que ponerlo en `false`. Con `?dev=1` se abre siempre.
+
 ## Datos que guarda
-- **Progreso** (`cerda_progress`): último nivel superado y mejor puntuación de cada nivel.
-- **Sesiones** (`cerda_sessions`): `username`, `session_id`, `date_time`, `session_length`, `level_reached`, `final_score` y, por cada intento, `level_time`, `moves_count`, `help_clicks`, `score` y `stars`.
+- **Progreso** (`cerda_progress`, mismo formato que los otros juegos): `games[4]` con `status`, `last_level_completed`, `level_scores` y `best_score`.
+- **Sesiones** (`cerda_sessions`): `username`, `session_id` (con forma de UUID), `date_time`, `session_length`, `level_reached`, `final_score` y, por cada intento, `level_time`, `moves_count`, `help_clicks`, `score` y `stars`.
 
 ## Pendiente
-- Conectar con la base de datos (SQL Server) y el login; el contrato está en `docs/api-contrato.md`.
+- Conectar con la base de datos (SQL Server) y el login; el contrato de datos se escribirá en `docs/`.
 - Unir con los otros juegos en la landing y usar su CSS común.
 - Comprobar las estaciones y las líneas con el plano oficial de TMB y los datos de «¿Sabías que…?» (sin verificar con fuente).
