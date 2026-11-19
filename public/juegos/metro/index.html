@@ -4,10 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Laberinto de metro</title>
-  <link rel="stylesheet" href="css/metro.css">
+  <link rel="stylesheet" href="css/metro.css?v=6">
 </head>
 <body>
+  <a class="skip" href="#main" data-i18n="skip">Saltar al contenido</a>
   <header class="top">
+    <span class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 12h28M2 22h28M12 2v28M22 2v28" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="10" height="10" fill="currentColor"/></svg>
+      <span data-i18n="brand">Cerdà perdió el plano</span>
+    </span>
     <h1 data-i18n="title">Laberinto de metro</h1>
     <nav id="levels" class="levels" aria-label="Niveles"></nav>
     <label class="lang"><span data-i18n="language">Idioma</span>
@@ -15,7 +20,7 @@
     </label>
   </header>
 
-  <main class="layout">
+  <main id="main" class="layout">
     <section class="board-wrap">
       <div id="board" class="board" aria-label="Mapa del metro"></div>
       <p id="message" class="message" role="status" aria-live="polite"></p>
@@ -57,10 +62,17 @@
     </aside>
   </main>
 
+  <footer class="site-footer"><p data-i18n="footer">Juego 4 de 4 · Historia y geografía de Barcelona</p></footer>
+
   <div id="overlay" class="overlay" hidden>
     <div id="card" class="card" role="dialog" aria-modal="true" tabindex="-1"></div>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <script src="js/levels.js?v=6"></script>
+  <script src="js/lang.js?v=6"></script>
+  <script src="js/game.js?v=6"></script>
+  <script src="js/ui.js?v=6"></script>
+  <script src="js/storage.js?v=6"></script>
+  <script src="js/main.js?v=6"></script>
 </body>
 </html>
