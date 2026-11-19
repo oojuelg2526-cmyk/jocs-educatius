@@ -136,6 +136,13 @@ Dos ajustes a hablar con el equipo:
 7. **Auditoría** simple en `audit_log` para poder defender quién modificó puntuaciones.
 8. **Idioma**: `users.language` guarda el idioma elegido; los textos de la interfaz viven en archivos de idioma, no en la BD (`name_key` apunta a esa clave).
 
+## Cómo quedó en Laravel (migraciones)
+- Las tablas están en `database/migrations/` y los 4 juegos con sus niveles en `database/seeders/GameSeeder.php`.
+- `users.password_hash` se llama `password` (nombre que espera el login de Laravel) y guarda el hash.
+- Las claves son `bigint` (`id()`), salvo `game_sessions.session_id`, que es UUID.
+- Las claves foráneas **no** llevan borrado en cascada: SQL Server no admite varios caminos de cascada a la misma tabla (por ejemplo `level_attempts`).
+- `user_game_progress` y `session_metrics` no tienen modelo propio: se usan como tablas intermedias con `withPivot` desde `User`/`Game` y `GameSession`.
+
 ## Por decidir con el equipo
 - ¿Motor definitivo (MySQL o SQL Server)? Cambia solo los tipos.
 - ¿Registro público de jugadores o solo por invitación? (afecta a `users`).
