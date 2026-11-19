@@ -255,16 +255,27 @@ class JuegoLineaTiempo {
 
             pantallaFinal.removeAttribute("hidden");
 
-            // Lógica de como pasamos de un nivel a otro
+            // Lógica de transición de niveles
             if (this.nivelActual === 1) {
                 setTimeout(() => {
                     alert("¡Prepárate para el Nivel 2!");
                     pantallaFinal.setAttribute("hidden", true);
                     // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
                     new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
-                }, 3000); // Pasa al siguiente nivel tras 3 segundos
-            } else {
-                mensajeFinal.innerText += "\n¡Has completado todos los niveles!";
+                }, 3000);
+            }
+            else if (this.nivelActual === 2) {
+                setTimeout(() => {
+                    alert("¡Prepárate para el Nivel 3!");
+                    pantallaFinal.setAttribute("hidden", true);
+                    // Iniciamos Nivel 3: 8 hitos, tiempo reducido (60 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_3, 60, 3);
+                }, 3000);
+            }
+            else if (this.nivelActual === 3) {
+                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\nEl siguiente juego ha sido desbloqueado.";
+                // Desbloqueamos el siguiente juego en localStorage
+                localStorage.setItem("juego3Superado", "true");
             }
 
         } else {
@@ -277,7 +288,7 @@ class JuegoLineaTiempo {
 }
 
 // =========================================================
-// RA1, RA2: Inicio del script cliente
+// RA1, RA2: Inicio del script cliente y Datos
 // =========================================================
 
 // Ajuste Nivel 1: 4 hitos históricos con amplia diferencia de siglos
@@ -298,13 +309,25 @@ const DATOS_NIVEL_2 = [
     { id: "m6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
 ];
 
+// Ajuste Nivel 3: 8 hitos históricos con fechas más cercanas entre sí. Tiempo reducido y mayor exigencia de precisión.[cite: 1]
+const DATOS_NIVEL_3 = [
+    { id: "m1", title: "Semana Trágica", label: "1909", order: 1, hint: "Revuelta popular antimilitarista." },
+    { id: "m2", title: "Mancomunidad", label: "1914", order: 2, hint: "Agrupación de las 4 diputaciones." },
+    { id: "m3", title: "Exposición Internacional", label: "1929", order: 3, hint: "Urbanización de la montaña de Montjuïc." },
+    { id: "m4", title: "Inicio Guerra Civil", label: "1936", order: 4, hint: "Fracaso del golpe de estado en la ciudad." },
+    { id: "m5", title: "Bombardeos aéreos", label: "1938", order: 5, hint: "Ataques sistemáticos sobre la población civil." },
+    { id: "m6", title: "Caída de Barcelona", label: "1939", order: 6, hint: "Entrada de las tropas franquistas." },
+    { id: "m7", title: "Huelga de Tranvías", label: "1951", order: 7, hint: "Boicot ciudadano por la subida del billete." },
+    { id: "m8", title: "Asamblea de Catalunya", label: "1971", order: 8, hint: "Plataforma unitaria antifranquista." }
+];
+
 document.addEventListener("DOMContentLoaded", () => {
     // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
     const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
 
     if (juegoAnteriorSuperado) {
-        // Ejecutamos el juego solo si el anterior está superado
-        new JuegoLineaTiempo(DATOS_NIVEL_1);
+        // Ejecutamos el juego solo si el anterior está superado. Pasamos los parámetros correctos.
+        new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
     } else {
         // Mostrar mensaje si el usuario intenta acceder sin permiso
         alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
