@@ -25,3 +25,14 @@ __pycache__/
 
 # Dades generades (es regeneren amb l'script de simulació)
 /metrics/data/*.csv
+
+# Laravel
+/.phpunit.cache
+.phpunit.result.cache
+/storage/pail
+/public/storage
+/public/fonts-manifest.dev.json
+auth.json
+*.log
+.env.backup
+.env.production
