@@ -1,159 +1,165 @@
 // Une todo: lee las teclas, lleva el reloj y decide qué se ve en cada momento.
-import { createGame, move, chooseLine, useHelp, toggleRush, tickSecond, result, currentCell } from "./game.js";
-import { LEVELS } from "./levels.js";
-import { LANG_CODES, getLang, setLang, t } from "./lang.js";
-import { isUnlocked, lastLevelCompleted, saveLevelDone, username } from "./storage.js";
-import { newSession, addAttempt, saveSession } from "./metrics.js";
-import * as ui from "./ui.js";
 
-const KEYS = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
+const KEYS = {
+  ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
+  w: "up", s: "down", a: "left", d: "right",
+};
+
+// Qué mensaje enseñar cuando un movimiento no sale bien o recoge un trozo: [clave del texto, tipo]
+const MESSAGES = {
+  wall: ["msg_wall", "warn"],
+  line: ["msg_line", "warn"],
+  closed: ["msg_closed", "warn"],
+  piece: ["msg_piece", "good"],
+};
 
 let game = null;
-let session = newSession(username());
-let secondTimer = null;
-let rushTimer = null;
+let timer = null;
 let finished = false;
+const session = newSession(); // una sesión por cada vez que se abre el juego
+const sessionStart = Date.now();
 
-function stopTimers() {
-  clearInterval(secondTimer);
-  clearInterval(rushTimer);
-}
-
-// Empieza (o reinicia) un nivel.
+// Empieza (o reinicia) el nivel n.
 function startLevel(n) {
-  stopTimers();
-  ui.hideCard();
+  clearInterval(timer);
+  hideCard();
   finished = false;
   game = createGame(LEVELS[n - 1]);
-  ui.buildBoard(game);
-  ui.renderMission(game);
-  ui.renderLevelTabs(n, lastLevelCompleted(), startLevel);
-  ui.render(game);
-  ui.showMessage(t("msg_start", { station: t(currentCell(game).nameKey), line: `L${game.line}` }));
+  buildBoard(game);
+  renderMission(game);
+  renderLevelTabs(n, lastLevelCompleted(), startLevel);
+  render(game);
+  const here = cellAt(game, game.row, game.col);
+  showMessage(t("msg_start", { station: t(here.nameKey), line: LINE_NAMES[game.line] }));
 
-  // cada segundo pasa un segundo; la hora punta abre y cierra el paso cada 3 s
-  secondTimer = setInterval(() => {
+  // cada segundo pasa un segundo; en el nivel con tiempo límite, puede acabarse
+  timer = setInterval(() => {
     tickSecond(game);
-    ui.render(game);
-    if (game.status === "timeout") endLevel();
+    render(game);
+    if (game.status === "timeout") {
+      endLevel();
+    }
   }, 1000);
-  if (game.rushCells.size) {
-    rushTimer = setInterval(() => {
-      toggleRush(game);
-      ui.render(game);
-    }, 3000);
-  }
 }
 
-// Se ha ganado o se ha acabado el tiempo.
+// Se ha ganado el nivel o se ha acabado el tiempo.
 function endLevel() {
-  if (finished) return;
+  if (finished) {
+    return;
+  }
   finished = true;
-  stopTimers();
+  clearInterval(timer);
   const res = result(game);
   addAttempt(session, res);
-  saveSession(session);
+  saveSession(session, sessionStart);
 
   if (!res.won) {
-    ui.showCard({
-      title: t("timeout_title"),
-      text: t("timeout_text", { n: game.level.timeLimit }),
-      buttons: [{ label: t("again"), primary: true, onClick: () => startLevel(game.level.id) }],
-    });
+    showCard(t("timeout_title"), t("timeout_text", { n: game.level.timeLimit }), [
+      { label: t("again"), primary: true, onClick: () => startLevel(game.level.id) },
+    ]);
     return;
   }
 
   saveLevelDone(res.level, res.score);
-  const last = res.level === LEVELS.length;
-  ui.renderLevelTabs(res.level, lastLevelCompleted(), startLevel);
-  const extra = document.createElement("div");
-  extra.append(ui.starsElement(res.stars));
-  if (last) extra.append(ui.planElement());
-  ui.showCard({
-    title: last ? t("final_title") : t("win_title"),
-    text: last ? t("final_text") : t("win_text", { moves: res.moves, points: res.score }),
-    extra,
-    buttons: [
-      last
-        ? { label: t("again"), primary: true, onClick: () => startLevel(1) }
-        : { label: t("next"), primary: true, onClick: () => startLevel(res.level + 1) },
-      { label: t("close"), onClick: ui.hideCard },
-    ],
-  });
+  renderLevelTabs(res.level, lastLevelCompleted(), startLevel);
+  const isLast = res.level === LEVELS.length;
+  if (isLast) {
+    // último nivel: escena final con el plano completo
+    showCard(t("final_title"), t("final_text"), [
+      { label: t("again"), primary: true, onClick: () => startLevel(1) },
+      { label: t("close"), onClick: hideCard },
+    ], [starsElement(res.stars), planElement()]);
+  } else {
+    showCard(t("win_title"), t("win_text", { moves: res.moves, points: res.score }), [
+      { label: t("next"), primary: true, onClick: () => startLevel(res.level + 1) },
+      { label: t("close"), onClick: hideCard },
+    ], [starsElement(res.stars)]);
+  }
 }
 
 // Un movimiento: se lo pasamos a las reglas y contamos al jugador lo que ha pasado.
 function step(dir) {
-  if (!game || finished || game.status !== "playing") return;
+  if (game === null || finished) {
+    return;
+  }
   const res = move(game, dir);
-  const messages = {
-    wall: ["msg_wall", "warn"],
-    closed: ["msg_closed", "warn"],
-    rush: ["msg_rush", "warn"],
-    "change-line": ["msg_change_line", "warn"],
-    piece: ["msg_piece", "good"],
-  };
-  if (res.event === "missing-pieces") ui.showMessage(t("msg_missing", { n: res.left }), "warn");
-  else if (messages[res.event]) ui.showMessage(t(messages[res.event][0]), messages[res.event][1]);
-  else if (res.station) ui.showMessage(t(res.station.nameKey.replace("st_", "fact_")));
-  ui.render(game);
-  if (game.status === "won") endLevel();
-}
-
-function showLocked() {
-  ui.showCard({ title: t("locked_title"), text: t("locked_text"), buttons: [] });
+  if (res.event === "missing-pieces") {
+    showMessage(t("msg_missing", { n: res.left }), "warn");
+  } else if (MESSAGES[res.event]) {
+    showMessage(t(MESSAGES[res.event][0]), MESSAGES[res.event][1]);
+  } else if (res.station) {
+    // cada estación tiene su "¿Sabías que...?": st_catalunya -> fact_catalunya
+    showMessage(t(res.station.nameKey.replace("st_", "fact_")));
+  }
+  render(game);
+  if (game.status === "won") {
+    endLevel();
+  }
 }
 
 // ----- eventos -----
 document.addEventListener("keydown", (e) => {
-  const dir = KEYS[e.key] ?? KEYS[e.key.toLowerCase?.()];
-  if (!dir || e.target.matches?.("select, input")) return;
+  const dir = KEYS[e.key] || KEYS[e.key.toLowerCase()];
+  if (!dir || e.target.tagName === "SELECT") {
+    return;
+  }
   e.preventDefault();
   step(dir);
 });
 
-document.querySelectorAll("[data-dir]").forEach((b) => b.addEventListener("click", () => step(b.dataset.dir)));
+document.querySelectorAll("[data-dir]").forEach((button) => {
+  button.addEventListener("click", () => step(button.dataset.dir));
+});
 
+// Botones de línea (solo aparecen en las correspondencias)
 document.getElementById("line-selector").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-line]");
-  if (!b || !game || finished) return;
-  if (chooseLine(game, Number(b.dataset.line))) {
-    ui.showMessage(t("msg_line", { line: `L${game.line}` }));
-    ui.render(game);
+  const button = e.target.closest("[data-line]");
+  if (button === null || game === null || finished) {
+    return;
+  }
+  if (chooseLine(game, Number(button.dataset.line))) {
+    showMessage(t("msg_line_now", { line: LINE_NAMES[game.line] }));
+    render(game);
   }
 });
 
 document.getElementById("help").addEventListener("click", () => {
-  if (!game || finished) return;
+  if (game === null || finished) {
+    return;
+  }
   useHelp(game);
-  ui.flashNames();
-  ui.render(game);
+  flashNames();
+  render(game);
 });
 
-document.getElementById("restart").addEventListener("click", () => game && startLevel(game.level.id));
+document.getElementById("restart").addEventListener("click", () => startLevel(game.level.id));
 
+// Selector de idioma
 const langSelect = document.getElementById("lang");
-langSelect.innerHTML = LANG_CODES.map((c) => `<option value="${c}">${{ es: "Castellano", ca: "Català", en: "English" }[c]}</option>`).join("");
+const NAMES = { es: "Castellano", ca: "Català", en: "English" };
+for (const code in NAMES) {
+  langSelect.innerHTML += '<option value="' + code + '">' + NAMES[code] + "</option>";
+}
 langSelect.addEventListener("change", () => {
   setLang(langSelect.value);
-  localStorage.setItem("cerda_lang", getLang());
-  ui.applyTexts();
-  if (game) startLevelKeepingProgress();
+  localStorage.setItem("cerda_lang", langSelect.value);
+  applyTexts();
+  // se vuelve a dibujar el nivel (los nombres cambian de idioma) sin perder la partida
+  buildBoard(game);
+  renderMission(game);
+  renderLevelTabs(game.level.id, lastLevelCompleted(), startLevel);
+  render(game);
 });
 
-// Al cambiar de idioma se vuelve a dibujar el nivel sin perder la partida.
-function startLevelKeepingProgress() {
-  ui.buildBoard(game);
-  ui.renderMission(game);
-  ui.renderLevelTabs(game.level.id, lastLevelCompleted(), startLevel);
-  ui.render(game);
-}
-
-window.addEventListener("resize", () => game && ui.render(game));
+window.addEventListener("resize", () => {
+  if (game !== null) {
+    render(game);
+  }
+});
 
 // ----- arranque -----
-setLang(localStorage.getItem("cerda_lang") || document.documentElement.lang || "es");
-langSelect.value = getLang();
-ui.applyTexts();
-if (isUnlocked()) startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1));
-else showLocked();
+const savedLang = localStorage.getItem("cerda_lang");
+setLang(savedLang || "es");
+langSelect.value = savedLang || "es";
+applyTexts();
+startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1)); // continúa por el nivel que toca

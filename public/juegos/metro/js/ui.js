@@ -1,201 +1,243 @@
 // Todo lo que se dibuja en la página. No decide reglas: solo muestra el estado del juego.
-import { currentCell, isPieceAt, score } from "./game.js";
-import { LINE_NAMES } from "./levels.js";
-import { t } from "./lang.js";
 
-const $ = (id) => document.getElementById(id);
-const key = (r, c) => `${r},${c}`;
+function $(id) {
+  return document.getElementById(id);
+}
+
+// ¿Las dos casillas comparten alguna línea? (así se sabe si la vía se une con la vecina)
+function shareLine(a, b) {
+  for (let i = 0; i < a.lines.length; i++) {
+    if (b.lines.includes(a.lines[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Las estaciones importantes siempre enseñan su nombre: salida, destino y las que tienen un trozo.
+function isImportant(game, cell) {
+  return cell.id === game.level.start || cell.id === game.level.end || pieceAt(game, cell.r, cell.c) !== null;
+}
 
 // Crea las casillas del tablero (un div por casilla dentro de un CSS Grid).
-export function buildBoard(game) {
+function buildBoard(game) {
   const board = $("board");
   board.style.setProperty("--cols", game.cols);
   board.style.setProperty("--rows", game.rows);
-  board.replaceChildren();
+  board.innerHTML = "";
 
-  game.grid.forEach((row, r) =>
-    row.forEach((cell, c) => {
+  for (let r = 0; r < game.rows; r++) {
+    for (let c = 0; c < game.cols; c++) {
+      const cell = game.grid[r][c];
       const div = document.createElement("div");
       div.className = "cell " + cell.type;
-      div.dataset.pos = key(r, c);
+      div.dataset.pos = r + "," + c;
+      board.appendChild(div);
       if (cell.type === "wall") {
-        board.append(div);
-        return;
+        continue;
       }
-      div.append(document.createElement("i")); // marca para trozo, obras u hora punta
+
+      div.classList.add("l" + cell.lines[0]); // el color de la vía
+      div.appendChild(document.createElement("i")); // marca para el trozo o las obras
+
       // la vía se une con las casillas vecinas que comparten línea
-      [[-1, 0, "to-up"], [1, 0, "to-down"], [0, -1, "to-left"], [0, 1, "to-right"]].forEach(([dr, dc, cls]) => {
-        const next = game.grid[r + dr]?.[c + dc];
-        if (next && next.type !== "wall" && next.lines.some((l) => cell.lines.includes(l))) div.classList.add(cls);
+      const around = [
+        [r - 1, c, "to-up"],
+        [r + 1, c, "to-down"],
+        [r, c - 1, "to-left"],
+        [r, c + 1, "to-right"],
+      ];
+      around.forEach((a) => {
+        const next = cellAt(game, a[0], a[1]);
+        if (next !== null && next.type !== "wall" && shareLine(cell, next)) {
+          div.classList.add(a[2]);
+        }
       });
-      if (cell.type === "track") div.classList.add("l" + cell.lines[0]);
+
       if (cell.type === "station") {
-        div.classList.add("l" + cell.lines[0]);
-        if (cell.lines.length > 1) div.classList.add("interchange");
+        if (cell.lines.length > 1) {
+          div.classList.add("interchange");
+        }
+        if (game.level.closed.includes(cell.id)) {
+          div.classList.add("closed");
+        }
         const name = document.createElement("span");
         name.className = "name";
         name.textContent = t(cell.nameKey);
-        div.append(name);
-        const isKey = cell.id === game.level.start || cell.id === game.level.end || game.level.pieces.some(([pr, pc]) => pr === r && pc === c);
-        if (!game.level.hideNames || isKey) div.classList.add("named");
+        div.appendChild(name);
+        if (!game.level.hideNames || isImportant(game, cell)) {
+          div.classList.add("named");
+        }
       }
-      board.append(div);
-    })
-  );
+    }
+  }
 
   const token = document.createElement("div");
   token.id = "token";
   token.textContent = "🎩";
-  token.setAttribute("aria-hidden", "true");
-  board.append(token);
+  board.appendChild(token);
 }
 
-const cellEl = (r, c) => $("board").querySelector(`[data-pos="${key(r, c)}"]`);
-
 // Pone al día todo lo que cambia durante la partida.
-export function render(game) {
-  const { r, c } = game.pos;
-
-  // ficha
+function render(game) {
+  // ficha: se coloca encima de su casilla
   const token = $("token");
-  const here = cellEl(r, c);
-  token.style.left = `${here.offsetLeft}px`;
-  token.style.top = `${here.offsetTop}px`;
-  token.style.width = token.style.height = `${here.offsetWidth}px`;
+  const here = document.querySelector('[data-pos="' + game.row + "," + game.col + '"]');
+  token.style.left = here.offsetLeft + "px";
+  token.style.top = here.offsetTop + "px";
+  token.style.width = here.offsetWidth + "px";
+  token.style.height = here.offsetWidth + "px";
 
-  // trozos, estaciones cerradas y hora punta
-  game.grid.forEach((row, rr) =>
-    row.forEach((cell, cc) => {
-      if (cell.type === "wall") return;
-      const el = cellEl(rr, cc);
-      el.classList.toggle("piece", isPieceAt(game, rr, cc) && !game.collected.has(key(rr, cc)));
-      el.classList.toggle("closed", game.closedCells.has(key(rr, cc)));
-      el.classList.toggle("rush", game.rushCells.has(key(rr, cc)));
-      el.classList.toggle("rush-shut", game.rushCells.get(key(rr, cc)) === false);
-    })
-  );
+  // trozos del plano que quedan por recoger
+  document.querySelectorAll(".cell").forEach((el) => el.classList.remove("piece"));
+  game.pieces.forEach((p) => {
+    if (!p.taken) {
+      document.querySelector('[data-pos="' + p.r + "," + p.c + '"]').classList.add("piece");
+    }
+  });
 
   // panel
-  $("pieces").textContent = `${game.collected.size} / ${game.level.pieces.length}`;
-  $("time").textContent = game.level.timeLimit ? `${Math.max(0, game.level.timeLimit - game.seconds)} s` : clock(game.seconds);
+  $("pieces").textContent = game.pieces.length - piecesLeft(game) + " / " + game.pieces.length;
+  if (game.level.timeLimit !== null) {
+    $("time").textContent = Math.max(0, game.level.timeLimit - game.seconds) + " s"; // cuenta atrás
+  } else {
+    $("time").textContent = clock(game.seconds);
+  }
   $("moves").textContent = game.moves;
   $("points").textContent = score(game);
 
-  // selector de línea: solo en una correspondencia
-  const lines = currentCell(game).lines;
-  const selector = $("line-selector");
-  selector.hidden = lines.length < 2;
-  selector.querySelector("div").replaceChildren(
-    ...lines.map((line) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = `line-btn l${line}`;
-      b.dataset.line = line;
-      b.textContent = LINE_NAMES[line];
-      b.setAttribute("aria-pressed", String(line === game.line));
-      return b;
-    })
-  );
+  renderLineSelector(game);
 }
 
-const clock = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-
-export function showMessage(text, kind = "info") {
-  const el = $("message");
-  el.textContent = text;
-  el.dataset.kind = kind;
-}
-
-// Enseña los nombres de todas las estaciones durante unos segundos.
-export function flashNames(ms = 3000) {
-  const board = $("board");
-  board.classList.add("show-names");
-  setTimeout(() => board.classList.remove("show-names"), ms);
-}
-
-export function renderLevelTabs(current, lastDone, onPick) {
-  const nav = $("levels");
-  nav.replaceChildren(
-    ...[1, 2, 3].map((n) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.textContent = `${t("level")} ${n}`;
-      b.disabled = n > lastDone + 1;
-      b.setAttribute("aria-current", String(n === current));
-      b.addEventListener("click", () => onPick(n));
-      return b;
-    })
-  );
-}
-
-// Texto de la misión del nivel.
-export function renderMission(game) {
-  $("level-name").textContent = `${t("level")} ${game.level.id} · ${t(game.level.nameKey)}`;
-  $("mission-text").textContent = t("mission_text", {
-    from: t(game.level.stations[game.level.start].nameKey),
-    to: t(game.level.stations[game.level.end].nameKey),
+// El selector de línea solo aparece en una estación con varias líneas.
+function renderLineSelector(game) {
+  const lines = cellAt(game, game.row, game.col).lines;
+  $("line-selector").hidden = lines.length < 2;
+  const box = $("line-selector").querySelector("div");
+  box.innerHTML = "";
+  if (lines.length < 2) {
+    return;
+  }
+  lines.forEach((line) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "line-btn l" + line;
+    b.dataset.line = line;
+    b.textContent = LINE_NAMES[line];
+    b.setAttribute("aria-pressed", String(line === game.line));
+    box.appendChild(b);
   });
 }
 
-// Tarjeta central (nivel superado, tiempo agotado, juego bloqueado, final).
-export function showCard({ title, text, extra, buttons }) {
+// Segundos -> "mm:ss"
+function clock(s) {
+  const min = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+}
+
+function showMessage(text, kind) {
+  const el = $("message");
+  el.textContent = text;
+  el.dataset.kind = kind || "info";
+}
+
+// Enseña los nombres de todas las estaciones durante unos segundos.
+function flashNames() {
+  const board = $("board");
+  board.classList.add("show-names");
+  setTimeout(() => board.classList.remove("show-names"), 3000);
+}
+
+// Los botones "Nivel 1, 2, 3". Un nivel está bloqueado hasta superar el anterior.
+function renderLevelTabs(current, lastDone, onPick) {
+  const nav = $("levels");
+  nav.innerHTML = "";
+  [1, 2, 3].forEach((n) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = t("level") + " " + n;
+    b.disabled = n > lastDone + 1;
+    b.setAttribute("aria-current", String(n === current));
+    b.addEventListener("click", () => onPick(n));
+    nav.appendChild(b);
+  });
+}
+
+// Texto de la misión del nivel.
+function renderMission(game) {
+  const level = game.level;
+  $("level-name").textContent = t("level") + " " + level.id + " · " + t(level.nameKey);
+  $("mission-text").textContent = t("mission_text", {
+    from: t(level.stations[level.start].nameKey),
+    to: t(level.stations[level.end].nameKey),
+  });
+}
+
+// Tarjeta central (nivel superado, tiempo agotado, final). `extras` son elementos opcionales (estrellas, plano).
+function showCard(title, text, buttons, extras) {
   const card = $("card");
-  card.replaceChildren();
+  card.innerHTML = "";
   const h = document.createElement("h2");
   h.textContent = title;
   const p = document.createElement("p");
   p.textContent = text;
-  card.append(h, p);
-  if (extra) card.append(extra);
+  card.appendChild(h);
+  card.appendChild(p);
+  if (extras) {
+    extras.forEach((el) => card.appendChild(el));
+  }
   const row = document.createElement("div");
   row.className = "card-buttons";
-  (buttons ?? []).forEach(({ label, onClick, primary }) => {
+  buttons.forEach((info) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = primary ? "btn" : "btn secondary";
-    b.textContent = label;
-    b.addEventListener("click", onClick);
-    row.append(b);
+    b.className = info.primary ? "btn" : "btn secondary";
+    b.textContent = info.label;
+    b.addEventListener("click", info.onClick);
+    row.appendChild(b);
   });
-  card.append(row);
+  card.appendChild(row);
   $("overlay").hidden = false;
-  (row.querySelector("button") ?? card).focus?.();
+  row.querySelector("button").focus();
 }
 
-export const hideCard = () => ($("overlay").hidden = true);
+function hideCard() {
+  $("overlay").hidden = true;
+}
 
-export function starsElement(n) {
+// Las estrellas conseguidas, por ejemplo ★★☆
+function starsElement(n) {
   const el = document.createElement("p");
   el.className = "stars";
-  el.setAttribute("aria-label", t("stars", { n }));
+  el.setAttribute("aria-label", t("stars", { n: n }));
   el.textContent = "★".repeat(n) + "☆".repeat(3 - n);
   return el;
 }
 
 // El plano completo de Cerdà con sus cuatro piezas (escena final).
-export function planElement() {
+function planElement() {
   const wrap = document.createElement("div");
   wrap.className = "final-plan";
-  wrap.innerHTML = `
-    <svg viewBox="0 0 400 300" role="img" aria-label="Plano de Cerdà completo">
-      <g fill="#efe2bf" stroke="#2b2a28" stroke-width="2">
-        <rect x="4" y="4" width="192" height="142"/><rect x="204" y="4" width="192" height="142"/>
-        <rect x="4" y="154" width="192" height="142"/><rect x="204" y="154" width="192" height="142"/>
-      </g>
-      <g stroke="#2b2a28" stroke-width="2"><path d="M30 30h140M30 75h140M30 120h140M60 20v115M100 20v115M140 20v115"/></g>
-      <g fill="#a63d2a" stroke="#2b2a28" stroke-width="2"><rect x="226" y="26" width="40" height="40"/><rect x="282" y="26" width="40" height="40"/><rect x="338" y="26" width="40" height="40"/><rect x="226" y="80" width="40" height="40"/><rect x="282" y="80" width="40" height="40"/><rect x="338" y="80" width="40" height="40"/></g>
-      <g stroke="#2b2a28" stroke-width="3"><path d="M26 180h90M26 202h140M26 224h120M26 246h100"/></g>
-      <text x="26" y="282" font-size="22" font-family="Georgia,serif" fill="#2b2a28">1859</text>
-      <circle cx="300" cy="225" r="46" fill="none" stroke="#2b2a28" stroke-width="3"/>
-      <circle cx="300" cy="225" r="10" fill="#a63d2a" stroke="#2b2a28" stroke-width="2"/>
-      <path d="M300 170v110M245 225h110" stroke="#2b2a28" stroke-width="2"/>
-    </svg>`;
+  wrap.innerHTML =
+    '<svg viewBox="0 0 400 300" role="img" aria-label="Plano de Cerdà completo">' +
+    '<g fill="#efe2bf" stroke="#2b2a28" stroke-width="2">' +
+    '<rect x="4" y="4" width="192" height="142"/><rect x="204" y="4" width="192" height="142"/>' +
+    '<rect x="4" y="154" width="192" height="142"/><rect x="204" y="154" width="192" height="142"/></g>' +
+    '<g stroke="#2b2a28" stroke-width="2"><path d="M30 30h140M30 75h140M30 120h140M60 20v115M100 20v115M140 20v115"/></g>' +
+    '<g fill="#a63d2a" stroke="#2b2a28" stroke-width="2"><rect x="226" y="26" width="40" height="40"/><rect x="282" y="26" width="40" height="40"/><rect x="338" y="26" width="40" height="40"/><rect x="226" y="80" width="40" height="40"/><rect x="282" y="80" width="40" height="40"/><rect x="338" y="80" width="40" height="40"/></g>' +
+    '<g stroke="#2b2a28" stroke-width="3"><path d="M26 180h90M26 202h140M26 224h120M26 246h100"/></g>' +
+    '<text x="26" y="282" font-size="22" font-family="Georgia,serif" fill="#2b2a28">1859</text>' +
+    '<circle cx="300" cy="225" r="46" fill="none" stroke="#2b2a28" stroke-width="3"/>' +
+    '<circle cx="300" cy="225" r="10" fill="#a63d2a" stroke="#2b2a28" stroke-width="2"/>' +
+    '<path d="M300 170v110M245 225h110" stroke="#2b2a28" stroke-width="2"/></svg>';
   return wrap;
 }
 
 // Pone los textos fijos de la página en el idioma actual.
-export function applyTexts() {
-  document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
+function applyTexts() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
   document.title = t("title");
 }
-
