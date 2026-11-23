@@ -1,207 +1,97 @@
-
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Reconstruye el Eixample</title>
-
+    <title data-traduccio="juego">Reconstruïm l’Eixample</title>
     <link rel="stylesheet" href="css/estilo.css">
-
-    <script type="module" src="js/principal.js"></script>
 </head>
-
 <body>
-
     <header class="cabecera">
         <div class="marca">
-            <div>
-                <h1>El plano perdido de <span class="notranslate">Cerdà</span></h1>
-                <p>Una reconstrucción de <span class="notranslate">Barcelona</span></p>
-            </div>
+            <h1 data-traduccio="historia">Ildefons Cerdà ha perdut el plànol</h1>
+            <p data-traduccio="subtitulo">Joc 2 · Reconstruïm l’Eixample</p>
         </div>
-
-        <div class="idioma notranslate">
-            <label for="selector-idioma">Idioma:</label>
+        <div class="idioma">
+            <label for="selector-idioma" data-traduccio="idioma">Idioma</label>
             <select id="selector-idioma">
-                <option value="es">Castellano</option>
-                <option value="ca">Català</option>
-                <option value="en">English</option>
+                <option value="ca" lang="ca" selected>Català</option>
+                <option value="es" lang="es">Castellano</option>
+                <option value="en" lang="en">English</option>
             </select>
         </div>
-        <div id="google_translate_element" style="position:absolute; left:-9999px;"></div>
     </header>
 
     <main class="contenedor">
-
-        <!-- INTRODUCCIÓN DE LA HISTORIA -->
         <section id="introduccion" class="papel introduccion">
-
-            <p class="etiqueta">DOCUMENTO N.º 02 · CUADERNO DE CERDÀ</p>
-
-            <h2>Reconstruye el Eixample</h2>
-
-            <p>
-                Después de recuperar la cuadrícula en el Memory de Barcelona,
-                has llegado al antiguo estudio de Ildefons Cerdà.
-            </p>
-
-            <p>
-                Sobre su mesa encontrarás el calco que has conseguido.
-                Cerdà necesita tu ayuda para reconstruir las manzanas
-                del Eixample y recuperar unos documentos desaparecidos.
-            </p>
-
-            <p class="nota">
-                «Cada pieza del plano es importante.
-                No podemos reconstruir Barcelona sin ellas».
-            </p>
-
-            <button id="boton-empezar" class="boton">
-                Comenzar reconstrucción
-            </button>
-
+            <h2 data-traduccio="juego">Reconstruïm l’Eixample</h2>
+            <p data-traduccio="introduccion">Has recuperat el calc de la quadrícula al Memory de Barcelona. Ara, a la taula de dibuix de Cerdà, fes-lo servir per reconstruir les primeres illes de cases.</p>
+            <button id="boton-empezar" class="boton" type="button" data-traduccio="empezar">Comença la reconstrucció</button>
         </section>
 
-        <!-- ZONA PRINCIPAL DEL JUEGO -->
-        <section id="zona-juego" class="zona-juego" hidden>
+        <section id="zona-juego" class="zona-juego" aria-labelledby="titulo-nivel" tabindex="-1" hidden>
+            <aside class="panel-lateral papel" aria-labelledby="titulo-piezas">
+                <h3 id="titulo-piezas" data-traduccio="inventario">Peces disponibles</h3>
+                <p data-traduccio="instrucciones">Tria una peça i prem una casella buida del plànol.</p>
+                <div id="piezas" class="piezas"></div>
 
-            <div class="informacion-nivel papel">
-
-                <div>
-                    <p class="etiqueta">CUADERNO DE RECONSTRUCCIÓN</p>
-                    <h2 id="titulo-nivel">Nivel 1</h2>
-                    <p id="descripcion-nivel">
-                        Reconstruye las primeras manzanas.
-                    </p>
+                <div class="acciones">
+                    <button id="boton-retirar" class="boton secundario" type="button" aria-pressed="false" data-traduccio="retirar">Retira una peça</button>
+                    <button id="boton-reiniciar" class="boton secundario" type="button" data-traduccio="reiniciar">Reinicia el nivell</button>
                 </div>
+            </aside>
+
+            <section class="zona-tablero papel" aria-labelledby="titulo-tablero">
+                <h3 id="titulo-tablero" class="titulo-tablero" data-traduccio="tablero">Quadrícula de reconstrucció</h3>
+                <div id="tablero" class="tablero"></div>
+                <p id="mensaje" class="mensaje" role="status" tabindex="-1"></p>
+            </section>
+
+            <section class="informacion-nivel papel" aria-labelledby="titulo-nivel">
+                <p class="titulo-mision" data-traduccio="mision">Missió</p>
+                <h2 id="titulo-nivel" tabindex="-1"></h2>
+                <p id="descripcion-nivel"></p>
 
                 <div class="estadisticas">
-
                     <div class="dato">
-                        <span>Tiempo</span>
-                        <strong id="tiempo">00:00</strong>
-                    </div>
-
-                    <div class="dato">
-                        <span>Movimientos</span>
+                        <span data-traduccio="movimientos">Moviments</span>
                         <strong id="movimientos">0</strong>
                     </div>
-
                     <div class="dato">
-                        <span>Ayudas</span>
+                        <span data-traduccio="ayudas">Ajudes</span>
                         <strong id="ayudas">0</strong>
                     </div>
-
                     <div class="dato">
-                        <span>Puntuación</span>
+                        <span data-traduccio="puntuacion">Puntuació</span>
                         <strong id="puntuacion">1000</strong>
                     </div>
-
-                </div>
-
-            </div>
-
-            <div class="zona-tablero papel">
-
-                <div class="titulo-tablero">
-                    <h3>Plano de las manzanas</h3>
-                    <span>ESTUDIO DE CERDÀ · BARCELONA</span>
-                </div>
-
-                <div id="tablero" class="tablero">
-                    <!-- JavaScript creará aquí las casillas -->
-                </div>
-
-                <p id="mensaje" class="mensaje" aria-live="polite">
-                    Selecciona una pieza para comenzar.
-                </p>
-
-            </div>
-
-            <aside class="panel-lateral papel">
-
-                <h3>Materiales disponibles</h3>
-
-                <p>
-                    Selecciona una pieza y después pulsa una casilla
-                    vacía del plano.
-                </p>
-
-                <div id="piezas" class="piezas">
-                    <!-- JavaScript creará aquí las piezas -->
                 </div>
 
                 <div class="acciones">
-
-                    <button id="boton-ayuda" class="boton secundario">
-                        Consultar pista
-                    </button>
-
-                    <button id="boton-retirar" class="boton secundario">
-                        Retirar pieza
-                    </button>
-
-                    <button id="boton-reiniciar" class="boton secundario">
-                        Reiniciar nivel
-                    </button>
-
+                    <button id="boton-comprobar" class="boton" type="button" data-traduccio="comprobar">Comprova el plànol</button>
+                    <button id="boton-ayuda" class="boton secundario" type="button" data-traduccio="pista">Consulta la pista</button>
+                    <button id="boton-siguiente" class="boton" type="button" data-traduccio="siguiente" hidden>Nivell següent</button>
+                    <a id="enlace-historia" class="boton" href="../lineaDelTiempo/" data-traduccio="continuarHistoria" hidden>Ves a la línia del temps</a>
                 </div>
+            </section>
 
-            </aside>
-
+            <section class="curiosidad papel" aria-labelledby="titulo-curiosidad">
+                <h3 id="titulo-curiosidad" data-traduccio="curiosidad">Sabies que…?</h3>
+                <p data-traduccio="datoHistorico">El pla original de Cerdà preveia espais verds a l’interior de les illes i donava importància a la llum natural i a la ventilació dels habitatges.</p>
+            </section>
         </section>
 
-        <!-- PROGRESO DE LOS TRES NIVELES -->
-        <section class="progreso papel">
-
-            <h3>Reconstrucción del plano</h3>
-
-            <div id="niveles" class="niveles">
-                <a href="js/niveles.js" class="nivel activo">Nivel 1</a>
-                <a href="js/niveles.js" class="nivel bloqueado">Nivel 2</a>
-                <a href="js/niveles.js" class="nivel bloqueado">Nivel 3</a>
-            </div>
+        <section class="progreso papel" aria-labelledby="titulo-progreso">
+            <h3 id="titulo-progreso" data-traduccio="progreso">Reconstrucció del plànol</h3>
+            <ul class="niveles">
+                <li><button class="nivel" type="button" data-nivell="1" data-estat="actiu" aria-current="step">Nivell 1 · Actiu</button></li>
+                <li><button class="nivel" type="button" data-nivell="2" data-estat="bloquejat" disabled>Nivell 2 · Bloquejat</button></li>
+                <li><button class="nivel" type="button" data-nivell="3" data-estat="bloquejat" disabled>Nivell 3 · Bloquejat</button></li>
+            </ul>
         </section>
-
     </main>
 
-        <footer>
-        <p>Proyecto educativo · <span class="notranslate">Ildefons Cerdà</span> perdió el plano</p>
-        <p>Juego 2 · Reconstruye el <span class="notranslate">Eixample</span></p>
-    </footer>
-
-        <script>
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'es',
-                includedLanguages: 'es,ca,en',
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-
-        // Conectar tu desplegable con el motor de Google
-        document.getElementById('selector-idioma').addEventListener('change', function () {
-            const idiomaElegido = this.value;
-            const comboGoogle = document.querySelector('.goog-te-combo');
-
-            if (comboGoogle) {
-                comboGoogle.value = idiomaElegido;
-                comboGoogle.dispatchEvent(new Event('change'));
-            }
-        });
-
-        // Cargar el script oficial de Google Translate de forma segura
-        (function() {
-            const gtScript = document.createElement('script');
-            gtScript.type = 'text/javascript';
-            gtScript.async = true;
-            gtScript.src = 'https://translate.google.com' + '/translate_a/element.js?cb=googleTranslateElementInit';
-            document.body.appendChild(gtScript);
-        })();
-    </script>
+    <footer data-traduccio="pie">Projecte educatiu · Jocs per aprendre</footer>
+    <script type="module" src="js/principal.js"></script>
 </body>
 </html>
-

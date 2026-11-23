@@ -1,196 +1,118 @@
-
-/*
-    INTERFAZ DEL JUEGO
-
-    Este archivo se encarga de mostrar los elementos
-    del juego y actualizar la página.
-*/
-
-
-// NOMBRES Y SIMBOLOS DE LAS PIEZAS
-
-const nombresPiezas = {
-    vivienda: "Vivienda",
-    parque: "Parque",
-    equipamiento: "Equipamiento"
+const imagenesPiezas = {
+    vivienda: "residencial.png",
+    parque: "zona-verde.png",
+    equipamiento: "equipamiento.png"
 };
 
-const simbolosPiezas = {
-    vivienda: "V",
-    parque: "P",
-    equipamiento: "E"
-};
+function actualizarDibujo(contenedor, tipo) {
+    if (contenedor.dataset.peca === tipo) {
+        return;
+    }
 
+    contenedor.firstElementChild?.remove();
+    if (tipo === null) {
+        delete contenedor.dataset.peca;
+        return;
+    }
 
-// CREAR EL TABLERO
+    contenedor.dataset.peca = tipo;
+    const imagen = document.createElement("img");
+    imagen.alt = "";
+    imagen.hidden = true;
+    imagen.draggable = false;
+    imagen.addEventListener("load", () => { imagen.hidden = false; });
+    imagen.addEventListener("error", () => { imagen.remove(); });
+    imagen.src = new URL(`../img/${imagenesPiezas[tipo]}`, import.meta.url).href;
+    contenedor.appendChild(imagen);
+}
 
-export function mostrarTablero(nivel, partida, alPulsarCasilla) {
+export function crearTablero(contenedor, nivel) {
+    for (const casilla of [...contenedor.children]) {
+        casilla.remove();
+    }
 
-    const tableroHTML = document.getElementById("tablero");
+    contenedor.dataset.columnes = String(nivel.columnas);
+    const casillas = [];
+    const filaCentral = Math.floor(nivel.filas / 2);
+    const columnaCentral = Math.floor(nivel.columnas / 2);
 
-    // Borramos el tablero anterior.
-    tableroHTML.textContent = "";
-
-    // Indicamos cuántas columnas tendrá el tablero.
-    tableroHTML.style.setProperty("--columnas", nivel.columnas);
-
-    // Creamos una casilla por cada posición.
-    partida.tablero.forEach(function (pieza, posicion) {
-
+    for (let posicion = 0; posicion < nivel.filas * nivel.columnas; posicion++) {
         const casilla = document.createElement("button");
-
-        casilla.classList.add("casilla");
         casilla.type = "button";
+        casilla.classList.add("casilla");
+        casilla.dataset.posicio = String(posicion);
+        const fila = Math.floor(posicion / nivel.columnas);
+        const columna = posicion % nivel.columnas;
+        casilla.dataset.fila = String(fila + 1);
+        casilla.dataset.columna = String(columna + 1);
+        casilla.classList.toggle("eje-central", fila === filaCentral || columna === columnaCentral);
 
-        // Si la casilla tiene una pieza, la mostramos.
-        if (pieza !== null) {
+        const pieza = document.createElement("span");
+        pieza.classList.add("dibujo-peca", "pieza-tablero");
+        pieza.setAttribute("aria-hidden", "true");
+        casilla.appendChild(pieza);
+        contenedor.appendChild(casilla);
+        casillas.push(casilla);
+    }
 
-            const elementoPieza = document.createElement("span");
+    return casillas;
+}
 
-            elementoPieza.classList.add("pieza-tablero");
-            elementoPieza.classList.add(pieza);
+export function crearPiezas(contenedor, inventario) {
+    for (const boton of [...contenedor.children]) {
+        boton.remove();
+    }
 
-            elementoPieza.textContent = simbolosPiezas[pieza];
+    const botones = [];
 
-            casilla.appendChild(elementoPieza);
-        }
+    for (const tipo of Object.keys(inventario)) {
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.classList.add("boton-pieza");
+        boton.dataset.peca = tipo;
 
-        // Al pulsar una casilla avisamos al archivo principal.
-        casilla.addEventListener("click", function () {
-            alPulsarCasilla(posicion);
-        });
+        const muestra = document.createElement("span");
+        muestra.classList.add("dibujo-peca", "muestra-pieza");
+        muestra.setAttribute("aria-hidden", "true");
+        actualizarDibujo(muestra, tipo);
 
-        tableroHTML.appendChild(casilla);
+        boton.appendChild(muestra);
+        boton.appendChild(document.createElement("span"));
+        contenedor.appendChild(boton);
+        botones.push(boton);
+    }
+
+    return botones;
+}
+
+export function actualizarTablero(casillas, tablero, completada, textos) {
+    casillas.forEach((casilla, posicion) => {
+        const tipo = tablero[posicion];
+        const pieza = casilla.firstElementChild;
+        const nombre = textos.piezas[tipo];
+
+        casilla.disabled = completada;
+        casilla.dataset.estat = tipo === null ? "buida" : "ocupada";
+        casilla.setAttribute("aria-label",
+            textos.casilla(casilla.dataset.fila, casilla.dataset.columna, nombre ?? textos.vacia));
+        actualizarDibujo(pieza, tipo);
     });
 }
 
-
-// MOSTRAR LAS PIEZAS DISPONIBLES
-
-export function mostrarPiezas(partida, alSeleccionarPieza) {
-
-    const piezasHTML = document.getElementById("piezas");
-
-    // Borramos las piezas anteriores.
-    piezasHTML.textContent = "";
-
-    // Recorremos el inventario.
-    for (const tipo in partida.inventarioRestante) {
-
-        if (partida.inventarioRestante.hasOwnProperty(tipo)) {
-
-            const cantidad = partida.inventarioRestante[tipo];
-
-            // Creamos el botón de la pieza.
-            const boton = document.createElement("button");
-
-            boton.classList.add("boton-pieza");
-            boton.type = "button";
-
-            // Añadimos un color según el tipo de pieza.
-            const muestra = document.createElement("span");
-
-            muestra.classList.add("muestra-pieza");
-            muestra.classList.add(tipo);
-
-            muestra.textContent = simbolosPiezas[tipo];
-
-            // Añadimos el nombre y la cantidad.
-            const texto = document.createElement("span");
-
-            texto.textContent = nombresPiezas[tipo] + " (" + cantidad + ")";
-
-            boton.appendChild(muestra);
-            boton.appendChild(texto);
-
-            // Marcamos la pieza seleccionada.
-            if (partida.piezaSeleccionada === tipo) {
-                boton.classList.add("seleccionada");
-            }
-
-            // Desactivamos el botón si no quedan piezas.
-            if (cantidad === 0) {
-                boton.disabled = true;
-            }
-
-            // Al pulsar avisamos al archivo principal.
-            boton.addEventListener("click", function () {
-                alSeleccionarPieza(tipo);
-            });
-
-            piezasHTML.appendChild(boton);
-        }
+export function actualizarPiezas(botones, partida, completada, textos) {
+    for (const boton of botones) {
+        const tipo = boton.dataset.peca;
+        const cantidad = partida.inventarioRestante[tipo];
+        const seleccionada = partida.piezaSeleccionada === tipo;
+        boton.lastElementChild.textContent = `${textos.piezas[tipo]} (${cantidad})`;
+        boton.classList.toggle("seleccionada", seleccionada);
+        boton.setAttribute("aria-pressed", String(seleccionada));
+        boton.setAttribute("aria-disabled", String(cantidad === 0));
+        boton.disabled = completada;
     }
 }
 
-
-// ACTUALIZAR LOS DATOS DE LA PARTIDA
-
-export function actualizarEstadisticas(partida, puntuacion) {
-
-    document.getElementById("movimientos").textContent =
-        partida.movimientos;
-
-    document.getElementById("ayudas").textContent =
-        partida.ayudas;
-
-    document.getElementById("puntuacion").textContent =
-        puntuacion;
-}
-
-
-// MOSTRAR EL TITULO Y LA DESCRIPCION DEL NIVEL
-
-export function mostrarInformacionNivel(nivel) {
-
-    document.getElementById("titulo-nivel").textContent =
-        "Nivel " + nivel.id + ": " + nivel.titulo;
-
-    document.getElementById("descripcion-nivel").textContent =
-        nivel.descripcion;
-}
-
-
-// MOSTRAR UN MENSAJE AL JUGADOR
-
-export function mostrarMensaje(mensaje) {
-
-    document.getElementById("mensaje").textContent = mensaje;
-}
-
-
-// MOSTRAR EL PROGRESO DE LOS NIVELES
-
-export function mostrarProgreso(nivelActual, nivelesCompletados) {
-
-    const nivelesHTML = document.getElementById("niveles");
-
-    // Borramos los indicadores anteriores.
-    nivelesHTML.textContent = "";
-
-    // Recorremos todos los niveles.
-    nivelesCompletados.forEach(function (nivel) {
-
-        const elemento = document.createElement("span");
-
-        elemento.classList.add("nivel");
-        elemento.textContent = "Nivel " + nivel.id;
-
-        // Comprobamos si el nivel está completado.
-        if (nivel.id <= nivelesCompletados.length &&
-            nivel.id < nivelActual) {
-
-            elemento.classList.add("completado");
-
-        } else if (nivel.id === nivelActual) {
-
-            elemento.classList.add("activo");
-
-        } else {
-
-            elemento.classList.add("bloqueado");
-        }
-
-        nivelesHTML.appendChild(elemento);
-    });
+export function mostrarMensaje(elemento, texto, estado = "informacio") {
+    elemento.dataset.estat = estado;
+    elemento.textContent = texto;
 }

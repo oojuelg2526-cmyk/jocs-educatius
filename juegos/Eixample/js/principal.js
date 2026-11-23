@@ -1,271 +1,277 @@
-
-/*
-    ARCHIVO PRINCIPAL
-
-    Conecta la lógica del juego con la interfaz
-    y controla los eventos de los botones.
-*/
-
 import { niveles } from "./niveles.js";
-
+import { traducciones } from "./traducciones.js";
+import { leerProgreso, guardarProgreso } from "./progreso.js";
 import {
     crearPartida,
     seleccionarPieza,
     colocarPieza,
     retirarPieza,
-    comprobarSolucion,
+    comprobarPlano,
     usarPista,
     calcularPuntuacion
 } from "./juego.js";
-
 import {
-    mostrarTablero,
-    mostrarPiezas,
-    actualizarEstadisticas,
-    mostrarInformacionNivel,
-    mostrarMensaje,
-    mostrarProgreso
+    crearTablero,
+    crearPiezas,
+    actualizarTablero,
+    actualizarPiezas,
+    mostrarMensaje
 } from "./interfaz.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+    const introduccion = document.getElementById("introduccion");
+    const zonaJuego = document.getElementById("zona-juego");
+    const tituloNivel = document.getElementById("titulo-nivel");
+    const descripcion = document.getElementById("descripcion-nivel");
+    const tablero = document.getElementById("tablero");
+    const piezas = document.getElementById("piezas");
+    const mensaje = document.getElementById("mensaje");
+    const movimientos = document.getElementById("movimientos");
+    const ayudas = document.getElementById("ayudas");
+    const puntuacion = document.getElementById("puntuacion");
+    const botonEmpezar = document.getElementById("boton-empezar");
+    const botonAyuda = document.getElementById("boton-ayuda");
+    const botonComprobar = document.getElementById("boton-comprobar");
+    const botonRetirar = document.getElementById("boton-retirar");
+    const botonReiniciar = document.getElementById("boton-reiniciar");
+    const botonSiguiente = document.getElementById("boton-siguiente");
+    const enlaceHistoria = document.getElementById("enlace-historia");
+    const selectorIdioma = document.getElementById("selector-idioma");
+    const etiquetas = document.querySelectorAll("[data-traduccio]");
+    const indicadores = document.querySelectorAll(".nivel[data-nivell]");
 
-// VARIABLES DE LA PARTIDA
+    const guardado = leerProgreso();
+    const progreso = {
+        ...guardado,
+        status: guardado.status ?? "unlocked",
+        last_level_completed: guardado.last_level_completed ?? 0,
+        level_scores: guardado.level_scores ?? {},
+        partidas: guardado.partidas ?? {}
+    };
+    let nivel = niveles.find(opcion => opcion.id === guardado.nivelActual
+        && opcion.id <= progreso.last_level_completed + 1) ?? niveles[0];
+    let partida = recuperarPartida();
+    let casillas = crearTablero(tablero, nivel);
+    let botonesPieza = crearPiezas(piezas, nivel.inventario);
+    let modoRetirar = false;
+    let textos = traducciones.ca;
+    let aviso = null;
 
-let numeroNivel = 0;
-let partida;
-let modoRetirar = false;
-
-
-// ELEMENTOS HTML
-
-const introduccion = document.getElementById("introduccion");
-const zonaJuego = document.getElementById("zona-juego");
-
-const botonEmpezar = document.getElementById("boton-empezar");
-const botonAyuda = document.getElementById("boton-ayuda");
-const botonRetirar = document.getElementById("boton-retirar");
-const botonReiniciar = document.getElementById("boton-reiniciar");
-
-
-// INICIAR UN NIVEL
-
-function iniciarNivel() {
-
-    const nivel = niveles[numeroNivel];
-
-    // Creamos una partida nueva.
-    partida = crearPartida(nivel);
-
-    modoRetirar = false;
-
-    // Mostramos la información del nivel.
-    mostrarInformacionNivel(nivel);
-
-    // Mostramos el tablero y las piezas.
-    actualizarInterfaz();
-
-    // Mostramos el progreso.
-    mostrarProgreso(numeroNivel + 1, niveles);
-
-    mostrarMensaje("Selecciona una pieza para comenzar.");
-}
-
-
-// ACTUALIZAR LA INTERFAZ
-
-function actualizarInterfaz() {
-
-    const nivel = niveles[numeroNivel];
-
-    mostrarTablero(nivel, partida, pulsarCasilla);
-
-    mostrarPiezas(partida, elegirPieza);
-
-    actualizarEstadisticas(
-        partida,
-        calcularPuntuacion(partida)
-    );
-}
-
-
-// COMENZAR EL JUEGO
-
-botonEmpezar.addEventListener("click", function () {
-
-    introduccion.hidden = true;
-    zonaJuego.hidden = false;
-
-    iniciarNivel();
-
-});
-
-
-// SELECCIONAR UNA PIEZA
-
-function elegirPieza(tipo) {
-
-    modoRetirar = false;
-
-    const seleccionCorrecta = seleccionarPieza(partida, tipo);
-
-    if (seleccionCorrecta) {
-
-        mostrarMensaje("Has seleccionado: " + tipo);
-
-    } else {
-
-        mostrarMensaje("No quedan piezas de este tipo.");
-
+    function recuperarPartida() {
+        const guardada = progreso.partidas[nivel.id];
+        const compatible = Array.isArray(guardada?.tablero) && guardada.inventarioRestante
+            && guardada.tablero.length === nivel.filas * nivel.columnas;
+        return compatible ? guardada : crearPartida(nivel);
     }
 
-    actualizarInterfaz();
-}
+    function actualizarProgreso() {
+        for (const indicador of indicadores) {
+            const id = Number(indicador.dataset.nivell);
+            const actual = id === nivel.id;
+            let estado = actual ? "actiu" : "disponible";
 
+            if (id <= progreso.last_level_completed) {
+                estado = "completat";
+            } else if (id > progreso.last_level_completed + 1) {
+                estado = "bloquejat";
+            }
 
-// PULSAR UNA CASILLA DEL TABLERO
+            indicador.disabled = estado === "bloquejat";
+            indicador.dataset.estat = estado;
+            indicador.textContent = textos.nivel(id, textos.estados[estado]);
 
-function pulsarCasilla(posicion) {
+            if (actual) {
+                indicador.setAttribute("aria-current", "step");
+            } else {
+                indicador.removeAttribute("aria-current");
+            }
+        }
+    }
 
-    // Si estamos en modo retirar, quitamos la pieza.
-    if (modoRetirar) {
+    function actualizarInterfaz() {
+        const textosNivel = textos.niveles[nivel.id];
+        tituloNivel.textContent = textos.nivel(nivel.id, textosNivel.titulo);
+        descripcion.textContent = textosNivel.descripcion;
 
-        const retiradaCorrecta = retirarPieza(partida, posicion);
+        actualizarTablero(casillas, partida.tablero, partida.completada, textos);
+        actualizarPiezas(botonesPieza, partida, partida.completada, textos);
+        movimientos.textContent = String(partida.movimientos);
+        ayudas.textContent = String(partida.ayudas);
+        puntuacion.textContent = String(calcularPuntuacion(partida));
+        botonAyuda.disabled = partida.completada;
+        botonComprobar.disabled = partida.completada;
+        botonComprobar.hidden = partida.completada;
+        botonRetirar.disabled = partida.completada;
+        botonRetirar.setAttribute("aria-pressed", String(modoRetirar));
+        botonSiguiente.hidden = !partida.completada || nivel.id === niveles.length;
+        enlaceHistoria.hidden = progreso.last_level_completed < niveles.length;
 
-        if (retiradaCorrecta) {
+        const colocando = partida.piezaSeleccionada !== null && !partida.completada;
+        tablero.classList.toggle("colocando", colocando && !modoRetirar);
+        tablero.classList.toggle("retirando", modoRetirar);
+        actualizarProgreso();
+    }
 
-            mostrarMensaje("Has retirado la pieza.");
+    function registrarPartida() {
+        progreso.partidas[nivel.id] = partida;
+        progreso.nivelActual = nivel.id;
+        guardarProgreso(progreso);
+        actualizarInterfaz();
+    }
 
-        } else {
+    function actualizarAviso() {
+        if (aviso === null) {
+            return;
+        }
 
-            mostrarMensaje("Esta casilla está vacía.");
+        const traduccion = textos.niveles[nivel.id][aviso.clave] ?? textos.avisos[aviso.clave];
+        const texto = aviso.tipo === null ? traduccion : traduccion(textos.piezas[aviso.tipo]);
+        mostrarMensaje(mensaje, texto, aviso.estado);
+    }
 
+    function mostrarAviso(clave, estado = "informacio", tipo = null) {
+        aviso = { clave, estado, tipo };
+        actualizarAviso();
+    }
+
+    function aplicarIdioma(valor) {
+        const idioma = Object.hasOwn(traducciones, valor) ? valor : "ca";
+        textos = traducciones[idioma];
+        document.documentElement.lang = idioma;
+        selectorIdioma.value = idioma;
+
+        for (const etiqueta of etiquetas) {
+            etiqueta.textContent = textos[etiqueta.dataset.traduccio];
+        }
+
+        actualizarInterfaz();
+        actualizarAviso();
+    }
+
+    function abrirNivel(id) {
+        const elegido = niveles.find(opcion => opcion.id === id);
+        if (!elegido || id > progreso.last_level_completed + 1) {
+            return;
+        }
+
+        if (elegido !== nivel) {
+            nivel = elegido;
+            partida = recuperarPartida();
+            casillas = crearTablero(tablero, nivel);
+            botonesPieza = crearPiezas(piezas, nivel.inventario);
+            modoRetirar = false;
+        }
+
+        introduccion.hidden = true;
+        zonaJuego.hidden = false;
+        registrarPartida();
+        mostrarAviso(partida.completada ? "victoria" : "inicio", partida.completada ? "correcte" : "informacio");
+        zonaJuego.focus();
+    }
+
+    function reiniciarPartida() {
+        partida = crearPartida(nivel);
+        modoRetirar = false;
+        registrarPartida();
+        mostrarAviso("inicio");
+    }
+
+    function jugarCasilla(posicion) {
+        if (modoRetirar) {
+            const retirada = retirarPieza(partida, posicion);
+            modoRetirar = false;
+            registrarPartida();
+            mostrarAviso(retirada ? "retirada" : "vacia", retirada ? "correcte" : "error");
+            return;
+        }
+
+        if (partida.piezaSeleccionada === null) {
+            mostrarAviso("sinSeleccion", "error");
+            return;
+        }
+
+        if (!colocarPieza(partida, posicion)) {
+            mostrarAviso("ocupada", "error");
+            return;
+        }
+
+        registrarPartida();
+        mostrarAviso(partida.tablero.includes(null) ? "colocada" : "listoParaComprobar", "correcte");
+    }
+
+    function comprobarPartida() {
+        const error = comprobarPlano(partida, nivel);
+        if (error !== null) {
+            mostrarAviso(error, "error");
+            mensaje.focus();
+            return;
+        }
+
+        partida.completada = true;
+        progreso.last_level_completed = Math.max(progreso.last_level_completed, nivel.id);
+        progreso.level_scores[nivel.id] = Math.max(progreso.level_scores[nivel.id] ?? 0, calcularPuntuacion(partida));
+        progreso.best_score = niveles.reduce((total, opcion) => total + (progreso.level_scores[opcion.id] ?? 0), 0);
+        progreso.status = progreso.last_level_completed === niveles.length ? "completed" : "unlocked";
+        registrarPartida();
+        mostrarAviso("victoria", "correcte");
+        mensaje.focus();
+    }
+
+    selectorIdioma.addEventListener("change", event => {
+        aplicarIdioma(event.currentTarget.value);
+        progreso.idioma = selectorIdioma.value;
+        guardarProgreso(progreso);
+    });
+
+    botonEmpezar.addEventListener("click", () => abrirNivel(nivel.id));
+    botonSiguiente.addEventListener("click", () => abrirNivel(nivel.id + 1));
+    botonReiniciar.addEventListener("click", reiniciarPartida);
+    botonComprobar.addEventListener("click", comprobarPartida);
+
+    for (const indicador of indicadores) {
+        indicador.addEventListener("click", event => abrirNivel(Number(event.currentTarget.dataset.nivell)));
+    }
+
+    piezas.addEventListener("click", event => {
+        const boton = event.target.closest("button[data-peca]");
+        if (boton === null || partida.completada) {
+            return;
+        }
+
+        const tipo = boton.dataset.peca;
+        if (!seleccionarPieza(partida, tipo)) {
+            mostrarAviso("agotada", "error");
+            return;
         }
 
         modoRetirar = false;
+        registrarPartida();
+        mostrarAviso("seleccionada", "informacio", tipo);
+    });
 
-        actualizarInterfaz();
-
-        return;
-    }
-
-
-    // Si no estamos en modo retirar, colocamos una pieza.
-    const colocacionCorrecta = colocarPieza(partida, posicion);
-
-    if (colocacionCorrecta) {
-
-        mostrarMensaje("Pieza colocada correctamente.");
-
-        actualizarInterfaz();
-
-        // Comprobamos si hemos terminado el nivel.
-        if (comprobarSolucion(partida, niveles[numeroNivel])) {
-
-            completarNivel();
+    tablero.addEventListener("click", event => {
+        const casilla = event.target.closest("button[data-posicio]");
+        if (casilla === null || partida.completada) {
+            return;
         }
 
-    } else {
-
-        mostrarMensaje("No puedes colocar la pieza en esa casilla.");
-
-    }
-}
-
-
-// RETIRAR PIEZAS
-
-botonRetirar.addEventListener("click", function () {
-
-    modoRetirar = true;
-
-    mostrarMensaje("Selecciona una casilla para retirar su pieza.");
-
-});
-
-
-// UTILIZAR UNA PISTA
-
-botonAyuda.addEventListener("click", function () {
-
-    const numeroAyudas = usarPista(partida);
-
-    const pista = niveles[numeroNivel].pista;
-
-    mostrarMensaje(pista);
-
-    actualizarInterfaz();
-
-    console.log("Ayudas utilizadas:", numeroAyudas);
-
-});
-
-
-// REINICIAR EL NIVEL
-
-botonReiniciar.addEventListener("click", function () {
-
-    const confirmar = confirm("¿Quieres reiniciar este nivel?");
-
-    if (confirmar) {
-
-        iniciarNivel();
-
-        mostrarMensaje("Has reiniciado el nivel.");
-
-    }
-
-});
-
-
-// COMPLETAR UN NIVEL
-
-function completarNivel() {
-
-    const puntuacion = calcularPuntuacion(partida);
-
-    console.log("Nivel completado:", numeroNivel + 1);
-    console.log("Puntuación:", puntuacion);
-
-    // Comprobamos si quedan más niveles.
-    if (numeroNivel < niveles.length - 1) {
-
-        const continuar = confirm(
-            "¡Has completado el nivel " + (numeroNivel + 1) +
-            "!\nTu puntuación es: " + puntuacion +
-            "\n\n¿Quieres continuar con el siguiente nivel?"
-        );
-
-        if (continuar) {
-
-            numeroNivel++;
-
-            iniciarNivel();
-
-        } else {
-
-            mostrarMensaje("Nivel completado. Puedes continuar cuando quieras.");
-
+        const posicion = Number(casilla.dataset.posicio);
+        if (!isNaN(posicion)) {
+            jugarCasilla(posicion);
         }
+    });
 
-    } else {
+    botonRetirar.addEventListener("click", () => {
+        modoRetirar = !modoRetirar;
+        actualizarInterfaz();
+        mostrarAviso(modoRetirar ? "retirar" : "cancelarRetirada");
+    });
 
-        // Se han completado los tres niveles.
-        mostrarMensaje("¡Has reconstruido todas las manzanas!");
+    botonAyuda.addEventListener("click", () => {
+        usarPista(partida);
+        registrarPartida();
+        mostrarAviso("pista");
+    });
 
-        alert(
-            "¡ENHORABUENA!\n\n" +
-            "Has completado la reconstrucción del Eixample.\n\n" +
-            "Al abrir el compartimento secreto encuentras los manuscritos " +
-            "perdidos de Cerdà.\n\n" +
-            "Has conseguido la segunda pieza del plano: LAS MANZANAS.\n\n" +
-            "Ahora los manuscritos deben llegar al archivo histórico."
-        );
-
-        console.log("Juego 2 completado.");
-    }
-
-}
-
-
-// MOSTRAR EL PROGRESO INICIAL
-
-mostrarProgreso(1, niveles);
+    aplicarIdioma(guardado.idioma ?? "ca");
+});

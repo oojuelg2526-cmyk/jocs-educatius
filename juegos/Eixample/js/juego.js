@@ -1,198 +1,153 @@
-
-/*
-    JUEGO: RECONSTRUYE EL EIXAMPLE
-
-    Este archivo contiene las funciones principales
-    para controlar una partida.
-*/
-
-
-// CREAR UNA NUEVA PARTIDA
-
 export function crearPartida(nivel) {
-
-    // Creamos un tablero vacío con tantas casillas
-    // como elementos tenga la solución del nivel.
-    const tablero = [];
-
-    for (const pieza of nivel.solucion) {
-        tablero.push(null);
-    }
-
-    // Copiamos el inventario para no modificar
-    // los datos originales de niveles.js.
-    const inventarioRestante = {};
-
-    for (const tipo in nivel.inventario) {
-
-        if (nivel.inventario.hasOwnProperty(tipo)) {
-            inventarioRestante[tipo] = nivel.inventario[tipo];
-        }
-    }
-
-    // Devolvemos los datos de la partida.
     return {
-        tablero: tablero,
-        inventarioRestante: inventarioRestante,
+        tablero: Array(nivel.filas * nivel.columnas).fill(null),
+        inventarioRestante: { ...nivel.inventario },
         piezaSeleccionada: null,
         movimientos: 0,
-        ayudas: 0
+        ayudas: 0,
+        completada: false
     };
 }
 
+function posicionValida(partida, posicion) {
+    return Number.isInteger(posicion) && posicion >= 0 && posicion < partida.tablero.length;
+}
 
-// SELECCIONAR UNA PIEZA
+function quedanPiezas(partida, tipo) {
+    return Object.prototype.hasOwnProperty.call(partida.inventarioRestante, tipo)
+        && partida.inventarioRestante[tipo] > 0;
+}
 
 export function seleccionarPieza(partida, tipo) {
-
-    // Comprobamos si quedan piezas de ese tipo.
-    if (partida.inventarioRestante[tipo] <= 0) {
+    if (!quedanPiezas(partida, tipo)) {
         return false;
     }
 
     partida.piezaSeleccionada = tipo;
-
     return true;
 }
-
-
-// COLOCAR UNA PIEZA EN EL TABLERO
 
 export function colocarPieza(partida, posicion) {
-
-    // Comprobamos que haya una pieza seleccionada.
-    if (partida.piezaSeleccionada === null) {
-        return false;
-    }
-
-    // Comprobamos que la posición exista.
-    if (posicion < 0 || posicion >= partida.tablero.length) {
-        return false;
-    }
-
-    // No podemos colocar una pieza en una casilla ocupada.
-    if (partida.tablero[posicion] !== null) {
-        return false;
-    }
-
     const tipo = partida.piezaSeleccionada;
 
-    // Comprobamos que todavía queden piezas disponibles.
-    if (partida.inventarioRestante[tipo] <= 0) {
+    if (!posicionValida(partida, posicion) || partida.tablero[posicion] !== null
+        || !quedanPiezas(partida, tipo)) {
         return false;
     }
 
-    // Colocamos la pieza.
     partida.tablero[posicion] = tipo;
-
-    // Restamos una unidad al inventario.
     partida.inventarioRestante[tipo]--;
-
-    // Sumamos un movimiento.
     partida.movimientos++;
 
-    // Dejamos de tener una pieza seleccionada.
-    partida.piezaSeleccionada = null;
+    if (!quedanPiezas(partida, tipo)) {
+        partida.piezaSeleccionada = null;
+    }
 
     return true;
 }
 
-
-// RETIRAR UNA PIEZA DEL TABLERO
-
 export function retirarPieza(partida, posicion) {
-
-    // Comprobamos que la posición sea válida.
-    if (posicion < 0 || posicion >= partida.tablero.length) {
-        return false;
-    }
-
-    // Comprobamos que la casilla tenga una pieza.
-    if (partida.tablero[posicion] === null) {
+    if (!posicionValida(partida, posicion) || partida.tablero[posicion] === null) {
         return false;
     }
 
     const tipo = partida.tablero[posicion];
-
-    // Devolvemos la pieza al inventario.
     partida.inventarioRestante[tipo]++;
-
-    // Vaciamos la casilla.
     partida.tablero[posicion] = null;
-
-    // Sumamos un movimiento.
     partida.movimientos++;
-
     return true;
 }
 
+function tramoDelEje(fila, columna, filaCentral, columnaCentral) {
+    if (fila === filaCentral && columna !== columnaCentral) {
+        return columna < columnaCentral ? "oest" : "est";
+    }
+    if (columna === columnaCentral && fila !== filaCentral) {
+        return fila < filaCentral ? "nord" : "sud";
+    }
+    return null;
+}
 
-// COMPROBAR SI EL NIVEL ESTÁ COMPLETADO
+function comprobarDistribucion(tablero, nivel) {
+    const filaCentral = Math.floor(nivel.filas / 2);
+    const columnaCentral = Math.floor(nivel.columnas / 2);
+    const parques = [0, 0, 0, 0];
+    const tramos = new Set();
 
-export function comprobarSolucion(partida, nivel) {
+    for (const [posicion, tipo] of tablero.entries()) {
+        if (tipo === "vivienda") {
+            continue;
+        }
 
-    // Recorremos todas las casillas del tablero.
-    for (let i = 0; i < nivel.solucion.length; i++) {
+        const fila = Math.floor(posicion / nivel.columnas);
+        const columna = posicion % nivel.columnas;
+        if (tipo === "equipamiento") {
+            const tramo = tramoDelEje(fila, columna, filaCentral, columnaCentral);
+            if (tramo === null || tramos.has(tramo)) {
+                return "equipamientosEjes";
+            }
+            tramos.add(tramo);
+        } else {
+            if (fila === filaCentral || columna === columnaCentral) {
+                return "parquesCuadrante";
+            }
 
-        // Si alguna casilla no coincide con la solución,
-        // el nivel todavía no está completado.
-        if (partida.tablero[i] !== nivel.solucion[i]) {
-            return false;
+            const mitadVertical = fila < filaCentral ? 0 : 2;
+            const mitadHorizontal = columna < columnaCentral ? 0 : 1;
+            parques[mitadVertical + mitadHorizontal]++;
         }
     }
 
-    return true;
+    if (parques.some(cantidad => cantidad !== nivel.parquesPorCuadrante)) {
+        return "parquesCuadrante";
+    }
+
+    return tramos.size === (nivel.inventario.equipamiento ?? 0) ? null : "equipamientosEjes";
 }
 
+function hayParqueAlLado(tablero, nivel, posicion) {
+    const fila = Math.floor(posicion / nivel.columnas);
+    const columna = posicion % nivel.columnas;
 
-// UTILIZAR UNA PISTA
+    return (fila > 0 && tablero[posicion - nivel.columnas] === "parque")
+        || (fila < nivel.filas - 1 && tablero[posicion + nivel.columnas] === "parque")
+        || (columna > 0 && tablero[posicion - 1] === "parque")
+        || (columna < nivel.columnas - 1 && tablero[posicion + 1] === "parque");
+}
+
+function comprobarVecindad(tablero, nivel) {
+    for (const [posicion, tipo] of tablero.entries()) {
+        if (tipo === "parque" && hayParqueAlLado(tablero, nivel, posicion)) {
+            return "parquesJuntos";
+        }
+        if (tipo === "equipamiento" && !hayParqueAlLado(tablero, nivel, posicion)) {
+            return "equipamientoSinParque";
+        }
+    }
+
+    return null;
+}
+
+export function comprobarPlano(partida, nivel) {
+    if (partida.tablero.length !== nivel.filas * nivel.columnas
+        || partida.tablero.includes(null)
+        || Object.values(partida.inventarioRestante).some(cantidad => cantidad !== 0)) {
+        return "tableroIncompleto";
+    }
+
+    const error = comprobarDistribucion(partida.tablero, nivel);
+    if (error === null && nivel.comprobarVecindad) {
+        return comprobarVecindad(partida.tablero, nivel);
+    }
+
+    return error;
+}
 
 export function usarPista(partida) {
-
     partida.ayudas++;
-
     return partida.ayudas;
 }
 
-
-// CALCULAR LA PUNTUACIÓN
-
 export function calcularPuntuacion(partida) {
-
-    let puntuacion = 1000;
-
-    // Cada movimiento resta 10 puntos.
-    puntuacion = puntuacion - (partida.movimientos * 10);
-
-    // Cada pista utilizada resta 50 puntos.
-    puntuacion = puntuacion - (partida.ayudas * 50);
-
-    // La puntuación nunca puede ser negativa.
-    if (puntuacion < 0) {
-        puntuacion = 0;
-    }
-
-    return puntuacion;
-}
-
-
-// OBTENER LAS PIEZAS DISPONIBLES
-
-export function obtenerPiezasDisponibles(partida) {
-
-    const piezas = [];
-
-    // Recorremos las propiedades del objeto inventario.
-    for (const tipo in partida.inventarioRestante) {
-
-        if (partida.inventarioRestante.hasOwnProperty(tipo)) {
-
-            piezas.push({
-                tipo: tipo,
-                cantidad: partida.inventarioRestante[tipo]
-            });
-        }
-    }
-
-    return piezas;
+    return Math.max(0, 1000 - partida.movimientos * 10 - partida.ayudas * 50);
 }
