@@ -70,6 +70,8 @@ class JuegoLineaTiempo {
 
         // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
         const datosBD = {
+            // Identificador del juego
+            game: "timeline",
             // Métricas generales de sesión
             username: username,
             session_id: sessionId,
