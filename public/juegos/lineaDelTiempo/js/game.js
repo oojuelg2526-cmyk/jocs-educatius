@@ -357,7 +357,7 @@ class JuegoLineaTiempo {
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\nEl siguiente juego ha sido desbloqueado.";
+                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
                 // Desbloqueamos el siguiente juego en localStorage
                 localStorage.setItem("juego3Superado", "true");
             }
