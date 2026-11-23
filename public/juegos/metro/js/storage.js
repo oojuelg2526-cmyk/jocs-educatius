@@ -86,7 +86,7 @@ function newId() {
 // session_length se calcula al guardar.
 function newSession() {
   return {
-    username: "invitado",
+    username: localStorage.getItem("username") || "invitado", // el mismo nombre que usan los otros juegos
     session_id: newId(),
     date_time: new Date().toISOString(),
     level_reached: 1,
@@ -133,4 +133,33 @@ function saveSession(session, startedAt) {
     sessions.push(session);
   }
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+// ----- servidor: se envía el resultado de cada nivel a la base de datos -----
+
+// Los datos de un nivel, con los nombres que espera /api/guardar-metricas.
+function buildPayload(session, res, startedAt) {
+  return {
+    username: session.username,
+    session_id: session.session_id,
+    game: "metro",
+    level: res.level,
+    date_time: session.date_time,
+    session_length: Math.round((Date.now() - startedAt) / 1000),
+    level_time: res.seconds,
+    moves_count: res.moves,
+    help_clicks: res.helps,
+    final_score: res.score,
+    stars: res.stars,
+    completed: res.won,
+  };
+}
+
+// Lo envía. Si falla (sin conexión, por ejemplo), no pasa nada: ya está guardado en el navegador.
+function sendToServer(session, res, startedAt) {
+  fetch("/api/guardar-metricas", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(buildPayload(session, res, startedAt)),
+  }).catch(() => {});
 }

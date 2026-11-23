@@ -52,6 +52,7 @@ function endLevel() {
   const res = result(game);
   addAttempt(session, res);
   saveSession(session, sessionStart);
+  sendToServer(session, res, sessionStart); // además, a la base de datos
 
   if (!res.won) {
     showCard(t("timeout_title"), t("timeout_text", { n: game.level.timeLimit }), [
