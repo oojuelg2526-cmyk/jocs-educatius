@@ -71,6 +71,8 @@ class JuegoLineaTiempo {
 
         // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
         const datosBD = {
+            // Identificador del juego
+            game: "timeline",
             // Métricas generales de sesión
             username: username,
             session_id: sessionId,
@@ -357,7 +359,7 @@ class JuegoLineaTiempo {
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.textContent += "\n\n¡Has completado todos los niveles!\nEl siguiente juego ha sido desbloqueado.";
+                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.
                 localStorage.setItem("juego3Superado", "true");
                 enlaceMetro.hidden = false;
                 enlaceMetro.focus();
