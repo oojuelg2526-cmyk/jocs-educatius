@@ -19,7 +19,7 @@ class MetricasPartida {
         this.fechaInicio = new Date();
     }
 
-    // RA3: Método que usa Date para calcular los segundos exactos jugados
+    // RA3: Método que usa Date para calcular los segundos exactos jugados del nivel
     calcularTiempoTotal() {
         const ahora = new Date();
         return Math.floor((ahora - this.fechaInicio) / 1000);
@@ -30,6 +30,10 @@ class MetricasPartida {
 class JuegoLineaTiempo {
     // Añadimos 'tiempo' y 'nivelActual' como parámetros
     constructor(datosNivel, tiempo, nivelActual) {
+        // Guardamos los datos originales del nivel para poder reiniciarlo si falla
+        this.datosNivel = datosNivel;
+        this.tiempoInicial = tiempo;
+
         this.hitos = datosNivel.map(dato => new HitoHistorico(dato.id, dato.title, dato.label, dato.order, dato.hint));
         this.metricas = new MetricasPartida();
 
@@ -53,13 +57,65 @@ class JuegoLineaTiempo {
     }
 
     // =========================================================
+    // Persistencia de métricas adaptadas a las exigencias de BD
+    // =========================================================
+    async guardarMetricasBD() {
+        // Recuperamos las métricas generales de sesión compartidas (guardadas previamente en localStorage/sessionStorage)
+        const username = localStorage.getItem("username") || "Anónimo";
+        const sessionId = localStorage.getItem("session_id") || "0000-0000";
+
+        // Calculamos la duración total de la sesión (asumiendo que se guardó 'session_start_time' al entrar al proyecto)
+        const sessionStartTime = localStorage.getItem("session_start_time") || Date.now();
+        const sessionLength = Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000);
+
+        // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
+        const datosBD = {
+            // Identificador del juego
+            game: "timeline",
+            // Métricas generales de sesión
+            username: username,
+            session_id: sessionId,
+            date_time: new Date().toISOString(), // Fecha y hora actuales de la finalización
+            session_length: sessionLength,
+
+            // Métricas propias de este juego/nivel
+            errors_made: this.metricas.errores,
+            level_time: this.metricas.calcularTiempoTotal(),
+            hints_used: this.metricas.pistasUsadas,
+            final_score: this.metricas.puntuacionFinal || this.puntos,
+
+            // Dato extra recomendado para saber a qué nivel corresponden las métricas
+            nivel_jugado: this.nivelActual
+        };
+
+        try {
+            // Ajusta '/api/guardar-metricas' al endpoint real de tu proyecto
+            const respuesta = await fetch('/api/guardar-metricas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosBD)
+            });
+
+            if (respuesta.ok) {
+                console.log("Métricas enviadas correctamente al servidor SQL Server:", datosBD);
+            } else {
+                console.error("Error del servidor al intentar guardar las métricas:", respuesta.status);
+            }
+        } catch (error) {
+            console.error("No se pudo conectar con el servidor para guardar las métricas:", error);
+        }
+    }
+
+    // =========================================================
     // RA6: Manipulación del DOM (crear elementos, leer atributos)
     // =========================================================
     prepararTablero() {
         const timeline = document.getElementById("timeline");
         const mazo = document.getElementById("cards-deck");
 
-        // Al superar el nivel anterior, limpiamos el tablero anterior antes de pasar al siguiente nivel
+        // Limpiamos el tablero antes de generar los elementos
         timeline.innerHTML = '';
         mazo.innerHTML = '';
 
@@ -79,7 +135,7 @@ class JuegoLineaTiempo {
             timeline.appendChild(hueco); // RA6
         });
 
-        // El mazo inicial también tiene que aceptar cartas por si el usuario se arrepiente y devuelve una
+        // El mazo inicial también acepta cartas por si el usuario devuelve una
         this.asignarEventosDrop(mazo);
 
         // 2. Crear las tarjetas arrastrables sin usar innerHTML
@@ -113,7 +169,6 @@ class JuegoLineaTiempo {
     // RA5: Gestión de eventos Drag & Drop nativo
     // =========================================================
     asignarEventosDrag(carta) {
-        // Cuando empezamos a arrastrar la carta
         carta.addEventListener("dragstart", (e) => {
             e.dataTransfer.setData("text/plain", e.target.id);
             e.dataTransfer.effectAllowed = "move";
@@ -126,7 +181,6 @@ class JuegoLineaTiempo {
             this.metricas.pistasUsadas++;
         });
 
-        // Cuando soltamos la carta (independientemente de dónde caiga)
         carta.addEventListener("dragend", (e) => {
             e.target.classList.remove("dragging");
         });
@@ -163,7 +217,7 @@ class JuegoLineaTiempo {
 
             // Controlar que no haya ya una carta en ese hueco de la línea del tiempo
             if (destino.id !== "cards-deck" && destino.querySelector(".history-card")) {
-                return; // Salimos de la función sin hacer nada
+                return;
             }
 
             // Recuperamos el ID de la carta que estamos arrastrando
@@ -227,7 +281,7 @@ class JuegoLineaTiempo {
                     hayErrores = true;
                 }
             } else {
-                hayErrores = true; // Si entra aquí es que falta alguna carta por poner
+                hayErrores = true; // Falta alguna carta por colocar
             }
         });
 
@@ -237,6 +291,35 @@ class JuegoLineaTiempo {
         } else if (hayErrores) {
             this.metricas.errores++;
             this.actualizarPuntos(-50); // Penalización severa por fallar el intento de validación
+
+            // 1. Paramos el tiempo
+            clearInterval(this.temporizador);
+
+            // 2. Comprobamos si ya ha llegado a 3 errores
+            if (this.metricas.errores >= 3) {
+                window.alert("¡Te has equivocado 3 veces! Has perdido la partida. Volverás a empezar desde el Nivel 1.");
+
+                // Ocultamos cualquier pantalla final previa por seguridad
+                document.getElementById("end-screen").setAttribute("hidden", true);
+
+                // Reiniciamos el juego completo desde el Nivel 1 SIN GUARDAR en BD
+                new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+            } else {
+                // 3. Indicamos al usuario mediante window.alert que se ha equivocado
+                window.alert(`¡Te has equivocado! Tienes que volverlo a intentar.\n(Llevas ${this.metricas.errores} de 3 errores permitidos).`);
+
+                // Deshabilitamos el botón mientras pasan los 5 segundos para evitar clics múltiples
+                const btnVerify = document.getElementById("btn-verify");
+                btnVerify.disabled = true;
+
+                // 4. Pasados 5 segundos, reiniciamos el nivel actual
+                setTimeout(() => {
+                    btnVerify.disabled = false;
+                    this.tiempoRestante = this.tiempoInicial; // Restauramos el tiempo del nivel
+                    this.prepararTablero(); // Devolvemos las cartas al mazo desordenadas
+                    this.iniciarReloj(); // Volvemos a poner el reloj en marcha
+                }, 5000);
+            }
         }
     }
 
@@ -249,6 +332,9 @@ class JuegoLineaTiempo {
         const pantallaFinal = document.getElementById("end-screen");
 
         if (victoria) {
+            // Guardamos las métricas al superar el nivel con éxito
+            this.guardarMetricasBD();
+
             tituloFinal.innerText = `¡Nivel ${this.nivelActual} Completado!`;
             tituloFinal.style.color = "var(--green)";
             mensajeFinal.innerText = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
@@ -273,7 +359,7 @@ class JuegoLineaTiempo {
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\nEl siguiente juego ha sido desbloqueado.";
+                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
                 // Desbloqueamos el siguiente juego en localStorage
                 localStorage.setItem("juego3Superado", "true");
             }
@@ -309,7 +395,7 @@ const DATOS_NIVEL_2 = [
     { id: "m6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
 ];
 
-// Ajuste Nivel 3: 8 hitos históricos con fechas más cercanas entre sí. Tiempo reducido y mayor exigencia de precisión.[cite: 1]
+// Ajuste Nivel 3: 8 hitos históricos con fechas más cercanas entre sí. Tiempo reducido y mayor exigencia de precisión.
 const DATOS_NIVEL_3 = [
     { id: "m1", title: "Semana Trágica", label: "1909", order: 1, hint: "Revuelta popular antimilitarista." },
     { id: "m2", title: "Mancomunidad", label: "1914", order: 2, hint: "Agrupación de las 4 diputaciones." },
