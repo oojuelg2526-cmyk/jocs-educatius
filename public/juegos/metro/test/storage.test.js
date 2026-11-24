@@ -83,3 +83,22 @@ test("la sesión guarda las métricas del intento y se sustituye al guardarla ot
   assert.equal(datos[0].level_reached, 2);
   assert.deepEqual(Object.keys(datos[0].attempts[0]).sort(), ["completed", "help_clicks", "level", "level_time", "moves_count", "score", "stars"]);
 });
+
+test("el envío al servidor lleva los nombres de /api/guardar-metricas", () => {
+  const juego = cargar();
+  juego.datos.username = "maria";
+  const datos = JSON.parse(juego.run(`(function () {
+    const s = newSession();
+    const res = { level: 2, won: true, moves: 30, helps: 1, seconds: 75, score: 950, stars: 2 };
+    return JSON.stringify(buildPayload(s, res, Date.now() - 60000));
+  })()`));
+  assert.equal(datos.username, "maria");
+  assert.equal(datos.game, "metro");
+  assert.equal(datos.level, 2);
+  assert.equal(datos.level_time, 75);
+  assert.equal(datos.moves_count, 30);
+  assert.equal(datos.help_clicks, 1);
+  assert.equal(datos.final_score, 950);
+  assert.equal(datos.completed, true);
+  assert.match(datos.session_id, /^[0-9a-f-]{36}$/);
+});
