@@ -28,7 +28,7 @@ class LoginController extends Controller
         if (! Auth::attempt($credenciales, $request->boolean('recordar'))) {
             return back()
                 ->withInput($request->only('username'))
-                ->withErrors(['username' => 'Usuari o contrasenya incorrectes.']);
+                ->withErrors(['username' => __('auth.failed')]);
         }
 
         $request->session()->regenerate(); // evita la fijación de sesión
