@@ -170,8 +170,8 @@ main { flex: 1; }
 
 .botonera { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.75rem; }
 
-.aviso { margin: 1.25rem 0; padding: 0.8rem 1rem; border-radius: 8px; border-left: 6px solid var(--verde); background: var(--papel-2); }
-.aviso-error { border-left-color: var(--rojo); }
+.aviso { margin: 1.25rem 0; padding: 0.8rem 1rem; border-radius: 8px; border: 2px solid var(--verde); background: var(--papel-2); }
+.aviso-error { border-color: var(--rojo); }
 .aviso ul { margin: 0; padding-left: 1.2rem; }
 
 .nota { color: var(--tinta-suave); font-size: 0.9rem; }
