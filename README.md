@@ -21,24 +21,25 @@ Aplicació web de **jocs educatius** feta per l'equip `[PENDENT: nom de l'equip]
 ## Documentació
 Les propostes són a [`propostes/`](propostes/): la [proposta final](propostes/propuesta-final-ildefons-cerda-perdio-el-plano.md) i la de cada joc. Els [requisits](docs/requisitos.md) i la [guia de treball](docs/guia-de-trabajo.md) són a [`docs/`](docs/).
 
-## Tecnologia `[PENDENT]`
-Proposta: Laravel (PHP) + SQL Server, JavaScript sense `<canvas>`, Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
+## Tecnologia
+Laravel 13 (PHP) + SQL Server per a la landing, el login, l'administració i el desat de progrés i mètriques. Els jocs són HTML, CSS i JavaScript sense `<canvas>` i viuen a [`public/juegos/`](public/juegos/), tal com estaven (només ha canviat la ruta). Python (Pandas, Matplotlib, Scikit-learn) i Pyodide a la vista «Mètriques».
 
-## Com executar-ho en local `[PENDENT]`
-1. Clona el repositori: `git clone <url>`
-2. Copia `.env.example` a `.env` i omple els valors (**mai** el pugis al repositori).
-3. Instal·la dependències i arrenca el servidor (comandes segons la tecnologia triada).
+## Com executar-ho en local
+1. Clona el repositori i entra a la carpeta.
+2. `composer install`
+3. Copia `.env.example` a `.env` (**mai** el pugis al repositori) i omple `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` i `DB_PASSWORD` amb les dades de SQL Server. Per veure la landing i els jocs no cal base de dades.
+4. `php artisan key:generate`
+5. `php artisan serve` i obre http://localhost:8000
+6. Els jocs són a `/juegos/memory/`, `/juegos/lineaDelTiempo/` i `/juegos/metro/`.
 
-## Com col·laborem
-Branca `main` protegida: només s'hi entra amb *pull request*. Una branca per persona i tasca (`feature/<nom>-<tema>`) i commits tipus *Conventional Commits*. Detall a la [guia de treball](docs/guia-de-trabajo.md).
+Per connectar amb SQL Server, PHP necessita una de les extensions `pdo_sqlsrv`, `pdo_dblib` o `pdo_odbc` (Laravel les detecta soles).
 
-## Llicència i crèdits
-Projecte acadèmic. Els recursos multimèdia de tercers s'atribueixen en un fitxer de crèdits (quan es creï).
+### Base de dades
+Les taules del [model relacional](docs/modelo-relacional-bd.md) són a `database/migrations/` i les dades inicials (4 jocs, 3 nivells cadascun i mètriques pròpies) a `database/seeders/`. Un cop omplert el `.env`: `php artisan migrate --seed`.
 
-## Estructura
-```
-propostes/   Proposta final i una proposta per joc
-docs/        Requisits i guia de treball
-.github/     Plantilla de pull request
-```
-Les carpetes de l'aplicació es creen quan toquen, un cop triada la tecnologia.
+### Entrar i administrar
+- Pàgina d'entrada: `/login` (usuari i contrasenya; màxim 5 intents per minut). `/admin` només és per a rols `admin` i `superadmin`; un jugador rep un 403 i qui no ha entrat va al login.
+- El primer superadministrador es crea una sola vegada amb `php artisan usuario:superadmin`. Demana l'usuari, el correu i la contrasenya (mínim 12 caràcters) per teclat: **no hi ha cap contrasenya per defecte ni va al codi**.
+- No hi ha registre públic: queda pendent de decidir amb l'equip.
+
+Proves d'un joc: `cd public/juegos/memory && npm test` (igual per a `metro`). Proves de Laravel: `php artisan test`.
