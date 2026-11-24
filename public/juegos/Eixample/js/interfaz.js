@@ -5,11 +5,15 @@ const imagenesPiezas = {
 };
 
 function actualizarDibujo(contenedor, tipo) {
-    if (contenedor.dataset.peca === tipo) {
+    const tipoAnterior = contenedor.dataset.peca ?? null;
+    if (tipoAnterior === tipo) {
         return;
     }
 
-    contenedor.firstElementChild?.remove();
+    const imagenAnterior = contenedor.firstElementChild;
+    if (imagenAnterior !== null) {
+        imagenAnterior.remove();
+    }
     if (tipo === null) {
         delete contenedor.dataset.peca;
         return;
@@ -20,7 +24,9 @@ function actualizarDibujo(contenedor, tipo) {
     imagen.alt = "";
     imagen.hidden = true;
     imagen.draggable = false;
-    imagen.addEventListener("load", () => { imagen.hidden = false; });
+    imagen.addEventListener("load", () => {
+        imagen.hidden = false;
+    });
     imagen.addEventListener("error", () => { imagen.remove(); });
     imagen.src = new URL(`../img/${imagenesPiezas[tipo]}`, import.meta.url).href;
     contenedor.appendChild(imagen);
@@ -36,7 +42,8 @@ export function crearTablero(contenedor, nivel) {
     const filaCentral = Math.floor(nivel.filas / 2);
     const columnaCentral = Math.floor(nivel.columnas / 2);
 
-    for (let posicion = 0; posicion < nivel.filas * nivel.columnas; posicion++) {
+    const totalCasillas = nivel.filas * nivel.columnas;
+    for (let posicion = 0; posicion < totalCasillas; posicion++) {
         const casilla = document.createElement("button");
         casilla.type = "button";
         casilla.classList.add("casilla");
@@ -85,21 +92,17 @@ export function crearPiezas(contenedor, inventario) {
     return botones;
 }
 
-export function actualizarTablero(casillas, tablero, completada, textos) {
-    casillas.forEach((casilla, posicion) => {
-        const tipo = tablero[posicion];
-        const pieza = casilla.firstElementChild;
-        const nombre = textos.piezas[tipo];
+export function actualizarCasilla(casilla, tipo, completada, textos) {
+    const nombre = textos.piezas[tipo] ?? textos.vacia;
+    const etiqueta = textos.casilla(casilla.dataset.fila, casilla.dataset.columna, nombre);
 
-        casilla.disabled = completada;
-        casilla.dataset.estat = tipo === null ? "buida" : "ocupada";
-        casilla.setAttribute("aria-label",
-            textos.casilla(casilla.dataset.fila, casilla.dataset.columna, nombre ?? textos.vacia));
-        actualizarDibujo(pieza, tipo);
-    });
+    casilla.disabled = completada;
+    casilla.dataset.estat = tipo === null ? "buida" : "ocupada";
+    casilla.setAttribute("aria-label", etiqueta);
+    actualizarDibujo(casilla.firstElementChild, tipo);
 }
 
-export function actualizarPiezas(botones, partida, completada, textos) {
+export function actualizarPiezas(botones, partida, textos) {
     for (const boton of botones) {
         const tipo = boton.dataset.peca;
         const cantidad = partida.inventarioRestante[tipo];
@@ -108,7 +111,8 @@ export function actualizarPiezas(botones, partida, completada, textos) {
         boton.classList.toggle("seleccionada", seleccionada);
         boton.setAttribute("aria-pressed", String(seleccionada));
         boton.setAttribute("aria-disabled", String(cantidad === 0));
-        boton.disabled = completada;
+        boton.disabled = partida.completada;
+        boton.draggable = cantidad > 0 && !partida.completada;
     }
 }
 

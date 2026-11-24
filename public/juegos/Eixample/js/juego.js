@@ -1,6 +1,8 @@
 export function crearPartida(nivel) {
+    const totalCasillas = nivel.filas * nivel.columnas;
+
     return {
-        tablero: Array(nivel.filas * nivel.columnas).fill(null),
+        tablero: Array(totalCasillas).fill(null),
         inventarioRestante: { ...nivel.inventario },
         piezaSeleccionada: null,
         movimientos: 0,
@@ -9,114 +11,153 @@ export function crearPartida(nivel) {
     };
 }
 
-function posicionValida(partida, posicion) {
-    return Number.isInteger(posicion) && posicion >= 0 && posicion < partida.tablero.length;
+function posicionValida(tablero, posicion) {
+    return Number.isInteger(posicion) && posicion >= 0 && posicion < tablero.length;
 }
 
-function quedanPiezas(partida, tipo) {
-    return Object.prototype.hasOwnProperty.call(partida.inventarioRestante, tipo)
-        && partida.inventarioRestante[tipo] > 0;
+export function quedanPiezas(partida, tipo) {
+    const inventario = partida.inventarioRestante;
+    return Object.prototype.hasOwnProperty.call(inventario, tipo) && inventario[tipo] > 0;
 }
 
-export function seleccionarPieza(partida, tipo) {
+// Cada braç té un nom. El centre i les caselles de fora de la creu no són cap braç.
+function brazoDelEje(fila, columna, centroFila, centroColumna) {
+    if (fila === centroFila && columna < centroColumna) {
+        return "oest";
+    }
+    if (fila === centroFila && columna > centroColumna) {
+        return "est";
+    }
+    if (columna === centroColumna && fila < centroFila) {
+        return "nord";
+    }
+    if (columna === centroColumna && fila > centroFila) {
+        return "sud";
+    }
+    return null;
+}
+
+// Les regles d'una sola casella es poden comprovar abans de posar la peça.
+export function errorDeColocacion(partida, nivel, posicion, tipo) {
+    if (!posicionValida(partida.tablero, posicion) || partida.tablero[posicion] !== null) {
+        return "ocupada";
+    }
     if (!quedanPiezas(partida, tipo)) {
-        return false;
+        return "agotada";
     }
 
-    partida.piezaSeleccionada = tipo;
-    return true;
+    const fila = Math.floor(posicion / nivel.columnas);
+    const columna = posicion % nivel.columnas;
+    const centroFila = Math.floor(nivel.filas / 2);
+    const centroColumna = Math.floor(nivel.columnas / 2);
+
+    if (tipo === "parque" && (fila === centroFila || columna === centroColumna)) {
+        return "parqueEnEje";
+    }
+    if (tipo === "equipamiento" && brazoDelEje(fila, columna, centroFila, centroColumna) === null) {
+        return "equipamientosEjes";
+    }
+    return null;
 }
 
-export function colocarPieza(partida, posicion) {
-    const tipo = partida.piezaSeleccionada;
-
-    if (!posicionValida(partida, posicion) || partida.tablero[posicion] !== null
-        || !quedanPiezas(partida, tipo)) {
-        return false;
+export function colocarPieza(partida, nivel, posicion, tipo) {
+    const error = errorDeColocacion(partida, nivel, posicion, tipo);
+    if (error !== null) {
+        return error;
     }
 
     partida.tablero[posicion] = tipo;
     partida.inventarioRestante[tipo]--;
     partida.movimientos++;
-
-    if (!quedanPiezas(partida, tipo)) {
-        partida.piezaSeleccionada = null;
-    }
-
-    return true;
+    partida.piezaSeleccionada = quedanPiezas(partida, tipo) ? tipo : null;
+    return null;
 }
 
 export function retirarPieza(partida, posicion) {
-    if (!posicionValida(partida, posicion) || partida.tablero[posicion] === null) {
+    if (!posicionValida(partida.tablero, posicion)) {
         return false;
     }
 
     const tipo = partida.tablero[posicion];
-    partida.inventarioRestante[tipo]++;
+    if (tipo === null) {
+        return false;
+    }
+
     partida.tablero[posicion] = null;
+    partida.inventarioRestante[tipo]++;
     partida.movimientos++;
     return true;
 }
 
-function tramoDelEje(fila, columna, filaCentral, columnaCentral) {
-    if (fila === filaCentral && columna !== columnaCentral) {
-        return columna < columnaCentral ? "oest" : "est";
-    }
-    if (columna === columnaCentral && fila !== filaCentral) {
-        return fila < filaCentral ? "nord" : "sud";
-    }
-    return null;
-}
-
 function comprobarDistribucion(tablero, nivel) {
-    const filaCentral = Math.floor(nivel.filas / 2);
-    const columnaCentral = Math.floor(nivel.columnas / 2);
-    const parques = [0, 0, 0, 0];
-    const tramos = new Set();
+    const centroFila = Math.floor(nivel.filas / 2);
+    const centroColumna = Math.floor(nivel.columnas / 2);
+    const parquesPorCuadrante = [0, 0, 0, 0];
+    const brazosOcupados = [];
 
-    for (const [posicion, tipo] of tablero.entries()) {
-        if (tipo === "vivienda") {
-            continue;
-        }
-
+    for (let posicion = 0; posicion < tablero.length; posicion++) {
+        const tipo = tablero[posicion];
         const fila = Math.floor(posicion / nivel.columnas);
         const columna = posicion % nivel.columnas;
-        if (tipo === "equipamiento") {
-            const tramo = tramoDelEje(fila, columna, filaCentral, columnaCentral);
-            if (tramo === null || tramos.has(tramo)) {
-                return "equipamientosEjes";
-            }
-            tramos.add(tramo);
-        } else {
-            if (fila === filaCentral || columna === columnaCentral) {
+
+        if (tipo === "parque") {
+            // També revisem els eixos perquè una partida antiga pot tenir-hi peces.
+            if (fila === centroFila || columna === centroColumna) {
                 return "parquesCuadrante";
             }
 
-            const mitadVertical = fila < filaCentral ? 0 : 2;
-            const mitadHorizontal = columna < columnaCentral ? 0 : 1;
-            parques[mitadVertical + mitadHorizontal]++;
+            // Els quadrants es numeren d'esquerra a dreta i de dalt a baix.
+            let cuadrante = 0;
+            if (fila > centroFila) {
+                cuadrante += 2;
+            }
+            if (columna > centroColumna) {
+                cuadrante++;
+            }
+            parquesPorCuadrante[cuadrante]++;
+        } else if (tipo === "equipamiento") {
+            const brazo = brazoDelEje(fila, columna, centroFila, centroColumna);
+            if (brazo === null || brazosOcupados.includes(brazo)) {
+                return "equipamientosEjes";
+            }
+            brazosOcupados.push(brazo);
         }
     }
 
-    if (parques.some(cantidad => cantidad !== nivel.parquesPorCuadrante)) {
-        return "parquesCuadrante";
+    for (const cantidad of parquesPorCuadrante) {
+        if (cantidad !== nivel.parquesPorCuadrante) {
+            return "parquesCuadrante";
+        }
     }
 
-    return tramos.size === (nivel.inventario.equipamiento ?? 0) ? null : "equipamientosEjes";
+    const equipamientosNecesarios = nivel.inventario.equipamiento ?? 0;
+    if (brazosOcupados.length !== equipamientosNecesarios) {
+        return "equipamientosEjes";
+    }
+    return null;
 }
 
 function hayParqueAlLado(tablero, nivel, posicion) {
     const fila = Math.floor(posicion / nivel.columnas);
     const columna = posicion % nivel.columnas;
+    const ancho = nivel.columnas;
 
-    return (fila > 0 && tablero[posicion - nivel.columnas] === "parque")
-        || (fila < nivel.filas - 1 && tablero[posicion + nivel.columnas] === "parque")
-        || (columna > 0 && tablero[posicion - 1] === "parque")
-        || (columna < nivel.columnas - 1 && tablero[posicion + 1] === "parque");
+    // Comprovem els límits de la fila i la columna abans de mirar cada veïna.
+    if (fila > 0 && tablero[posicion - ancho] === "parque") {
+        return true;
+    }
+    if (fila < nivel.filas - 1 && tablero[posicion + ancho] === "parque") {
+        return true;
+    }
+    if (columna > 0 && tablero[posicion - 1] === "parque") {
+        return true;
+    }
+    return columna < ancho - 1 && tablero[posicion + 1] === "parque";
 }
 
 function comprobarVecindad(tablero, nivel) {
-    for (const [posicion, tipo] of tablero.entries()) {
+    for (let posicion = 0; posicion < tablero.length; posicion++) {
+        const tipo = tablero[posicion];
         if (tipo === "parque" && hayParqueAlLado(tablero, nivel, posicion)) {
             return "parquesJuntos";
         }
@@ -124,30 +165,32 @@ function comprobarVecindad(tablero, nivel) {
             return "equipamientoSinParque";
         }
     }
-
     return null;
 }
 
 export function comprobarPlano(partida, nivel) {
-    if (partida.tablero.length !== nivel.filas * nivel.columnas
-        || partida.tablero.includes(null)
-        || Object.values(partida.inventarioRestante).some(cantidad => cantidad !== 0)) {
+    const tablero = partida.tablero;
+    if (tablero.includes(null)) {
         return "tableroIncompleto";
     }
-
-    const error = comprobarDistribucion(partida.tablero, nivel);
-    if (error === null && nivel.comprobarVecindad) {
-        return comprobarVecindad(partida.tablero, nivel);
+    for (const cantidad of Object.values(partida.inventarioRestante)) {
+        if (cantidad !== 0) {
+            return "tableroIncompleto";
+        }
     }
 
-    return error;
-}
-
-export function usarPista(partida) {
-    partida.ayudas++;
-    return partida.ayudas;
+    const error = comprobarDistribucion(tablero, nivel);
+    if (error !== null) {
+        return error;
+    }
+    if (nivel.comprobarVecindad) {
+        return comprobarVecindad(tablero, nivel);
+    }
+    return null;
 }
 
 export function calcularPuntuacion(partida) {
-    return Math.max(0, 1000 - partida.movimientos * 10 - partida.ayudas * 50);
+    const penalizacionMovimientos = partida.movimientos * 10;
+    const penalizacionAyudas = partida.ayudas * 50;
+    return Math.max(0, 1000 - penalizacionMovimientos - penalizacionAyudas);
 }
