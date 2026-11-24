@@ -47,6 +47,7 @@ class JuegoLineaTiempo {
         const oldBtn = document.getElementById("btn-verify");
         const newBtn = oldBtn.cloneNode(true);
         oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+        newBtn.disabled = false;
 
         newBtn.addEventListener("click", () => {
             this.comprobarOrden();
@@ -297,16 +298,12 @@ class JuegoLineaTiempo {
 
             // 2. Comprobamos si ya ha llegado a 3 errores
             if (this.metricas.errores >= 3) {
-                window.alert("¡Te has equivocado 3 veces! Has perdido la partida. Volverás a empezar desde el Nivel 1.");
-
-                // Ocultamos cualquier pantalla final previa por seguridad
-                document.getElementById("end-screen").setAttribute("hidden", true);
-
-                // Reiniciamos el juego completo desde el Nivel 1 SIN GUARDAR en BD
                 new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+                document.getElementById("hint-text").textContent =
+                    "Has llegado a 3 errores. Vuelves a empezar en el nivel 1.";
             } else {
-                // 3. Indicamos al usuario mediante window.alert que se ha equivocado
-                window.alert(`¡Te has equivocado! Tienes que volverlo a intentar.\n(Llevas ${this.metricas.errores} de 3 errores permitidos).`);
+                document.getElementById("hint-text").textContent =
+                    `Vuelve a intentarlo. Llevas ${this.metricas.errores} de 3 errores permitidos.`;
 
                 // Deshabilitamos el botón mientras pasan los 5 segundos para evitar clics múltiples
                 const btnVerify = document.getElementById("btn-verify");
@@ -330,21 +327,25 @@ class JuegoLineaTiempo {
         const tituloFinal = document.getElementById("end-title");
         const mensajeFinal = document.getElementById("end-message");
         const pantallaFinal = document.getElementById("end-screen");
+        const enlaceMetro = document.getElementById("ir-metro");
+        const botonReintentar = document.getElementById("reintentar-timeline");
+        document.getElementById("btn-verify").disabled = true;
+        enlaceMetro.hidden = true;
+        botonReintentar.hidden = victoria;
 
         if (victoria) {
             // Guardamos las métricas al superar el nivel con éxito
             this.guardarMetricasBD();
 
-            tituloFinal.innerText = `¡Nivel ${this.nivelActual} Completado!`;
-            tituloFinal.style.color = "var(--green)";
-            mensajeFinal.innerText = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
+            tituloFinal.textContent = `¡Nivel ${this.nivelActual} Completado!`;
+            pantallaFinal.dataset.estat = "superat";
+            mensajeFinal.textContent = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
 
             pantallaFinal.removeAttribute("hidden");
 
             // Lógica de transición de niveles
             if (this.nivelActual === 1) {
                 setTimeout(() => {
-                    alert("¡Prepárate para el Nivel 2!");
                     pantallaFinal.setAttribute("hidden", true);
                     // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
                     new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
@@ -352,23 +353,24 @@ class JuegoLineaTiempo {
             }
             else if (this.nivelActual === 2) {
                 setTimeout(() => {
-                    alert("¡Prepárate para el Nivel 3!");
                     pantallaFinal.setAttribute("hidden", true);
                     // Iniciamos Nivel 3: 8 hitos, tiempo reducido (60 segundos)
                     new JuegoLineaTiempo(DATOS_NIVEL_3, 60, 3);
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
-                // Desbloqueamos el siguiente juego en localStorage
+                mensajeFinal.textContent += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
                 localStorage.setItem("juego3Superado", "true");
+                enlaceMetro.hidden = false;
+                enlaceMetro.focus();
             }
 
         } else {
-            tituloFinal.innerText = "Tiempo agotado";
-            tituloFinal.style.color = "var(--red)";
-            mensajeFinal.innerText = "Inténtalo de nuevo.";
-            pantallaFinal.removeAttribute("hidden");
+            tituloFinal.textContent = "Tiempo agotado";
+            pantallaFinal.dataset.estat = "perdut";
+            mensajeFinal.textContent = "Inténtalo de nuevo.";
+            pantallaFinal.hidden = false;
+            botonReintentar.focus();
         }
     }
 }
@@ -408,14 +410,40 @@ const DATOS_NIVEL_3 = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
-    const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
-
-    if (juegoAnteriorSuperado) {
-        // Ejecutamos el juego solo si el anterior está superado. Pasamos los parámetros correctos.
-        new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
-    } else {
-        // Mostrar mensaje si el usuario intenta acceder sin permiso
-        alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
+    const textos = {
+        ca: {
+            bloqueado: "Completa el Memory i l’Eixample per jugar a la línia del temps.",
+            portada: "Torna a la portada",
+            metro: "Continua cap al metro",
+            reintentar: "Torna-ho a provar"
+        },
+        es: {
+            bloqueado: "Completa Memory y el Eixample para jugar a la línea del tiempo.",
+            portada: "Volver a la portada",
+            metro: "Continuar al Metro",
+            reintentar: "Volver a intentarlo"
+        },
+        en: {
+            bloqueado: "Complete Memory and the Eixample to play the timeline.",
+            portada: "Back to the home page",
+            metro: "Continue to the Metro",
+            reintentar: "Try again"
+        }
+    };
+    const idiomaGuardado = localStorage.getItem("cerda_lang");
+    const idioma = Object.hasOwn(textos, idiomaGuardado) ? idiomaGuardado : "ca";
+    for (const elemento of document.querySelectorAll("[data-progresion]")) {
+        elemento.textContent = textos[idioma][elemento.dataset.progresion];
+        elemento.lang = idioma;
     }
+
+    if (ultimoJuegoSuperado() < 2) {
+        document.getElementById("zona-bloqueada").hidden = false;
+        return;
+    }
+
+    document.getElementById("zona-timeline").hidden = false;
+    document.getElementById("pie-timeline").hidden = false;
+    document.getElementById("reintentar-timeline").addEventListener("click", () => location.reload());
+    new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
 });
