@@ -6,38 +6,49 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 const codigo = fs.readFileSync(path.join(__dirname, "..", "js", "storage.js"), "utf8");
+const progresion = fs.readFileSync(path.join(__dirname, "..", "..", "..", "js", "progresion.js"), "utf8");
 
-// Carga storage.js con un localStorage falso. `independiente` cambia la constante JUEGO_INDEPENDIENTE.
-function cargar(independiente, search) {
+// Carrega els scripts amb les mateixes claus que utilitza el navegador.
+function cargar(search = "") {
   const datos = {};
   const contexto = vm.createContext({
     localStorage: {
       getItem: (k) => (k in datos ? datos[k] : null),
       setItem: (k, v) => { datos[k] = String(v); },
     },
-    location: { search: search || "" },
+    location: { search },
+    console: { warn() {} },
   });
-  vm.runInContext(codigo.replace("const JUEGO_INDEPENDIENTE = true;", "const JUEGO_INDEPENDIENTE = " + independiente + ";"), contexto);
+  vm.runInContext(progresion, contexto);
+  vm.runInContext(codigo, contexto);
   return { datos, run: (c) => vm.runInContext(c, contexto) };
 }
 
-test("juego independiente: siempre abierto", () => {
-  assert.equal(cargar(true).run("isUnlocked()"), true);
+test("recupera una victòria antiga de Memory sense perdre la partida", () => {
+  const juego = cargar();
+  const partida = '{"games":{"1":{"status":"completed","best_score":450}}}';
+  juego.datos.cerda_progress = partida;
+  assert.equal(juego.run("ultimoJuegoSuperado()"), 1);
+  assert.equal(juego.datos.juego1Superado, "true");
+  assert.equal(juego.datos.cerda_progress, partida);
 });
 
-test("juego integrado: bloqueado hasta superar el juego 3", () => {
-  const juego = cargar(false);
-  assert.equal(juego.run("isUnlocked()"), false);
+test("respecta l’ordre encara que el navegador tingui una victòria posterior", () => {
+  const juego = cargar();
   juego.datos.juego3Superado = "true";
-  assert.equal(juego.run("isUnlocked()"), true);
+  assert.equal(juego.run("ultimoJuegoSuperado()"), 0);
+  juego.datos.juego1Superado = "true";
+  assert.equal(juego.run("ultimoJuegoSuperado()"), 1);
+  juego.datos.juego2Superado = "true";
+  assert.equal(juego.run("ultimoJuegoSuperado()"), 3);
 });
 
-test("juego integrado: ?dev=1 lo abre", () => {
-  assert.equal(cargar(false, "?dev=1").run("isUnlocked()"), true);
+test("ignora el paràmetre dev de l’URL", () => {
+  assert.equal(cargar("?dev=1").run("ultimoJuegoSuperado()"), 0);
 });
 
 test("al superar el nivel 3 se guarda juego4Superado y el progreso con el formato del equipo", () => {
-  const juego = cargar(true);
+  const juego = cargar();
   juego.run("saveLevelDone(1, 1000); saveLevelDone(2, 900)");
   assert.equal(juego.datos.juego4Superado, undefined);
   juego.run("saveLevelDone(3, 800); saveLevelDone(3, 700)"); // la segunda puntuación, peor, no cuenta
@@ -50,14 +61,14 @@ test("al superar el nivel 3 se guarda juego4Superado y el progreso con el format
 });
 
 test("el session_id tiene forma de UUID versión 4", () => {
-  const juego = cargar(true);
+  const juego = cargar();
   for (let i = 0; i < 50; i++) {
     assert.match(juego.run("newId()"), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   }
 });
 
 test("la sesión guarda las métricas del intento y se sustituye al guardarla otra vez", () => {
-  const juego = cargar(true);
+  const juego = cargar();
   const datos = JSON.parse(juego.run(`(function () {
     const s = newSession();
     addAttempt(s, { level: 1, won: true, moves: 18, helps: 0, seconds: 40, score: 1210, stars: 3 });
@@ -71,4 +82,23 @@ test("la sesión guarda las métricas del intento y se sustituye al guardarla ot
   assert.equal(datos[0].final_score, 1210);
   assert.equal(datos[0].level_reached, 2);
   assert.deepEqual(Object.keys(datos[0].attempts[0]).sort(), ["completed", "help_clicks", "level", "level_time", "moves_count", "score", "stars"]);
+});
+
+test("el envío al servidor lleva los nombres de /api/guardar-metricas", () => {
+  const juego = cargar();
+  juego.datos.username = "maria";
+  const datos = JSON.parse(juego.run(`(function () {
+    const s = newSession();
+    const res = { level: 2, won: true, moves: 30, helps: 1, seconds: 75, score: 950, stars: 2 };
+    return JSON.stringify(buildPayload(s, res, Date.now() - 60000));
+  })()`));
+  assert.equal(datos.username, "maria");
+  assert.equal(datos.game, "metro");
+  assert.equal(datos.level, 2);
+  assert.equal(datos.level_time, 75);
+  assert.equal(datos.moves_count, 30);
+  assert.equal(datos.help_clicks, 1);
+  assert.equal(datos.final_score, 950);
+  assert.equal(datos.completed, true);
+  assert.match(datos.session_id, /^[0-9a-f-]{36}$/);
 });
