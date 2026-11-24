@@ -97,6 +97,7 @@ function endLevel() {
     // último nivel: escena final con el plano completo
     showCard(t("final_title"), t("final_text"), [
       { label: t("again"), primary: true, onClick: goFirstLevel },
+      { label: t("home"), onClick: () => location.assign("../../") },
       { label: t("close"), onClick: hideCard },
     ], [starsElement(res.stars), planElement()]);
   } else {
@@ -207,8 +208,10 @@ for (const code in LANGUAGE_NAMES) {
 function onLanguage() {
   setLang(langSelect.value);
   localStorage.setItem("cerda_lang", langSelect.value);
+  document.documentElement.lang = langSelect.value;
   applyTexts();
   if (game === null) {
+    mostrarBloqueo();
     return; // juego bloqueado: no hay nivel que dibujar
   }
   // se vuelve a dibujar el nivel (los nombres cambian de idioma) sin perder la partida
@@ -228,21 +231,22 @@ function onResize() {
 window.addEventListener("resize", onResize);
 
 // ----- arranque -----
-let language = localStorage.getItem("cerda_lang");
-if (language === null) {
-  language = "es";
+function mostrarBloqueo() {
+  showCard(t("locked_title"), t("locked_text"), [
+    { label: t("home"), primary: true, onClick: () => location.assign("../../") },
+  ]);
 }
-setLang(language);
-langSelect.value = language;
-applyTexts();
 
-if (isUnlocked()) {
-  // continúa por el nivel que toca (como mucho, el último)
-  let level = lastLevelCompleted() + 1;
-  if (level > LEVELS.length) {
-    level = LEVELS.length;
+document.addEventListener("DOMContentLoaded", () => {
+  const idiomaGuardado = localStorage.getItem("cerda_lang");
+  const idioma = Object.hasOwn(NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
+  setLang(idioma);
+  langSelect.value = idioma;
+  document.documentElement.lang = idioma;
+  applyTexts();
+  if (ultimoJuegoSuperado() >= 3) {
+    startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1));
+  } else {
+    mostrarBloqueo();
   }
-  startLevel(level);
-} else {
-  showCard(t("locked_title"), t("locked_text"), []);
-}
+});

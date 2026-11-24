@@ -8,26 +8,6 @@ const PROGRESS_KEY = "cerda_progress";
 const SESSIONS_KEY = "cerda_sessions";
 const GAME_ID = 4;
 
-// Si es true, el juego está siempre abierto (juego independiente).
-// Cuando la landing una los 4 juegos hay que poner false: entonces el juego 4 solo se abre
-// al superar el juego 3 (juego3Superado). Con ?dev=1 en la dirección se abre siempre, para probar.
-const JUEGO_INDEPENDIENTE = true;
-
-// ----- ¿está abierto el juego? -----
-
-function isUnlocked() {
-  if (JUEGO_INDEPENDIENTE) {
-    return true;
-  }
-  if (location.search.indexOf("dev=1") !== -1) {
-    return true; // para probar: abre el juego siempre
-  }
-  if (localStorage.getItem("juego3Superado") === "true") {
-    return true;
-  }
-  return false;
-}
-
 // ----- progreso: hasta qué nivel has llegado y la mejor puntuación de cada uno -----
 
 function loadProgress() {
