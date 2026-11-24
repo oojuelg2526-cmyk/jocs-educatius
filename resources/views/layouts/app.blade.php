@@ -92,6 +92,12 @@
 
     <script src="{{ asset('js/idioma.js') }}"></script>
     <script src="{{ asset('js/menu.js') }}"></script>
+    {{-- Los juegos leen el nombre del jugador de aquí (clave cerda_username) --}}
+    @auth
+        <script>try { localStorage.setItem("cerda_username", @json(auth()->user()->username)); } catch (e) {}</script>
+    @else
+        <script>try { localStorage.removeItem("cerda_username"); } catch (e) {}</script>
+    @endauth
     @stack('scripts')
 </body>
 </html>

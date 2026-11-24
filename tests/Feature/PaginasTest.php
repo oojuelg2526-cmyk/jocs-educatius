@@ -96,4 +96,13 @@ class PaginasTest extends TestCase
             ->from('/registro')->post('/registro', ['username' => 'pau', 'email' => 'pau@correu.cat', 'password' => 'corta'])
             ->assertSessionHasErrors(['password' => 'El campo contraseña debe tener como mínimo 8 caracteres.']);
     }
+
+    public function test_el_nombre_del_jugador_se_guarda_para_los_juegos(): void
+    {
+        $jugador = User::factory()->create(['username' => 'maria_b', 'role' => 'player']);
+
+        $this->actingAs($jugador)->get('/')->assertSee('setItem("cerda_username", "maria_b")', false);
+        auth()->logout();
+        $this->get('/')->assertSee('removeItem("cerda_username")', false);
+    }
 }
