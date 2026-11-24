@@ -1,5 +1,8 @@
 export const traducciones = {
     ca: {
+        bloqueado: "Primer has de superar el Memory de Barcelona.",
+        irAMemory: "Ves al Memory",
+        volverPortada: "Torna a la portada",
         juego: "Reconstruïm l’Eixample",
         historia: "Ildefons Cerdà ha perdut el plànol",
         subtitulo: "Joc 2 · Reconstruïm l’Eixample",
@@ -79,6 +82,9 @@ export const traducciones = {
         }
     },
     es: {
+        bloqueado: "Primero debes superar el Memory de Barcelona.",
+        irAMemory: "Ve a Memory",
+        volverPortada: "Volver a la portada",
         juego: "Reconstruye el Eixample",
         historia: "Ildefons Cerdà ha perdido el plano",
         subtitulo: "Juego 2 · Reconstruye el Eixample",
@@ -158,6 +164,9 @@ export const traducciones = {
         }
     },
     en: {
+        bloqueado: "Complete Barcelona Memory first.",
+        irAMemory: "Go to Barcelona Memory",
+        volverPortada: "Back to the home page",
         juego: "Rebuild the Eixample",
         historia: "Ildefons Cerdà has lost the plan",
         subtitulo: "Game 2 · Rebuild the Eixample",

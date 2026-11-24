@@ -7,8 +7,17 @@ Projecte Integrat 1 de DAW2 (2026/2027), mòdul 0612 — Desenvolupament Web en 
 - Abans de generar o modificar codi, llegeix l’[índex mestre](/Users/fred89/Documents/Notas-Jocs/Instrucciones.md) i les seves especificacions de [regles i estructura](/Users/fred89/Documents/Notas-Jocs/01-Reglas-y-Prohibiciones.md), [producte](/Users/fred89/Documents/Notas-Jocs/02-Requisitos-Producto.md), [JavaScript RA1–RA6](/Users/fred89/Documents/Notas-Jocs/03-Estandares-JS-RA1-RA6.md) i [història i jocs](/Users/fred89/Documents/Notas-Jocs/04-Historia-y-Juegos.md). Si una petició entra en conflicte amb les regles, adverteix-ho abans d’escriure codi.
 - El rol de desenvolupament front-end cobreix l’HTML, el CSS, la lògica amb JavaScript natiu i la interacció. El rol d’analista documenta necessitats, arquitectura de dades i diagrames UML de casos d’ús, flux d’estats i estructura de dades i funcions a `docs/analisis-uml.md` amb Markdown i Mermaid.
 - Escriu els comentaris de codi en català. La llengua per defecte de tota l’experiència és el català (`ca`), amb versions en castellà (`es`) i anglès (`en`).
-- El públic descrit és jovent i persones adultes que viuen a Barcelona. Tots els jocs comparteixen públic, temàtica i to. La portada ha d’indicar explícitament la franja d’edat o etapa educativa acordada. L’edat exacta i l’etapa concreta estan per confirmar.
+- El públic descrit és jovent i persones adultes que viuen a Barcelona. Tots els jocs comparteixen públic, temàtica i to. La portada ha d’indicar explícitament la franja d’edat o etapa educativa acordada. La proposta lliurada situa l’aventura fora d’una etapa reglada concreta i no fixa una edat numèrica.
 - Consulta els [requisits del projecte](docs/requisitos.md) i la [guia de treball](docs/guia-de-trabajo.md) per a la integració amb l’equip. Les restriccions de JavaScript natiu s’apliquen als jocs. La plataforma d’equip contempla Laravel, SQL Server, usuaris, administració i mètriques.
+
+## Criteri de codi de DAW i fonts docents
+
+- Escriu codi que un estudiant de DAW pugui explicar pas a pas. Fes servir noms descriptius, condicions curtes i funcions amb una finalitat clara. Tria un bucle, una variable intermèdia o un `if/else` de quatre o cinc línies quan facin més entenedora una regla. Evita ternaris niats, cadenes de callbacks i capes d’abstracció afegides només per estalviar línies.
+- Aplica el temari a una necessitat real. RA1 tracta l’arquitectura client/servidor i DevTools. RA2 treballa tipus, conversions, àmbit i flux. RA3 i RA4 inclouen col·leccions, objectes, còpies, funcions, callbacks, BOM i temporitzadors. RA5 cobreix esdeveniments i ofereix exemples d’arrossegament natiu. RA6 tracta nodes, selectors, estils i `dataset`. El temari inclou prototips, classes, `?.` i `reduce()`; un inventari senzill es pot representar amb un objecte literal. [Classroom de 0612](https://classroom.google.com/u/1/w/ODcyMDk4ODk5NDA5/t/all?hl=es)
+- El repte de Jocs prohibeix explícitament l’element HTML `<canvas>`. Les fitxes també comparen sintaxis i APIs per aprendre com funcionen. Per al producte s’apliquen totes les prohibicions locals de l’apartat següent. La fitxa de RA4 experimenta amb diàlegs i `document.write()` en un entorn de pràctiques. El Sites de RA4 situa l’explicació de `localStorage` després del primer projecte; l’equip l’utilitza per complir la represa. [Repte de Jocs](https://sites.google.com/politecnics.barcelona/proj01-jocs/repte?authuser=1) · [Materials de RA4](https://sites.google.com/politecnics.barcelona/interaccientresistemes/materials?authuser=1)
+- Prepara l’evidència del joc amb públic, responsable, mecàniques, nivells, esbós i transicions. L’equip lliura casos d’ús, planificació, diagrames entitat-relació i relacional, prototip, BD i projecte. El projecte integrat hi afegeix informe de mètriques, desplegament, presentacions tècnica i pública i coavaluació. El repte exigeix estadístiques útils i proposa rècords diaris o setmanals com a millora; l’equip els ha adoptat. [Lliuraments de l’integrat](https://sites.google.com/politecnics.barcelona/proj01-jocsperapendre/el-projecte?authuser=1)
+- Comparteix el CSS de la portada i els jocs quan s’integrin. La landing presenta l’equip i els rols, incorpora producció multimèdia pròpia i dona accés als jocs i a l’administració autoritzada. La BD guarda usuaris i puntuacions, i el superadministrador gestiona els administradors. [Landing](https://sites.google.com/politecnics.barcelona/proj01-landingpage/repte?authuser=1) · [Administració](https://sites.google.com/politecnics.barcelona/proj01-adm-usuaris/repte?authuser=1)
+- Registra automàticament quatre camps comuns i almenys quatre d’específics per sessió. El puzle genera les dades. La vista web «Mètriques» de l’optativa usa SQL Server, Laravel, Python amb Pyodide i gràfics Matplotlib en PNG. El playtest de 5–10 partides orienta la simulació de 200–500 sessions. Documenta el desplegament de dues versions amb domini, repositori, captures i incidències. El Sites de desplegament indica anys incompatibles per als dos terminis; confirma el termini final amb el docent. [Mètriques](https://sites.google.com/politecnics.barcelona/metriquesdelsjocs/repte?authuser=1) · [Desplegament](https://sites.google.com/politecnics.barcelona/repte-projecte-m08/repte?authuser=1)
 
 ## Prohibicions absolutes
 
@@ -62,7 +71,7 @@ Projecte Integrat 1 de DAW2 (2026/2027), mòdul 0612 — Desenvolupament Web en 
 
 ## Arquitectura compartida i progrés
 
-L’estructura següent és la requerida per a l’entrega de DWEC. El directori `js/jocs/` allotja els mòduls individuals de l’entrega i `joc1.js` és el primer fitxer de l’arbre de referència.
+L’estructura següent és la convenció de l’entrega de DWEC definida a les especificacions locals. El directori `js/jocs/` allotja els mòduls individuals de l’entrega i `joc1.js` és el primer fitxer de l’arbre de referència.
 
 ```text
 jocs-educatius/
@@ -124,10 +133,16 @@ Responsable: Roger Durán. La [proposta individual](propostes/roger-reconstruye-
 | 3 · Reconstrucció avançada | 9 × 9 (81 caselles) | Equilibri entre circulació, densitat residencial, il·luminació i zones verdes. |
 
 - Mètriques pròpies: `moves_count` (moviments o col·locacions), `help_clicks` (consultes d’ajuda), `puzzles_solved` (nivells completats) i `level_time` (temps de resolució del nivell). Camps de sessió: `username`, `session_id`, `date_time` i `session_length`.
-- Per confirmar: les regles matemàtiques exactes, l’algorisme d’adjacència i connectivitat, els llindars de zones verdes, l’arrossegament tàctil, la versió final dels tres nivells i el registre complet de les mètriques. Identifica les dades provisionals del prototip com a tals.
+- La proposta lliurada inclou cronòmetre, comptador de moviments, ajuda visual inicial i menys ajuda al tercer nivell. Contrasta la versió final amb l’esbós, també en mòbil, i amb les regles implementades a continuació. [Proposta de l’equip](https://docs.google.com/document/d/1VVpt3hdU-nejz9qUoZ_5OPpZGP8Cnx2pw3bDuHq73k4/edit?authuser=1)
 
-### Punt de partida de la branca local
+### Estat verificat de la branca local
 
-- `feature/roger-eixample` conté el prototip a `juegos/Eixample/` amb `index.html`, `css/estilo.css` i quatre mòduls. `niveles.js` defineix les dades, `juego.js` gestiona la partida i valida per comparació amb un patró fix, `interfaz.js` renderitza el tauler i `principal.js` connecta la interacció amb el canvi de nivell. La branca local `main` conté Laravel i els altres tres jocs a `public/juegos/`. L’arbre d’entrega de DWEC i aquestes rutes corresponen a estructures diferents. Respecta les rutes de la branca quan treballis en el prototip i comprova la integració abans de traslladar fitxers.
-- El prototip genera 9, 16 i 25 caselles perquè dimensiona el tauler a partir del patró de solució. També té textos en castellà, Google Translate, diàlegs bloquejants i inicialització fora de `DOMContentLoaded`. Cal adequar-ho als estàndards abans de donar el primer nivell per acabat. El prototip permet seleccionar, col·locar i retirar peces per clic. L’arrossegament, la persistència i el pas al joc 3 encara s’han d’integrar en aquesta branca.
-- Primera implementació: consolida el nivell 1 a partir dels mòduls existents. Deriva les 25 caselles de `files × columnes`, configura un inventari que cobreixi el tauler i valida la finalització amb la quadrícula plena i les restriccions configurades. Comprova la col·locació i retirada, el rebuig d’una casella ocupada o d’una peça esgotada i la victòria d’una distribució vàlida. Aplica els RA1–RA6 i les prohibicions a la interfície que exercita aquest flux.
+A `feature/roger-eixample`, el joc és a `public/juegos/Eixample/`, al costat dels altres tres jocs. Hi ha sis mòduls: dades de nivells, lògica, interfície, control principal, traduccions i progrés. La portada de Laravel i els accessos directes als jocs comparteixen la comprovació del progrés a `public/js/progresion.js`.
+
+| Nivell | Inventari i validació implementada |
+|---|---|
+| 1 · 5 × 5 | 21 habitatges i 4 parcs, un per quadrant, fora dels eixos. |
+| 2 · 7 × 7 | 41 habitatges, 4 parcs i 4 equipaments. Un parc per quadrant i un equipament per braç dels eixos, amb habitatge al centre. |
+| 3 · 9 × 9 | 69 habitatges, 8 parcs i 4 equipaments. Dos parcs per quadrant sense compartir costat. Un equipament per braç i cadascun amb un parc al costat. |
+
+La selecció, col·locació i retirada amb botons, les comprovacions de distribució, els avisos en tres llengües, la represa i la millor puntuació per nivell ja són al codi. Cal superar Memory per entrar a l’Eixample. El nivell 3 desa `juego2Superado` i enllaça a la línia del temps, que al seu torn desbloqueja el metro. Queden pendents l’arrossegament, el cronòmetre i el registre de sessions del puzle.

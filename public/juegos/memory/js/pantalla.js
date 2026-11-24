@@ -12,7 +12,7 @@ const mensaje = document.getElementById("mensaje");
 const selectorIdioma = document.getElementById("idioma");
 const fondoVentana = document.getElementById("fondo-ventana");
 
-let idioma = localStorage.getItem("cerda_lang") || "es"; // el idioma elegido se recuerda
+let idioma = localStorage.getItem("cerda_lang") ?? "ca";
 let partida = null; // partida del nivel actual (la crea crearPartida de reglas.js)
 let reloj = null; // el setInterval que cuenta los segundos
 let jugando = false; // false mientras hay una ventana abierta o el nivel ha terminado
@@ -330,7 +330,11 @@ function terminarNivel() {
   let botones = [{ texto: t("siguiente"), alPulsar: () => empezarNivel(numero + 1) }, repetir];
   if (ultimo) {
     contenido.push(crear("p", "intro", t("final_texto")));
-    botones = [{ texto: t("volver"), alPulsar: () => empezarNivel(1) }, repetir];
+    botones = [
+      { texto: t("ir_eixample"), alPulsar: () => location.assign("../Eixample/index.html") },
+      { texto: t("volver"), alPulsar: () => empezarNivel(1) },
+      repetir
+    ];
   }
   const antetitulo = `${t("nivel_de", numero)} · ${t("nivel_" + numero)}`;
   abrirVentana(antetitulo, ultimo ? t("final_titulo") : t("ganar_titulo"), contenido, botones);
@@ -408,17 +412,20 @@ function guardarIntento(estrellas, puntos) {
 
 // ---------- Arranque ----------
 
-if (!TEXTOS[idioma]) idioma = "es";
-selectorIdioma.value = idioma;
-selectorIdioma.addEventListener("change", () => {
-  idioma = selectorIdioma.value;
-  localStorage.setItem("cerda_lang", idioma);
+document.addEventListener("DOMContentLoaded", () => {
+  if (!Object.hasOwn(TEXTOS, idioma)) {
+    idioma = "ca";
+  }
+  selectorIdioma.value = idioma;
+  selectorIdioma.addEventListener("change", () => {
+    idioma = selectorIdioma.value;
+    localStorage.setItem("cerda_lang", idioma);
+    traducirPagina();
+    empezarNivel(partida.nivel.numero);
+  });
+  document.getElementById("boton-pista").addEventListener("click", alPulsarPista);
+  document.getElementById("boton-ayuda").addEventListener("click", mostrarInstrucciones);
+  document.getElementById("boton-reiniciar").addEventListener("click", () => empezarNivel(partida.nivel.numero));
   traducirPagina();
-  empezarNivel(partida.nivel.numero); // el nivel vuelve a empezar con los textos nuevos
+  empezarNivel(Math.min(leerUltimoNivelSuperado() + 1, NIVELES.length));
 });
-document.getElementById("boton-pista").addEventListener("click", alPulsarPista);
-document.getElementById("boton-ayuda").addEventListener("click", mostrarInstrucciones);
-document.getElementById("boton-reiniciar").addEventListener("click", () => empezarNivel(partida.nivel.numero));
-
-traducirPagina();
-empezarNivel(Math.min(leerUltimoNivelSuperado() + 1, NIVELES.length));

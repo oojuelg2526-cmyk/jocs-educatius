@@ -19,6 +19,32 @@ import {
 } from "./interfaz.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+    const selectorIdioma = document.getElementById("selector-idioma");
+    const etiquetas = document.querySelectorAll("[data-traduccio]");
+    let textos = traducciones.ca;
+
+    function traducirPagina(valor) {
+        const idioma = Object.hasOwn(traducciones, valor) ? valor : "ca";
+        textos = traducciones[idioma];
+        document.documentElement.lang = idioma;
+        selectorIdioma.value = idioma;
+
+        for (const etiqueta of etiquetas) {
+            etiqueta.textContent = textos[etiqueta.dataset.traduccio];
+        }
+    }
+
+    const idiomaCompartido = localStorage.getItem("cerda_lang");
+    if (ultimoJuegoSuperado() < 1) {
+        traducirPagina(idiomaCompartido);
+        document.getElementById("bloqueo").hidden = false;
+        selectorIdioma.addEventListener("change", () => {
+            traducirPagina(selectorIdioma.value);
+            localStorage.setItem("cerda_lang", selectorIdioma.value);
+        });
+        return;
+    }
+
     const introduccion = document.getElementById("introduccion");
     const zonaJuego = document.getElementById("zona-juego");
     const tituloNivel = document.getElementById("titulo-nivel");
@@ -36,8 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonReiniciar = document.getElementById("boton-reiniciar");
     const botonSiguiente = document.getElementById("boton-siguiente");
     const enlaceHistoria = document.getElementById("enlace-historia");
-    const selectorIdioma = document.getElementById("selector-idioma");
-    const etiquetas = document.querySelectorAll("[data-traduccio]");
     const indicadores = document.querySelectorAll(".nivel[data-nivell]");
 
     const guardado = leerProgreso();
@@ -54,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let casillas = crearTablero(tablero, nivel);
     let botonesPieza = crearPiezas(piezas, nivel.inventario);
     let modoRetirar = false;
-    let textos = traducciones.ca;
     let aviso = null;
 
     function recuperarPartida() {
@@ -135,15 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function aplicarIdioma(valor) {
-        const idioma = Object.hasOwn(traducciones, valor) ? valor : "ca";
-        textos = traducciones[idioma];
-        document.documentElement.lang = idioma;
-        selectorIdioma.value = idioma;
-
-        for (const etiqueta of etiquetas) {
-            etiqueta.textContent = textos[etiqueta.dataset.traduccio];
-        }
-
+        traducirPagina(valor);
         actualizarInterfaz();
         actualizarAviso();
     }
@@ -219,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     selectorIdioma.addEventListener("change", event => {
         aplicarIdioma(event.currentTarget.value);
+        localStorage.setItem("cerda_lang", selectorIdioma.value);
         progreso.idioma = selectorIdioma.value;
         guardarProgreso(progreso);
     });
@@ -273,5 +289,11 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarAviso("pista");
     });
 
-    aplicarIdioma(guardado.idioma ?? "ca");
+    aplicarIdioma(idiomaCompartido ?? guardado.idioma ?? "ca");
+    document.getElementById("progreso-niveles").hidden = false;
+    if (progreso.partidas[nivel.id] === partida) {
+        abrirNivel(nivel.id);
+    } else {
+        introduccion.hidden = false;
+    }
 });

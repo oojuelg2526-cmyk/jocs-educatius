@@ -23,7 +23,11 @@
     </header>
 
     <main class="contenedor">
-        <section id="introduccion" class="papel introduccion">
+        <section id="bloqueo" class="papel introduccion" aria-labelledby="titulo-bloqueo" hidden>
+            <h2 id="titulo-bloqueo" data-traduccio="bloqueado">Primer has de superar el Memory de Barcelona.</h2>
+            <a class="boton" href="../memory/index.html" data-traduccio="irAMemory">Ves al Memory</a>
+        </section>
+        <section id="introduccion" class="papel introduccion" hidden>
             <h2 data-traduccio="juego">Reconstruïm l’Eixample</h2>
             <p data-traduccio="introduccion">Has recuperat el calc de la quadrícula al Memory de Barcelona. Ara, a la taula de dibuix de Cerdà, fes-lo servir per reconstruir les primeres illes de cases.</p>
             <button id="boton-empezar" class="boton" type="button" data-traduccio="empezar">Comença la reconstrucció</button>
@@ -71,7 +75,7 @@
                     <button id="boton-comprobar" class="boton" type="button" data-traduccio="comprobar">Comprova el plànol</button>
                     <button id="boton-ayuda" class="boton secundario" type="button" data-traduccio="pista">Consulta la pista</button>
                     <button id="boton-siguiente" class="boton" type="button" data-traduccio="siguiente" hidden>Nivell següent</button>
-                    <a id="enlace-historia" class="boton" href="../lineaDelTiempo/" data-traduccio="continuarHistoria" hidden>Ves a la línia del temps</a>
+                    <a id="enlace-historia" class="boton" href="../lineaDelTiempo/index.html" data-traduccio="continuarHistoria" hidden>Ves a la línia del temps</a>
                 </div>
             </section>
 
@@ -81,7 +85,7 @@
             </section>
         </section>
 
-        <section class="progreso papel" aria-labelledby="titulo-progreso">
+        <section id="progreso-niveles" class="progreso papel" aria-labelledby="titulo-progreso" hidden>
             <h3 id="titulo-progreso" data-traduccio="progreso">Reconstrucció del plànol</h3>
             <ul class="niveles">
                 <li><button class="nivel" type="button" data-nivell="1" data-estat="actiu" aria-current="step">Nivell 1 · Actiu</button></li>
@@ -91,7 +95,11 @@
         </section>
     </main>
 
-    <footer data-traduccio="pie">Projecte educatiu · Jocs per aprendre</footer>
+    <footer>
+        <a href="../../" data-traduccio="volverPortada">Torna a la portada</a>
+        <p data-traduccio="pie">Projecte educatiu · Jocs per aprendre</p>
+    </footer>
+    <script src="../../js/progresion.js"></script>
     <script type="module" src="js/principal.js"></script>
 </body>
 </html>
