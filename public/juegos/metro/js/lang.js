@@ -1,20 +1,29 @@
 // Todos los textos del juego, en catalán, castellano e inglés.
 // Los textos nunca van dentro del código: se piden con t("clave").
+// Cada estación tiene su nombre (st_...) y su dato curioso (fact_...).
 
 const TEXTS = {
   es: {
     title: "Laberinto de metro",
     language: "Idioma",
+    skip: "Saltar al contenido",
+    brand: "Cerdà perdió el plano",
+    footer: "Juego 4 de 4 · Historia y geografía de Barcelona",
     level: "Nivel",
     level1_name: "Primer viaje",
     level2_name: "Correspondencias",
     level3_name: "El plano completo",
-    st_U: "Universitat", st_C: "Catalunya", st_P: "Passeig de Gràcia", st_R: "Urquinaona", st_A: "Arc de Triomf",
-    fact_U: "Universitat está junto a la Universitat de Barcelona y tiene las líneas L1 y L2.",
-    fact_C: "La plaza de Catalunya es donde el Eixample se une con la ciudad vieja.",
-    fact_P: "Passeig de Gràcia es una de las calles principales del Eixample.",
-    fact_R: "En la plaza de Urquinaona está nuestro centro de estudios.",
-    fact_A: "El Arc de Triomf se levantó para la Exposición Universal de 1888.",
+    st_urgell: "Urgell", st_universitat: "Universitat", st_catalunya: "Catalunya", st_urquinaona: "Urquinaona",
+    st_arc: "Arc de Triomf", st_marina: "Marina", st_passeig: "Passeig de Gràcia", st_girona: "Girona", st_tetuan: "Tetuan",
+    fact_urgell: "Urgell es la parada anterior a Universitat en la L1.",
+    fact_universitat: "Universitat está junto a la Universitat de Barcelona y tiene las líneas L1 y L2.",
+    fact_catalunya: "La plaza de Catalunya es donde el Eixample se une con la ciudad vieja.",
+    fact_urquinaona: "En la plaza de Urquinaona está nuestro centro de estudios.",
+    fact_arc: "El Arc de Triomf se levantó para la Exposición Universal de 1888.",
+    fact_marina: "Marina está en la L1, entre Arc de Triomf y Glòries.",
+    fact_passeig: "Passeig de Gràcia es una de las calles principales del Eixample. Aquí se cruzan la L2 y la L4.",
+    fact_girona: "Girona es una parada de la L4, junto a Passeig de Gràcia.",
+    fact_tetuan: "Tetuan es la parada de la L2 que sigue a Passeig de Gràcia.",
     mission: "Misión",
     mission_text: "{from} → {to}. Recoge todos los trozos del plano por el camino.",
     pieces: "Trozos del plano",
@@ -31,35 +40,43 @@ const TEXTS = {
     controls: "Mueve la ficha con las flechas o WASD.",
     msg_start: "Estás en {station}, en la línea {line}. Mueve la ficha por la vía.",
     msg_wall: "Por ahí no hay vía.",
+    msg_line: "Esa vía es de otra línea. En una correspondencia puedes cambiar de línea.",
     msg_closed: "Esa estación está cerrada por obras. Busca otro camino.",
-    msg_rush: "Hora punta: espera a que se abra el paso.",
-    msg_change_line: "Aquí no sigue esa línea. Elige otra línea en la correspondencia.",
+    msg_line_now: "Ahora viajas en la línea {line}.",
     msg_piece: "¡Has encontrado un trozo del plano!",
     msg_missing: "Te faltan {n} trozos del plano antes de salir.",
-    msg_line: "Ahora viajas en la línea {line}.",
     win_title: "¡Nivel superado!",
     win_text: "{moves} movimientos · {points} puntos",
     timeout_title: "Se acabó el tiempo",
     timeout_text: "Inténtalo otra vez: tienes {n} segundos.",
-    locked_title: "Este juego aún está bloqueado",
-    locked_text: "Supera antes el juego 3 (Línea del tiempo) para conseguir la llave de la estación de Universitat.",
     final_title: "¡El plano está completo!",
     final_text: "Las cuatro piezas se juntan en Urquinaona. Gracias por devolverme el plano: del Eixample a la plaza donde estudiáis, todo vuelve a encajar. — Ildefons Cerdà",
     stars: "{n} de 3 estrellas",
+    locked_title: "Este juego aún está bloqueado",
+    locked_text: "Completa Memory, el Eixample y la línea del tiempo para conseguir la llave de Universitat.",
+    home: "Volver a la portada",
   },
   ca: {
     title: "Laberint de metro",
     language: "Idioma",
+    skip: "Salta al contingut",
+    brand: "Cerdà va perdre el pla",
+    footer: "Joc 4 de 4 · Història i geografia de Barcelona",
     level: "Nivell",
     level1_name: "Primer viatge",
     level2_name: "Correspondències",
     level3_name: "El pla complet",
-    st_U: "Universitat", st_C: "Catalunya", st_P: "Passeig de Gràcia", st_R: "Urquinaona", st_A: "Arc de Triomf",
-    fact_U: "Universitat és al costat de la Universitat de Barcelona i té les línies L1 i L2.",
-    fact_C: "La plaça de Catalunya és on l'Eixample s'uneix amb la ciutat vella.",
-    fact_P: "El Passeig de Gràcia és un dels carrers principals de l'Eixample.",
-    fact_R: "A la plaça d'Urquinaona hi ha el nostre centre d'estudis.",
-    fact_A: "L'Arc de Triomf es va aixecar per a l'Exposició Universal de 1888.",
+    st_urgell: "Urgell", st_universitat: "Universitat", st_catalunya: "Catalunya", st_urquinaona: "Urquinaona",
+    st_arc: "Arc de Triomf", st_marina: "Marina", st_passeig: "Passeig de Gràcia", st_girona: "Girona", st_tetuan: "Tetuan",
+    fact_urgell: "Urgell és la parada anterior a Universitat a la L1.",
+    fact_universitat: "Universitat és al costat de la Universitat de Barcelona i té les línies L1 i L2.",
+    fact_catalunya: "La plaça de Catalunya és on l'Eixample s'uneix amb la ciutat vella.",
+    fact_urquinaona: "A la plaça d'Urquinaona hi ha el nostre centre d'estudis.",
+    fact_arc: "L'Arc de Triomf es va aixecar per a l'Exposició Universal de 1888.",
+    fact_marina: "Marina és a la L1, entre Arc de Triomf i Glòries.",
+    fact_passeig: "El Passeig de Gràcia és un dels carrers principals de l'Eixample. Aquí es creuen la L2 i la L4.",
+    fact_girona: "Girona és una parada de la L4, al costat de Passeig de Gràcia.",
+    fact_tetuan: "Tetuan és la parada de la L2 que segueix Passeig de Gràcia.",
     mission: "Missió",
     mission_text: "{from} → {to}. Recull tots els trossos del pla pel camí.",
     pieces: "Trossos del pla",
@@ -76,35 +93,43 @@ const TEXTS = {
     controls: "Mou la fitxa amb les fletxes o WASD.",
     msg_start: "Ets a {station}, a la línia {line}. Mou la fitxa per la via.",
     msg_wall: "Per allà no hi ha via.",
+    msg_line: "Aquesta via és d'una altra línia. En una correspondència pots canviar de línia.",
     msg_closed: "Aquesta estació està tancada per obres. Busca un altre camí.",
-    msg_rush: "Hora punta: espera que s'obri el pas.",
-    msg_change_line: "Aquí no continua aquesta línia. Tria una altra línia a la correspondència.",
+    msg_line_now: "Ara viatges a la línia {line}.",
     msg_piece: "Has trobat un tros del pla!",
     msg_missing: "Et falten {n} trossos del pla abans de sortir.",
-    msg_line: "Ara viatges a la línia {line}.",
     win_title: "Nivell superat!",
     win_text: "{moves} moviments · {points} punts",
     timeout_title: "S'ha acabat el temps",
     timeout_text: "Torna-ho a provar: tens {n} segons.",
-    locked_title: "Aquest joc encara està bloquejat",
-    locked_text: "Supera abans el joc 3 (Línia del temps) per aconseguir la clau de l'estació d'Universitat.",
     final_title: "El pla és complet!",
     final_text: "Les quatre peces s'ajunten a Urquinaona. Gràcies per tornar-me el pla: de l'Eixample a la plaça on estudieu, tot torna a encaixar. — Ildefons Cerdà",
     stars: "{n} de 3 estrelles",
+    locked_title: "Aquest joc encara està bloquejat",
+    locked_text: "Completa el Memory, l’Eixample i la línia del temps per aconseguir la clau d’Universitat.",
+    home: "Torna a la portada",
   },
   en: {
     title: "Metro Maze",
     language: "Language",
+    skip: "Skip to content",
+    brand: "Cerdà lost the plan",
+    footer: "Game 4 of 4 · History and geography of Barcelona",
     level: "Level",
     level1_name: "First trip",
     level2_name: "Changing lines",
     level3_name: "The full plan",
-    st_U: "Universitat", st_C: "Catalunya", st_P: "Passeig de Gràcia", st_R: "Urquinaona", st_A: "Arc de Triomf",
-    fact_U: "Universitat is next to the University of Barcelona and has lines L1 and L2.",
-    fact_C: "Plaça de Catalunya is where the Eixample meets the old city.",
-    fact_P: "Passeig de Gràcia is one of the main streets of the Eixample.",
-    fact_R: "Our school is on Plaça d'Urquinaona.",
-    fact_A: "The Arc de Triomf was built for the 1888 Universal Exposition.",
+    st_urgell: "Urgell", st_universitat: "Universitat", st_catalunya: "Catalunya", st_urquinaona: "Urquinaona",
+    st_arc: "Arc de Triomf", st_marina: "Marina", st_passeig: "Passeig de Gràcia", st_girona: "Girona", st_tetuan: "Tetuan",
+    fact_urgell: "Urgell is the stop before Universitat on L1.",
+    fact_universitat: "Universitat is next to the University of Barcelona and has lines L1 and L2.",
+    fact_catalunya: "Plaça de Catalunya is where the Eixample meets the old city.",
+    fact_urquinaona: "Our school is on Plaça d'Urquinaona.",
+    fact_arc: "The Arc de Triomf was built for the 1888 Universal Exposition.",
+    fact_marina: "Marina is on L1, between Arc de Triomf and Glòries.",
+    fact_passeig: "Passeig de Gràcia is one of the main streets of the Eixample. L2 and L4 cross here.",
+    fact_girona: "Girona is an L4 stop, next to Passeig de Gràcia.",
+    fact_tetuan: "Tetuan is the L2 stop after Passeig de Gràcia.",
     mission: "Mission",
     mission_text: "{from} → {to}. Collect every piece of the plan on the way.",
     pieces: "Pieces of the plan",
@@ -121,34 +146,43 @@ const TEXTS = {
     controls: "Move the token with the arrow keys or WASD.",
     msg_start: "You are at {station}, on line {line}. Move the token along the track.",
     msg_wall: "There is no track that way.",
+    msg_line: "That track belongs to another line. At an interchange you can change line.",
     msg_closed: "That station is closed for works. Find another way.",
-    msg_rush: "Rush hour: wait for the way to open.",
-    msg_change_line: "That line does not continue here. Pick another line at the interchange.",
+    msg_line_now: "You are now travelling on line {line}.",
     msg_piece: "You found a piece of the plan!",
     msg_missing: "You still need {n} pieces of the plan before you leave.",
-    msg_line: "You are now travelling on line {line}.",
     win_title: "Level complete!",
     win_text: "{moves} moves · {points} points",
     timeout_title: "Time is up",
     timeout_text: "Try again: you have {n} seconds.",
-    locked_title: "This game is still locked",
-    locked_text: "Beat game 3 (Timeline) first to get the key to Universitat station.",
     final_title: "The plan is complete!",
     final_text: "The four pieces come together at Urquinaona. Thank you for bringing my plan back: from the Eixample to the square where you study, everything fits again. — Ildefons Cerdà",
     stars: "{n} of 3 stars",
+    locked_title: "This game is still locked",
+    locked_text: "Complete Memory, the Eixample and the timeline to get the key to Universitat station.",
+    home: "Back to the home page",
   },
 };
 
-let current = "es";
+let currentLang = "es";
 
-export const LANG_CODES = Object.keys(TEXTS);
-export const getLang = () => current;
-export function setLang(code) {
-  if (TEXTS[code]) current = code;
+function setLang(code) {
+  if (TEXTS[code]) {
+    currentLang = code;
+  }
 }
 
-// Devuelve el texto de la clave en el idioma actual. {nombre} se sustituye por vars.nombre.
-export function t(key, vars = {}) {
-  const text = TEXTS[current][key] ?? TEXTS.es[key] ?? key;
-  return text.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? "");
+// Devuelve el texto de la clave en el idioma actual.
+// Cada {nombre} del texto se cambia por el valor de vars.nombre.
+function t(key, vars) {
+  let text = TEXTS[currentLang][key];
+  if (!text) {
+    return key;
+  }
+  if (vars) {
+    for (const name in vars) {
+      text = text.replace("{" + name + "}", vars[name]);
+    }
+  }
+  return text;
 }

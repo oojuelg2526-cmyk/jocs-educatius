@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-traduccio="juego">Reconstruïm l’Eixample</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+    <header class="cabecera">
+        <div class="marca">
+            <h1 data-traduccio="historia">Ildefons Cerdà ha perdut el plànol</h1>
+            <p data-traduccio="subtitulo">Joc 2 · Reconstruïm l’Eixample</p>
+        </div>
+        <div class="idioma">
+            <label for="selector-idioma" data-traduccio="idioma">Idioma</label>
+            <select id="selector-idioma">
+                <option value="ca" lang="ca" selected>Català</option>
+                <option value="es" lang="es">Castellano</option>
+                <option value="en" lang="en">English</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="contenedor">
+        <section id="bloqueo" class="papel introduccion" aria-labelledby="titulo-bloqueo" hidden>
+            <h2 id="titulo-bloqueo" data-traduccio="bloqueado">Primer has de superar el Memory de Barcelona.</h2>
+            <a class="boton" href="../memory/index.html" data-traduccio="irAMemory">Ves al Memory</a>
+        </section>
+        <section id="introduccion" class="papel introduccion" hidden>
+            <h2 data-traduccio="juego">Reconstruïm l’Eixample</h2>
+            <p data-traduccio="introduccion">Has recuperat el calc de la quadrícula al Memory de Barcelona. Ara, a la taula de dibuix de Cerdà, fes-lo servir per reconstruir les primeres illes de cases.</p>
+            <button id="boton-empezar" class="boton" type="button" data-traduccio="empezar">Comença la reconstrucció</button>
+        </section>
+
+        <section id="zona-juego" class="zona-juego" aria-labelledby="titulo-nivel" tabindex="-1" hidden>
+            <aside class="panel-lateral papel" aria-labelledby="titulo-piezas">
+                <h3 id="titulo-piezas" data-traduccio="inventario">Peces disponibles</h3>
+                <p data-traduccio="instrucciones">Tria una peça i prem una casella buida del plànol.</p>
+                <div id="piezas" class="piezas"></div>
+
+                <div class="acciones">
+                    <button id="boton-retirar" class="boton secundario" type="button" aria-pressed="false" data-traduccio="retirar">Retira una peça</button>
+                    <button id="boton-reiniciar" class="boton secundario" type="button" data-traduccio="reiniciar">Reinicia el nivell</button>
+                </div>
+            </aside>
+
+            <section class="zona-tablero papel" aria-labelledby="titulo-tablero">
+                <h3 id="titulo-tablero" class="titulo-tablero" data-traduccio="tablero">Quadrícula de reconstrucció</h3>
+                <div id="tablero" class="tablero"></div>
+                <p id="mensaje" class="mensaje" role="status" tabindex="-1"></p>
+            </section>
+
+            <section class="informacion-nivel papel" aria-labelledby="titulo-nivel">
+                <p class="titulo-mision" data-traduccio="mision">Missió</p>
+                <h2 id="titulo-nivel" tabindex="-1"></h2>
+                <p id="descripcion-nivel"></p>
+
+                <div class="estadisticas">
+                    <div class="dato">
+                        <span data-traduccio="movimientos">Moviments</span>
+                        <strong id="movimientos">0</strong>
+                    </div>
+                    <div class="dato">
+                        <span data-traduccio="ayudas">Ajudes</span>
+                        <strong id="ayudas">0</strong>
+                    </div>
+                    <div class="dato">
+                        <span data-traduccio="puntuacion">Puntuació</span>
+                        <strong id="puntuacion">1000</strong>
+                    </div>
+                </div>
+
+                <div class="acciones">
+                    <button id="boton-comprobar" class="boton" type="button" data-traduccio="comprobar">Comprova el plànol</button>
+                    <button id="boton-ayuda" class="boton secundario" type="button" data-traduccio="pista">Consulta la pista</button>
+                    <button id="boton-siguiente" class="boton" type="button" data-traduccio="siguiente" hidden>Nivell següent</button>
+                    <a id="enlace-historia" class="boton" href="../lineaDelTiempo/index.html" data-traduccio="continuarHistoria" hidden>Ves a la línia del temps</a>
+                </div>
+            </section>
+
+            <section class="curiosidad papel" aria-labelledby="titulo-curiosidad">
+                <h3 id="titulo-curiosidad" data-traduccio="curiosidad">Sabies que…?</h3>
+                <p data-traduccio="datoHistorico">El pla original de Cerdà preveia espais verds a l’interior de les illes i donava importància a la llum natural i a la ventilació dels habitatges.</p>
+            </section>
+        </section>
+
+        <section id="progreso-niveles" class="progreso papel" aria-labelledby="titulo-progreso" hidden>
+            <h3 id="titulo-progreso" data-traduccio="progreso">Reconstrucció del plànol</h3>
+            <ul class="niveles">
+                <li><button class="nivel" type="button" data-nivell="1" data-estat="actiu" aria-current="step">Nivell 1 · Actiu</button></li>
+                <li><button class="nivel" type="button" data-nivell="2" data-estat="bloquejat" disabled>Nivell 2 · Bloquejat</button></li>
+                <li><button class="nivel" type="button" data-nivell="3" data-estat="bloquejat" disabled>Nivell 3 · Bloquejat</button></li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <a href="../../" data-traduccio="volverPortada">Torna a la portada</a>
+        <p data-traduccio="pie">Projecte educatiu · Jocs per aprendre</p>
+    </footer>
+    <script src="../../js/progresion.js"></script>
+    <script type="module" src="js/principal.js"></script>
+</body>
+</html>

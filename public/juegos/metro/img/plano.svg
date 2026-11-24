@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Las cuatro piezas del plano de Cerdà -->
+  <g fill="#efe2bf" stroke="#2b2a28" stroke-width="2">
+    <rect x="4" y="4" width="192" height="142"/>
+    <rect x="204" y="4" width="192" height="142"/>
+    <rect x="4" y="154" width="192" height="142"/>
+    <rect x="204" y="154" width="192" height="142"/>
+  </g>
+
+  <!-- Pieza 1: las calles -->
+  <g stroke="#2b2a28" stroke-width="2">
+    <path d="M30 30h140M30 75h140M30 120h140M60 20v115M100 20v115M140 20v115"/>
+  </g>
+
+  <!-- Pieza 2: las manzanas del Eixample -->
+  <g fill="#a63d2a" stroke="#2b2a28" stroke-width="2">
+    <rect x="226" y="26" width="40" height="40"/>
+    <rect x="282" y="26" width="40" height="40"/>
+    <rect x="338" y="26" width="40" height="40"/>
+    <rect x="226" y="80" width="40" height="40"/>
+    <rect x="282" y="80" width="40" height="40"/>
+    <rect x="338" y="80" width="40" height="40"/>
+  </g>
+
+  <!-- Pieza 3: las líneas y el año -->
+  <g stroke="#2b2a28" stroke-width="3">
+    <path d="M26 180h90M26 202h140M26 224h120M26 246h100"/>
+  </g>
+  <text x="26" y="282" font-size="22" font-family="Georgia,serif" fill="#2b2a28">1859</text>
+
+  <!-- Pieza 4: el centro -->
+  <circle cx="300" cy="225" r="46" fill="none" stroke="#2b2a28" stroke-width="3"/>
+  <circle cx="300" cy="225" r="10" fill="#a63d2a" stroke="#2b2a28" stroke-width="2"/>
+  <path d="M300 170v110M245 225h110" stroke="#2b2a28" stroke-width="2"/>
+</svg>

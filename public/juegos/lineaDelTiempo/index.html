@@ -20,7 +20,11 @@
     </header>
 
     <!-- Layout principal -->
-    <main class="layout">
+    <main id="zona-bloqueada" class="acceso-juego" hidden>
+        <h2 data-progresion="bloqueado">Completa el Memory i l’Eixample per jugar a la línia del temps.</h2>
+        <a href="../../" data-progresion="portada">Torna a la portada</a>
+    </main>
+    <main id="zona-timeline" class="layout" hidden>
         <!-- Área de juego (Izquierda) -->
         <section class="board-wrap">
 
@@ -35,7 +39,7 @@
             </div>
 
             <!-- Caja de pistas -->
-            <div class="message hint-box" id="hint-box">
+            <div class="message hint-box" id="hint-box" role="status">
                 <p>💡 <strong>¿Sabías que...?</strong> <span id="hint-text">Arrastra las tarjetas a la línea del tiempo
                         en orden cronológico.</span></p>
             </div>
@@ -80,11 +84,16 @@
             <div class="stars">★★★</div>
             <p id="end-message">Has recuperado la tercera pieza del plano.</p>
             <div class="card-buttons">
-                <button class="btn" onclick="location.reload()">Siguiente Juego</button>
+                <a id="ir-metro" href="../metro/index.html" data-progresion="metro" hidden>Continua cap al metro</a>
+                <button type="button" id="reintentar-timeline" data-progresion="reintentar" hidden>Torna-ho a provar</button>
             </div>
         </div>
     </div>
 
+    <footer class="acceso-juego" id="pie-timeline" hidden>
+        <a href="../../" data-progresion="portada">Torna a la portada</a>
+    </footer>
+    <script src="../../js/progresion.js"></script>
     <script src="./js/game.js"></script>
 </body>
 

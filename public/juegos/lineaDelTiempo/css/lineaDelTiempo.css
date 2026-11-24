@@ -42,6 +42,43 @@ h2 {
     margin: 0;
 }
 
+/* Accés al joc i resultat del nivell */
+[hidden] {
+    display: none !important;
+}
+
+.acceso-juego {
+    padding: 1rem;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgb(43 42 40 / 55%);
+}
+
+.overlay .card {
+    padding: 1rem;
+    border: 1px solid var(--line);
+    background: var(--paper-2);
+}
+
+#end-message {
+    white-space: pre-line;
+}
+
+#end-screen[data-estat="superat"] h2 {
+    color: var(--green);
+}
+
+#end-screen[data-estat="perdut"] h2 {
+    color: var(--red);
+}
+
 button,
 select {
     font: inherit;
