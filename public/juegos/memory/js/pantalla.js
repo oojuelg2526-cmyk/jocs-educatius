@@ -344,8 +344,8 @@ function terminarNivel() {
 // localStorage todavía no se ha dado en clase (se verá en 0612_07); aquí se usa lo mínimo.
 // Los cuatro juegos comparten las claves cerda_progress y cerda_sessions, por eso se
 // guardan como texto JSON: JSON.stringify para guardar y JSON.parse para leer.
-// Más adelante estos mismos datos irán al servidor (tablas user_game_progress,
-// game_sessions y level_attempts del modelo de base de datos).
+// Además, cada nivel superado se envía al servidor con Cerda.enviar (de /js/sesion.js),
+// que lo guarda en las tablas game_sessions y level_attempts.
 
 function leerProgreso() {
   return JSON.parse(localStorage.getItem("cerda_progress")) || { games: {} };
@@ -372,11 +372,12 @@ function guardarProgreso(numero, puntos) {
 
 // Métricas de esta visita. Comunes: username, session_id, date_time, session_length.
 // Propias del Memory: attempts, errors_made, level_reached, level_time.
-const inicioSesion = new Date();
+// El usuario y el session_id (UUID de esta visita) los da sesion.js, igual que en los otros juegos.
+const inicioSesion = new Date(Cerda.inicioSesion("memory"));
 const sesion = {
   game_id: ID_JUEGO,
-  username: localStorage.getItem("cerda_username") || "invitado",
-  session_id: `memory-${inicioSesion.getTime()}-${Math.floor(Math.random() * 10000)}`, // [PENDENT] UUID del servidor
+  username: Cerda.usuario(),
+  session_id: Cerda.sesionActual("memory"),
   date_time: inicioSesion.toISOString(),
   session_length: 0,
   level_reached: 1,
@@ -407,7 +408,23 @@ function guardarIntento(estrellas, puntos) {
   const otras = sesiones.filter((s) => s.session_id !== sesion.session_id);
   otras.push(sesion);
   localStorage.setItem("cerda_sessions", JSON.stringify(otras.slice(-50)));
-  console.log("Métricas de la sesión (más adelante irán al servidor):", sesion);
+
+  // Y se envía este nivel al servidor, con los nombres que espera /api/guardar-metricas
+  Cerda.enviar({
+    username: sesion.username,
+    session_id: sesion.session_id,
+    game: "memory",
+    level: numero,
+    date_time: sesion.date_time,
+    session_length: sesion.session_length,
+    level_time: partida.segundos,
+    final_score: puntos,
+    errors_made: partida.fallos,
+    moves_count: partida.movimientos,
+    help_clicks: partida.pistasUsadas,
+    stars: estrellas,
+    completed: true,
+  });
 }
 
 // ---------- Arranque ----------

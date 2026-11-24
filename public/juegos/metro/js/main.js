@@ -24,7 +24,7 @@ let game = null;
 let timer = null;
 let finished = false;
 const session = newSession(); // una sesión por cada vez que se abre el juego
-const sessionStart = Date.now();
+const sessionStart = Cerda.inicioSesion("metro"); // cuándo empezó la visita (si se recarga, no cambia)
 
 // ----- empezar un nivel -----
 
@@ -239,7 +239,7 @@ function mostrarBloqueo() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const idiomaGuardado = localStorage.getItem("cerda_lang");
-  const idioma = Object.hasOwn(NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
+  const idioma = Object.hasOwn(LANGUAGE_NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
   setLang(idioma);
   langSelect.value = idioma;
   document.documentElement.lang = idioma;

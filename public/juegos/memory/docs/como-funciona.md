@@ -43,7 +43,7 @@ Con `localStorage`, lo mínimo, en tres claves que comparten los cuatro juegos:
 - `juego1Superado`: se pone a `"true"` al superar el nivel 3. Es el aviso que acordó el equipo para desbloquear el siguiente juego (el juego 2 mira esa clave, igual que el 3 mira `juego2Superado`).
 - `cerda_sessions`: las métricas de cada visita: `username`, `session_id`, `date_time`, `session_length`, `level_reached` y una fila por nivel con `level_time`, `errors_made`, `moves_count`, `help_clicks`, `score` y `stars`.
 
-Como `localStorage` solo guarda texto, se usa `JSON.stringify` para guardar y `JSON.parse` para leer. Los nombres son los de las columnas de la base de datos (tablas `user_game_progress`, `game_sessions` y `level_attempts`), para que más adelante se puedan enviar al servidor sin cambiarlos. De momento también se enseñan con `console.log`.
+Como `localStorage` solo guarda texto, se usa `JSON.stringify` para guardar y `JSON.parse` para leer. Los nombres son los de las columnas de la base de datos (tablas `user_game_progress`, `game_sessions` y `level_attempts`), para enviarlos al servidor sin cambiarlos. Al superar cada nivel, `guardarIntento` lo envía a `/api/guardar-metricas` con `Cerda.enviar` (de `/js/sesion.js`, el archivo común de los cuatro juegos), que también da el usuario y el `session_id` (un UUID por visita).
 
 ## Preguntas probables del profesor
 1. **¿Por qué hay tres archivos JS y no uno?** Para separar los datos, las reglas y la pantalla. Las reglas no tocan la página, así que se pueden probar solas con `npm test`.

@@ -7,18 +7,25 @@ const vm = require("node:vm");
 
 const codigo = fs.readFileSync(path.join(__dirname, "..", "js", "storage.js"), "utf8");
 const progresion = fs.readFileSync(path.join(__dirname, "..", "..", "..", "js", "progresion.js"), "utf8");
+const sesion = fs.readFileSync(path.join(__dirname, "..", "..", "..", "js", "sesion.js"), "utf8");
 
 // Carrega els scripts amb les mateixes claus que utilitza el navegador.
 function cargar(search = "") {
   const datos = {};
+  const datosSesion = {};
   const contexto = vm.createContext({
     localStorage: {
       getItem: (k) => (k in datos ? datos[k] : null),
       setItem: (k, v) => { datos[k] = String(v); },
     },
+    sessionStorage: {
+      getItem: (k) => (k in datosSesion ? datosSesion[k] : null),
+      setItem: (k, v) => { datosSesion[k] = String(v); },
+    },
     location: { search },
     console: { warn() {} },
   });
+  vm.runInContext(sesion, contexto);
   vm.runInContext(progresion, contexto);
   vm.runInContext(codigo, contexto);
   return { datos, run: (c) => vm.runInContext(c, contexto) };
@@ -101,4 +108,14 @@ test("el envío al servidor lleva los nombres de /api/guardar-metricas", () => {
   assert.equal(datos.final_score, 950);
   assert.equal(datos.completed, true);
   assert.match(datos.session_id, /^[0-9a-f-]{36}$/);
+});
+
+test("el usuario y el session_id vienen de sesion.js y son los mismos en toda la visita", () => {
+  const juego = cargar();
+  juego.datos.cerda_username = "pau";
+  const primera = JSON.parse(juego.run("JSON.stringify(newSession())"));
+  const segunda = JSON.parse(juego.run("JSON.stringify(newSession())"));
+  assert.equal(primera.username, "pau");
+  assert.equal(primera.session_id, segunda.session_id);
+  assert.equal(primera.session_id, juego.run('Cerda.sesionActual("metro")'));
 });

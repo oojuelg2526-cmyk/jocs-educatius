@@ -5,11 +5,7 @@ Primer juego de «Ildefons Cerdà perdió el plano». Se une cada monumento de B
 HTML, CSS y JavaScript sin librerías, sin módulos y sin `<canvas>`.
 
 ## Cómo abrirlo
-Basta con hacer doble clic en `index.html` (funciona desde `file://`). También con un servidor:
-
-```bash
-python3 -m http.server 8779   # y abrir http://localhost:8779
-```
+Se abre desde la web del proyecto (`php artisan serve` y `http://localhost:8000/juegos/memory/index.html`), porque carga `/js/sesion.js` desde la raíz del sitio: de ahí salen el usuario, el `session_id` y el envío de las métricas (ver `docs/metricas-juegos.md` del repositorio).
 
 Pruebas de las reglas (Node 18 o más nuevo):
 
@@ -46,6 +42,5 @@ npm test
 
 ## Pendiente
 - Contrastar barrios y datos históricos con una fuente fiable.
-- `session_id` de verdad (lo tendría que dar el servidor) y envío de las métricas a la base de datos.
 - Qué pieza del plano se entrega al terminar y enlace con el juego 2.
 - Mejoras opcionales, solo si sobra tiempo: modo contrarreloj, sonido y mapa con los contornos reales de los barrios.
