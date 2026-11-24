@@ -80,6 +80,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let modoRetirar = false;
     let aviso = null;
 
+    // Métricas del nivel que se está jugando. Se envían al servidor al superarlo.
+    // El usuario y la sesión de la visita vienen de /js/sesion.js (objeto Cerda).
+    Cerda.sesionActual("eixample");
+    let inicioNivel = null;
+    let erroresNivel = 0;
+
     function recuperarPartida() {
         const guardada = progreso.partidas[nivel.id];
         const compatible = Array.isArray(guardada?.tablero) && guardada.inventarioRestante
@@ -135,6 +141,29 @@ document.addEventListener("DOMContentLoaded", () => {
         actualizarProgreso();
     }
 
+    function empezarMetricas() {
+        inicioNivel = Date.now();
+        erroresNivel = 0;
+    }
+
+    // Puntuación: la del juego (calcularPuntuacion). No hay estrellas, así que no se envían.
+    function enviarMetricas() {
+        Cerda.enviar({
+            username: Cerda.usuario(),
+            session_id: Cerda.sesionActual("eixample"),
+            game: "eixample",
+            level: nivel.id,
+            date_time: new Date().toISOString(),
+            session_length: Cerda.segundosDeSesion("eixample"),
+            level_time: Math.round((Date.now() - inicioNivel) / 1000),
+            final_score: calcularPuntuacion(partida),
+            errors_made: erroresNivel,
+            moves_count: partida.movimientos,
+            help_clicks: partida.ayudas,
+            completed: true
+        });
+    }
+
     function registrarPartida() {
         progreso.partidas[nivel.id] = partida;
         progreso.nivelActual = nivel.id;
@@ -175,6 +204,10 @@ document.addEventListener("DOMContentLoaded", () => {
             casillas = crearTablero(tablero, nivel);
             botonesPieza = crearPiezas(piezas, nivel.inventario);
             modoRetirar = false;
+            empezarMetricas();
+        }
+        if (inicioNivel === null) {
+            empezarMetricas();
         }
 
         introduccion.hidden = true;
@@ -187,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function reiniciarPartida() {
         partida = crearPartida(nivel);
         modoRetirar = false;
+        empezarMetricas();
         registrarPartida();
         mostrarAviso("inicio");
     }
@@ -217,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function comprobarPartida() {
         const error = comprobarPlano(partida, nivel);
         if (error !== null) {
+            erroresNivel++; // un plano comprobado con algún error
             mostrarAviso(error, "error");
             mensaje.focus();
             return;
@@ -228,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         progreso.best_score = niveles.reduce((total, opcion) => total + (progreso.level_scores[opcion.id] ?? 0), 0);
         progreso.status = progreso.last_level_completed === niveles.length ? "completed" : "unlocked";
         registrarPartida();
+        enviarMetricas();
         mostrarAviso("victoria", "correcte");
         mensaje.focus();
     }
