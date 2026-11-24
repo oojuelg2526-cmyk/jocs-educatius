@@ -7,6 +7,16 @@ const DIRS = {
   right: [0, 1],
 };
 
+// ¿Está este valor dentro de la lista?
+function contains(list, value) {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === value) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Convierte el mapa de textos en una tabla de casillas (array de arrays).
 function makeGrid(level) {
   const grid = [];
@@ -16,11 +26,11 @@ function makeGrid(level) {
       const letter = level.map[r][c];
       if (letter === "#") {
         row.push({ type: "wall", lines: [] });
-      } else if ("124".includes(letter)) {
+      } else if (letter === "1" || letter === "2" || letter === "4") {
         row.push({ type: "track", lines: [Number(letter)] });
       } else {
-        const st = level.stations[letter];
-        row.push({ type: "station", id: letter, nameKey: st.nameKey, lines: st.lines, r: r, c: c });
+        const station = level.stations[letter];
+        row.push({ type: "station", id: letter, nameKey: station.nameKey, lines: station.lines, r: r, c: c });
       }
     }
     grid.push(row);
@@ -43,7 +53,13 @@ function findStation(grid, id) {
 function createGame(level) {
   const grid = makeGrid(level);
   const start = findStation(grid, level.start);
-  const pieces = level.pieces.map((p) => ({ r: p[0], c: p[1], taken: false }));
+
+  // los trozos del plano: cada uno con su fila, su columna y si ya se ha cogido
+  const pieces = [];
+  for (let i = 0; i < level.pieces.length; i++) {
+    pieces.push({ r: level.pieces[i][0], c: level.pieces[i][1], taken: false });
+  }
+
   return {
     level: level,
     grid: grid,
@@ -78,13 +94,14 @@ function pieceAt(game, r, c) {
   return null;
 }
 
+// Cuántos trozos del plano quedan por coger.
 function piecesLeft(game) {
   let left = 0;
-  game.pieces.forEach((p) => {
-    if (!p.taken) {
+  for (let i = 0; i < game.pieces.length; i++) {
+    if (game.pieces[i].taken === false) {
       left++;
     }
-  });
+  }
   return left;
 }
 
@@ -94,10 +111,10 @@ function canEnter(game, r, c) {
   if (cell === null || cell.type === "wall") {
     return "wall";
   }
-  if (!cell.lines.includes(game.line)) {
+  if (contains(cell.lines, game.line) === false) {
     return "line"; // esa vía es de otra línea
   }
-  if (cell.type === "station" && game.level.closed.includes(cell.id)) {
+  if (cell.type === "station" && contains(game.level.closed, cell.id)) {
     return "closed";
   }
   return "ok";
@@ -122,7 +139,7 @@ function move(game, dirName) {
 
   let event = "moved";
   const piece = pieceAt(game, r, c);
-  if (piece !== null && !piece.taken) {
+  if (piece !== null && piece.taken === false) {
     piece.taken = true;
     event = "piece";
   }
@@ -145,7 +162,7 @@ function move(game, dirName) {
 // En una estación con varias líneas se puede elegir por cuál seguir.
 function chooseLine(game, line) {
   const here = cellAt(game, game.row, game.col);
-  if (here.type !== "station" || !here.lines.includes(line)) {
+  if (here.type !== "station" || contains(here.lines, line) === false) {
     return false;
   }
   game.line = line;
@@ -172,7 +189,10 @@ function tickSecond(game) {
 function score(game) {
   const taken = game.pieces.length - piecesLeft(game);
   const points = 1000 - 5 * game.moves - 50 * game.helps + 100 * taken;
-  return Math.max(0, points);
+  if (points < 0) {
+    return 0;
+  }
+  return points;
 }
 
 // Estrellas según los movimientos de más respecto a la mejor ruta.
@@ -190,13 +210,18 @@ function stars(game) {
 // Resumen del intento para guardarlo.
 function result(game) {
   const won = game.status === "won";
-  return {
+  const summary = {
     level: game.level.id,
     won: won,
     moves: game.moves,
     helps: game.helps,
     seconds: game.seconds,
-    score: won ? score(game) : 0,
-    stars: won ? stars(game) : 0,
+    score: 0,
+    stars: 0,
   };
+  if (won) {
+    summary.score = score(game);
+    summary.stars = stars(game);
+  }
+  return summary;
 }

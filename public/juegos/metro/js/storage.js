@@ -16,17 +16,26 @@ const JUEGO_INDEPENDIENTE = true;
 // ----- ¿está abierto el juego? -----
 
 function isUnlocked() {
-  if (JUEGO_INDEPENDIENTE || location.search.indexOf("dev=1") !== -1) {
+  if (JUEGO_INDEPENDIENTE) {
     return true;
   }
-  return localStorage.getItem("juego3Superado") === "true";
+  if (location.search.indexOf("dev=1") !== -1) {
+    return true; // para probar: abre el juego siempre
+  }
+  if (localStorage.getItem("juego3Superado") === "true") {
+    return true;
+  }
+  return false;
 }
 
 // ----- progreso: hasta qué nivel has llegado y la mejor puntuación de cada uno -----
 
 function loadProgress() {
   const saved = localStorage.getItem(PROGRESS_KEY);
-  const progress = saved === null ? {} : JSON.parse(saved);
+  let progress = {};
+  if (saved !== null) {
+    progress = JSON.parse(saved);
+  }
   if (!progress.games) {
     progress.games = {};
   }
@@ -47,7 +56,7 @@ function saveLevelDone(level, points) {
   if (level > game.last_level_completed) {
     game.last_level_completed = level;
   }
-  if (!game.level_scores[level] || points > game.level_scores[level]) {
+  if (game.level_scores[level] === undefined || points > game.level_scores[level]) {
     game.level_scores[level] = points;
   }
   // mejor puntuación = suma de la mejor de cada nivel
@@ -74,7 +83,8 @@ function newId() {
     } else if (i === 14) {
       id += "4"; // versión 4
     } else if (i === 19) {
-      id += "89ab"[Math.floor(Math.random() * 4)]; // variante
+      const variant = "89ab";
+      id += variant[Math.floor(Math.random() * 4)];
     } else {
       id += hex[Math.floor(Math.random() * 16)];
     }
@@ -85,8 +95,13 @@ function newId() {
 // Datos comunes de la sesión: username, session_id y date_time.
 // session_length se calcula al guardar.
 function newSession() {
+  // el mismo nombre que usan los otros juegos
+  let username = localStorage.getItem("username");
+  if (username === null) {
+    username = "invitado";
+  }
   return {
-    username: "invitado",
+    username: username,
     session_id: newId(),
     date_time: new Date().toISOString(),
     level_reached: 1,
@@ -108,8 +123,13 @@ function addAttempt(session, res) {
   });
   if (res.won) {
     session.final_score += res.score;
-    if (res.level + 1 > session.level_reached) {
-      session.level_reached = Math.min(3, res.level + 1);
+    // el nivel al que ha llegado (como mucho el 3)
+    let next = res.level + 1;
+    if (next > 3) {
+      next = 3;
+    }
+    if (next > session.level_reached) {
+      session.level_reached = next;
     }
   }
 }
@@ -133,4 +153,38 @@ function saveSession(session, startedAt) {
     sessions.push(session);
   }
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+
+// ----- servidor: se envía el resultado de cada nivel a la base de datos -----
+
+// Los datos de un nivel, con los nombres que espera /api/guardar-metricas.
+function buildPayload(session, res, startedAt) {
+  return {
+    username: session.username,
+    session_id: session.session_id,
+    game: "metro",
+    level: res.level,
+    date_time: session.date_time,
+    session_length: Math.round((Date.now() - startedAt) / 1000),
+    level_time: res.seconds,
+    moves_count: res.moves,
+    help_clicks: res.helps,
+    final_score: res.score,
+    stars: res.stars,
+    completed: res.won,
+  };
+}
+
+function ignoreError() {
+  // no hace nada a propósito
+}
+
+// Lo envía. Si falla (sin conexión, por ejemplo), no pasa nada: ya está guardado en el navegador.
+function sendToServer(session, res, startedAt) {
+  const request = fetch("/api/guardar-metricas", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(buildPayload(session, res, startedAt)),
+  });
+  request.catch(ignoreError);
 }
