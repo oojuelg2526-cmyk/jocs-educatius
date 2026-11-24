@@ -61,12 +61,12 @@ class JuegoLineaTiempo {
     // Persistencia de métricas adaptadas a las exigencias de BD
     // =========================================================
     async guardarMetricasBD() {
-        // Recuperamos las métricas generales de sesión compartidas (guardadas previamente en localStorage/sessionStorage)
-        const username = localStorage.getItem("username") || "Anónimo";
-        const sessionId = localStorage.getItem("session_id") || "0000-0000";
+        // Usuario y sesión comunes a los cuatro juegos (los da /js/sesion.js)
+        const username = Cerda.usuario();
+        const sessionId = Cerda.sesionActual("timeline");
 
-        // Calculamos la duración total de la sesión (asumiendo que se guardó 'session_start_time' al entrar al proyecto)
-        const sessionStartTime = localStorage.getItem("session_start_time") || Date.now();
+        // Duración total de la sesión: desde que se abrió el juego en esta pestaña
+        const sessionStartTime = Cerda.inicioSesion("timeline");
         const sessionLength = Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000);
 
         // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
@@ -89,23 +89,10 @@ class JuegoLineaTiempo {
             nivel_jugado: this.nivelActual
         };
 
-        try {
-            // Ajusta '/api/guardar-metricas' al endpoint real de tu proyecto
-            const respuesta = await fetch('/api/guardar-metricas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(datosBD)
-            });
-
-            if (respuesta.ok) {
-                console.log("Métricas enviadas correctamente al servidor SQL Server:", datosBD);
-            } else {
-                console.error("Error del servidor al intentar guardar las métricas:", respuesta.status);
-            }
-        } catch (error) {
-            console.error("No se pudo conectar con el servidor para guardar las métricas:", error);
+        // Cerda.enviar hace el fetch a '/api/guardar-metricas' y, si falla, solo avisa en la consola
+        const respuesta = await Cerda.enviar(datosBD);
+        if (respuesta !== null && respuesta.ok) {
+            console.log("Métricas enviadas correctamente al servidor:", datosBD);
         }
     }
 
@@ -359,7 +346,7 @@ class JuegoLineaTiempo {
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.textContent += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
+                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
                 localStorage.setItem("juego3Superado", "true");
                 enlaceMetro.hidden = false;
                 enlaceMetro.focus();
