@@ -54,6 +54,7 @@ function saveLevelDone(level, points) {
 // ----- sesiones: una por cada vez que se abre el juego, con un intento por nivel jugado -----
 
 // Un identificador con forma de UUID (la base de datos guarda session_id como UUID).
+// El juego ya usa el de /js/sesion.js (el mismo para toda la visita); este se deja para las pruebas.
 function newId() {
   const hex = "0123456789abcdef";
   let id = "";
@@ -75,14 +76,10 @@ function newId() {
 // Datos comunes de la sesión: username, session_id y date_time.
 // session_length se calcula al guardar.
 function newSession() {
-  // el mismo nombre que usan los otros juegos
-  let username = localStorage.getItem("username");
-  if (username === null) {
-    username = "invitado";
-  }
+  // el usuario y el session_id de la visita son los mismos que en los otros juegos (/js/sesion.js)
   return {
-    username: username,
-    session_id: newId(),
+    username: Cerda.usuario(),
+    session_id: Cerda.sesionActual("metro"),
     date_time: new Date().toISOString(),
     level_reached: 1,
     final_score: 0,
@@ -155,16 +152,7 @@ function buildPayload(session, res, startedAt) {
   };
 }
 
-function ignoreError() {
-  // no hace nada a propósito
-}
-
 // Lo envía. Si falla (sin conexión, por ejemplo), no pasa nada: ya está guardado en el navegador.
 function sendToServer(session, res, startedAt) {
-  const request = fetch("/api/guardar-metricas", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(buildPayload(session, res, startedAt)),
-  });
-  request.catch(ignoreError);
+  Cerda.enviar(buildPayload(session, res, startedAt));
 }

@@ -24,7 +24,7 @@ let game = null;
 let timer = null;
 let finished = false;
 const session = newSession(); // una sesión por cada vez que se abre el juego
-const sessionStart = Date.now();
+const sessionStart = Cerda.inicioSesion("metro"); // cuándo empezó la visita (si se recarga, no cambia)
 
 // ----- empezar un nivel -----
 
