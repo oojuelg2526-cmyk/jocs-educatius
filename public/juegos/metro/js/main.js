@@ -239,7 +239,7 @@ function mostrarBloqueo() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const idiomaGuardado = localStorage.getItem("cerda_lang");
-  const idioma = Object.hasOwn(NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
+  const idioma = Object.hasOwn(LANGUAGE_NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
   setLang(idioma);
   langSelect.value = idioma;
   document.documentElement.lang = idioma;
