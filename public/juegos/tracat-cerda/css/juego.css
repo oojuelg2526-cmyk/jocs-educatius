@@ -1,15 +1,15 @@
-/* Paper, tinta i tipografia de la portada. */
-.joc-tracat {
+/* Papel, tinta y tipografía de la portada. */
+.juego-trazado {
     background-color: var(--papel);
     background-image: repeating-linear-gradient(0deg, transparent 0 5px, #6f522609 5px 6px);
 }
 
-.capcalera {
+.juego-trazado > .cabecera {
     background: var(--papel-2);
     border-bottom: 1px solid var(--linea);
 }
 
-.capcalera .cabecera-interior {
+.juego-trazado .cabecera-interior {
     flex-wrap: wrap;
     gap: .35rem 1rem;
 }
@@ -20,37 +20,37 @@
     gap: .5rem;
 }
 
-.capcalera select {
+.control-idioma select {
     background: var(--papel-2);
     border: 1px solid var(--linea);
     border-radius: 4px;
     padding: .35rem;
 }
 
-.contingut {
+.contenido {
     padding-block: clamp(1.4rem, 4vw, 3rem) 2rem;
 }
 
-.presentacio h1 {
+.presentacion h1 {
     font-size: clamp(2.2rem, 6vw, 4.25rem);
     letter-spacing: -.045em;
     color: var(--tinta);
 }
 
-.presentacio p {
+.presentacion p {
     max-width: 58ch;
     margin-block: .75rem 1.35rem;
     color: var(--tinta-suave);
 }
 
-.disposicio {
+.distribucion {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
     align-items: start;
     gap: 1rem;
 }
 
-.paper {
+.papel {
     padding: clamp(.8rem, 2.5vw, 1.6rem);
     background: var(--papel-2);
     border: 1px solid var(--linea);
@@ -63,11 +63,11 @@
     border-top: 3px solid var(--azul);
 }
 
-.quadern {
+.cuaderno {
     border-top: 3px solid var(--rojo);
 }
 
-.quadern p {
+.cuaderno p {
     margin-block: .5rem 1rem;
 }
 
@@ -82,7 +82,7 @@
     margin-bottom: 0;
 }
 
-.cap-mapa {
+.cabecera-mapa {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -91,15 +91,15 @@
     margin-bottom: .85rem;
 }
 
-#passos {
+#pasos {
     margin: 0;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
     color: var(--azul);
 }
 
-/* Cada casella dibuixa mig tram cap a les caselles veïnes del camí. */
-#tauler {
+/* Cada casilla dibuja medio tramo hacia las casillas vecinas del camino. */
+#tablero {
     display: grid;
     width: min(100%, 26rem);
     margin-inline: auto;
@@ -109,19 +109,19 @@
     user-select: none;
 }
 
-#tauler[data-mida="5"] {
+#tablero[data-tamano="5"] {
     grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
-#tauler[data-mida="6"] {
+#tablero[data-tamano="6"] {
     grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
-#tauler[data-mida="7"] {
+#tablero[data-tamano="7"] {
     grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
-.casella {
+.casilla {
     display: grid;
     place-items: center;
     position: relative;
@@ -131,10 +131,10 @@
     padding: 0;
     background-color: #f5eddc;
     background-image:
-        linear-gradient(var(--nord, transparent), var(--nord, transparent)),
-        linear-gradient(var(--sud, transparent), var(--sud, transparent)),
-        linear-gradient(var(--est, transparent), var(--est, transparent)),
-        linear-gradient(var(--oest, transparent), var(--oest, transparent));
+        linear-gradient(var(--norte, transparent), var(--norte, transparent)),
+        linear-gradient(var(--sur, transparent), var(--sur, transparent)),
+        linear-gradient(var(--este, transparent), var(--este, transparent)),
+        linear-gradient(var(--oeste, transparent), var(--oeste, transparent));
     background-position: center top, center bottom, right center, left center;
     background-size: 4px 50%, 4px 50%, 50% 4px, 50% 4px;
     background-repeat: no-repeat;
@@ -142,57 +142,57 @@
     cursor: pointer;
 }
 
-.casella:hover {
+.casilla:hover {
     background-color: #e9e1cd;
 }
 
-.casella:focus-visible {
+.casilla:focus-visible {
     z-index: 1;
     outline-offset: -4px;
 }
 
-.casella span,
-.simbol {
+.casilla span,
+.simbolo {
     display: grid;
     place-items: center;
     line-height: 1;
 }
 
-.casella span {
+.casilla span {
     pointer-events: none;
 }
 
-.casella.nord {
-    --nord: var(--azul);
+.casilla.norte {
+    --norte: var(--azul);
 }
 
-.casella.sud {
-    --sud: var(--azul);
+.casilla.sur {
+    --sur: var(--azul);
 }
 
-.casella.est {
-    --est: var(--azul);
+.casilla.este {
+    --este: var(--azul);
 }
 
-.casella.oest {
-    --oest: var(--azul);
+.casilla.oeste {
+    --oeste: var(--azul);
 }
 
-.casella.tracada {
+.casilla.trazada {
     background-color: #e6e9e4;
 }
 
-.casella.tracada[data-tipus="carrer"] span {
+.casilla.trazada[data-tipo="calle"] span {
     width: .55rem;
     height: .55rem;
     border-radius: 50%;
     background: var(--azul);
 }
 
-.casella[data-tipus="origen"] span,
-.casella[data-tipus="desti"] span,
-.casella[data-tipus="placa"] span,
-.simbol {
+.casilla[data-tipo="origen"] span,
+.casilla[data-tipo="destino"] span,
+.casilla[data-tipo="plaza"] span,
+.simbolo {
     width: 1.65rem;
     height: 1.65rem;
     border: 1px solid currentColor;
@@ -200,30 +200,30 @@
     background: var(--papel-2);
 }
 
-.casella[data-tipus="desti"],
-.simbol.desti {
+.casilla[data-tipo="destino"],
+.simbolo.destino {
     color: var(--rojo-oscuro);
 }
 
-.casella[data-tipus="verd"],
-.simbol.verd {
+.casilla[data-tipo="verde"],
+.simbolo.verde {
     color: #284d3d;
     background-color: #dce4cc;
     background-image: repeating-linear-gradient(135deg, transparent 0 6px, #35624f28 6px 8px);
     cursor: default;
 }
 
-.casella[data-tipus="placa"],
-.simbol.placa {
+.casilla[data-tipo="plaza"],
+.simbolo.plaza {
     color: var(--sepia);
 }
 
-.casella[data-tipus="placa"] span,
-.simbol.placa {
+.casilla[data-tipo="plaza"] span,
+.simbolo.plaza {
     background: #f4e5b8;
 }
 
-.llegenda {
+.leyenda {
     display: flex;
     flex-wrap: wrap;
     gap: .55rem .85rem;
@@ -231,32 +231,32 @@
     list-style: none;
 }
 
-.llegenda li {
+.leyenda li {
     display: flex;
     align-items: center;
     gap: .35rem;
 }
 
-#controls {
+#controles {
     padding-top: .85rem;
     margin-bottom: 0;
     border-top: 1px solid var(--linea);
     color: var(--tinta-suave);
 }
 
-.nivells,
-.accions {
+.niveles,
+.acciones {
     display: flex;
     flex-wrap: wrap;
     gap: .5rem;
 }
 
-.nivells {
+.niveles {
     margin-bottom: .85rem;
 }
 
-.nivells button,
-.accions button {
+.niveles button,
+.acciones button {
     min-height: 44px;
     min-width: 44px;
     padding: .4rem .8rem;
@@ -266,8 +266,8 @@
     cursor: pointer;
 }
 
-.nivells button[aria-current="step"],
-#seguent {
+.niveles button[aria-current="step"],
+#siguiente {
     color: var(--papel-2);
     background: var(--azul);
     border-color: var(--azul);
@@ -278,18 +278,18 @@ button:disabled {
     cursor: default;
 }
 
-#avis {
+#aviso {
     color: var(--azul);
     font-weight: 600;
     min-height: 3em;
     margin-block: .85rem .5rem;
 }
 
-#avis[data-estat="error"] {
+#aviso[data-estado="error"] {
     color: var(--rojo-oscuro);
 }
 
-#avis[data-estat="correcte"] {
+#aviso[data-estado="correcto"] {
     color: var(--verde);
 }
 
@@ -298,11 +298,11 @@ button:disabled {
 }
 
 @media (max-width: 700px) {
-    .disposicio {
+    .distribucion {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .quadern {
+    .cuaderno {
         grid-row: 1;
     }
 
