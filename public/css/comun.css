@@ -1,0 +1,69 @@
+/* Estilo común de los 4 juegos: base, tipografía, cabecera, pie y botones.
+   Se incluye en cada index.html después de variables.css y antes del CSS propio del juego.
+   Los colores y medidas salen de variables.css (las mismas que la landing, web.css). */
+
+:root {
+  --borde: 2px solid var(--tinta);
+  --dorado: #b8860b; /* las estrellas */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--letra-cuerpo);
+  line-height: 1.5;
+}
+
+h1, h2, h3 { font-family: var(--letra-titulo); line-height: 1.15; margin: 0; }
+
+button, input, select { font: inherit; }
+
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+
+[hidden] { display: none !important; }
+
+/* ---------- Cabecera: papel claro con filete de tinta, como la de la landing ---------- */
+.cabecera, .top {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 0.6rem 1rem;
+  background: var(--papel-2);
+  color: var(--tinta);
+  border-bottom: var(--borde);
+}
+.cabecera h1, .top h1 { font-size: 1.25rem; color: var(--tinta); font-variant: normal; }
+
+/* ---------- Pie ---------- */
+.pie, .site-footer {
+  margin-top: 1.5rem; padding: 1rem;
+  background: var(--papel-2);
+  border-top: var(--borde);
+  color: var(--tinta-suave);
+  font-size: 0.9rem; text-align: center;
+}
+.pie p, .site-footer p { margin: 0; }
+.pie a, .site-footer a { color: var(--azul); }
+
+/* ---------- Botones y selectores ---------- */
+.boton-comun,
+.cabecera select, .top select {
+  min-height: 44px; padding: 0.4rem 0.9rem;
+  border: var(--borde); border-radius: var(--radio);
+  background: var(--papel); color: var(--tinta);
+  font-weight: 600; cursor: pointer;
+}
+.boton-comun:hover { background: var(--papel-3); }
+.boton-comun:disabled { opacity: 0.45; cursor: not-allowed; }
+.boton-comun.principal { background: var(--rojo); border-color: var(--rojo-oscuro); color: #fff; }
+.boton-comun.principal:hover { background: var(--rojo-oscuro); }
+
+/* Tarjeta de papel */
+.tarjeta-comun {
+  background: var(--papel-2);
+  border: var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
