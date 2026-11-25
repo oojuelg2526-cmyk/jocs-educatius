@@ -104,8 +104,8 @@ class JuegoLineaTiempo {
         const mazo = document.getElementById("cards-deck");
 
         // Limpiamos el tablero antes de generar los elementos
-        timeline.innerHTML = '';
-        mazo.innerHTML = '';
+        timeline.innerText = '';
+        mazo.innerText = '';
 
         // Clonamos los arrays para no modificar el original al ordenar
         const hitosOrdenados = [...this.hitos].sort((a, b) => a.orden - b.orden);
@@ -285,7 +285,8 @@ class JuegoLineaTiempo {
 
             // 2. Comprobamos si ya ha llegado a 3 errores
             if (this.metricas.errores >= 3) {
-                new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+                //Iniciamos el Nivel 1: 4 hitos, tiempo 4 minutos (240 segundos)
+                new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
                 document.getElementById("hint-text").textContent =
                     "Has llegado a 3 errores. Vuelves a empezar en el nivel 1.";
             } else {
@@ -334,15 +335,15 @@ class JuegoLineaTiempo {
             if (this.nivelActual === 1) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
+                    // Iniciamos Nivel 2: 6 hitos, tiempo 3 minutos (180 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_2, 180, 2);
                 }, 3000);
             }
             else if (this.nivelActual === 2) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 3: 8 hitos, tiempo reducido (60 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_3, 60, 3);
+                    // Iniciamos Nivel 3: 8 hitos, tiempo 2 minutos (120 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_3, 120, 3);
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
@@ -432,5 +433,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("zona-timeline").hidden = false;
     document.getElementById("pie-timeline").hidden = false;
     document.getElementById("reintentar-timeline").addEventListener("click", () => location.reload());
-    new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+    new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
 });
