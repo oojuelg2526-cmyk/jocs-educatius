@@ -1,6 +1,6 @@
 # Guion para explicar el juego 4 (Laberinto de metro)
 
-Versión actual: **3 niveles más largos**, sin servidor y con JavaScript sencillo (sin módulos, sin `async`, sin sintaxis que no se haya visto en clase).
+Versión actual: **3 niveles más largos**, con JavaScript sencillo (sin módulos, sin `async`, sin sintaxis que no se haya visto en clase). Al terminar cada nivel se envían los datos a `/api/guardar-metricas`; la explicación para la defensa está en [defensa-juego4.md](defensa-juego4.md).
 
 ## Cómo se abre
 ```bash
