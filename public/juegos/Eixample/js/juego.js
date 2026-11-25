@@ -1,5 +1,18 @@
+// Cada nivell defineix una quadrícula quadrada i el seu inventari inicial.
+export const niveles = [
+    { id: 1, lado: 5, parquesPorCuadrante: 1, inventario: { vivienda: 21, parque: 4 } },
+    { id: 2, lado: 7, parquesPorCuadrante: 1, inventario: { vivienda: 41, parque: 4, equipamiento: 4 } },
+    {
+        id: 3,
+        lado: 9,
+        parquesPorCuadrante: 2,
+        comprobarVecindad: true,
+        inventario: { vivienda: 69, parque: 8, equipamiento: 4 }
+    }
+];
+
 export function crearPartida(nivel) {
-    const totalCasillas = nivel.filas * nivel.columnas;
+    const totalCasillas = nivel.lado * nivel.lado;
 
     return {
         tablero: Array(totalCasillas).fill(null),
@@ -21,18 +34,12 @@ export function quedanPiezas(partida, tipo) {
 }
 
 // Cada braç té un nom. El centre i les caselles de fora de la creu no són cap braç.
-function brazoDelEje(fila, columna, centroFila, centroColumna) {
-    if (fila === centroFila && columna < centroColumna) {
-        return "oest";
+function brazoDelEje(fila, columna, centro) {
+    if (fila === centro && columna !== centro) {
+        return columna < centro ? "oest" : "est";
     }
-    if (fila === centroFila && columna > centroColumna) {
-        return "est";
-    }
-    if (columna === centroColumna && fila < centroFila) {
-        return "nord";
-    }
-    if (columna === centroColumna && fila > centroFila) {
-        return "sud";
+    if (columna === centro && fila !== centro) {
+        return fila < centro ? "nord" : "sud";
     }
     return null;
 }
@@ -46,15 +53,14 @@ export function errorDeColocacion(partida, nivel, posicion, tipo) {
         return "agotada";
     }
 
-    const fila = Math.floor(posicion / nivel.columnas);
-    const columna = posicion % nivel.columnas;
-    const centroFila = Math.floor(nivel.filas / 2);
-    const centroColumna = Math.floor(nivel.columnas / 2);
+    const fila = Math.floor(posicion / nivel.lado);
+    const columna = posicion % nivel.lado;
+    const centro = Math.floor(nivel.lado / 2);
 
-    if (tipo === "parque" && (fila === centroFila || columna === centroColumna)) {
+    if (tipo === "parque" && (fila === centro || columna === centro)) {
         return "parqueEnEje";
     }
-    if (tipo === "equipamiento" && brazoDelEje(fila, columna, centroFila, centroColumna) === null) {
+    if (tipo === "equipamiento" && brazoDelEje(fila, columna, centro) === null) {
         return "equipamientosEjes";
     }
     return null;
@@ -74,15 +80,10 @@ export function colocarPieza(partida, nivel, posicion, tipo) {
 }
 
 export function retirarPieza(partida, posicion) {
-    if (!posicionValida(partida.tablero, posicion)) {
-        return false;
-    }
-
     const tipo = partida.tablero[posicion];
-    if (tipo === null) {
+    if (!posicionValida(partida.tablero, posicion) || tipo === null) {
         return false;
     }
-
     partida.tablero[posicion] = null;
     partida.inventarioRestante[tipo]++;
     partida.movimientos++;
@@ -90,33 +91,32 @@ export function retirarPieza(partida, posicion) {
 }
 
 function comprobarDistribucion(tablero, nivel) {
-    const centroFila = Math.floor(nivel.filas / 2);
-    const centroColumna = Math.floor(nivel.columnas / 2);
+    const centro = Math.floor(nivel.lado / 2);
     const parquesPorCuadrante = [0, 0, 0, 0];
     const brazosOcupados = [];
 
     for (let posicion = 0; posicion < tablero.length; posicion++) {
         const tipo = tablero[posicion];
-        const fila = Math.floor(posicion / nivel.columnas);
-        const columna = posicion % nivel.columnas;
+        const fila = Math.floor(posicion / nivel.lado);
+        const columna = posicion % nivel.lado;
 
         if (tipo === "parque") {
             // També revisem els eixos perquè una partida antiga pot tenir-hi peces.
-            if (fila === centroFila || columna === centroColumna) {
+            if (fila === centro || columna === centro) {
                 return "parquesCuadrante";
             }
 
             // Els quadrants es numeren d'esquerra a dreta i de dalt a baix.
             let cuadrante = 0;
-            if (fila > centroFila) {
+            if (fila > centro) {
                 cuadrante += 2;
             }
-            if (columna > centroColumna) {
+            if (columna > centro) {
                 cuadrante++;
             }
             parquesPorCuadrante[cuadrante]++;
         } else if (tipo === "equipamiento") {
-            const brazo = brazoDelEje(fila, columna, centroFila, centroColumna);
+            const brazo = brazoDelEje(fila, columna, centro);
             if (brazo === null || brazosOcupados.includes(brazo)) {
                 return "equipamientosEjes";
             }
@@ -138,15 +138,15 @@ function comprobarDistribucion(tablero, nivel) {
 }
 
 function hayParqueAlLado(tablero, nivel, posicion) {
-    const fila = Math.floor(posicion / nivel.columnas);
-    const columna = posicion % nivel.columnas;
-    const ancho = nivel.columnas;
+    const fila = Math.floor(posicion / nivel.lado);
+    const columna = posicion % nivel.lado;
+    const ancho = nivel.lado;
 
     // Comprovem els límits de la fila i la columna abans de mirar cada veïna.
     if (fila > 0 && tablero[posicion - ancho] === "parque") {
         return true;
     }
-    if (fila < nivel.filas - 1 && tablero[posicion + ancho] === "parque") {
+    if (fila < nivel.lado - 1 && tablero[posicion + ancho] === "parque") {
         return true;
     }
     if (columna > 0 && tablero[posicion - 1] === "parque") {
@@ -180,13 +180,10 @@ export function comprobarPlano(partida, nivel) {
     }
 
     const error = comprobarDistribucion(tablero, nivel);
-    if (error !== null) {
+    if (error !== null || !nivel.comprobarVecindad) {
         return error;
     }
-    if (nivel.comprobarVecindad) {
-        return comprobarVecindad(tablero, nivel);
-    }
-    return null;
+    return comprobarVecindad(tablero, nivel);
 }
 
 export function calcularPuntuacion(partida) {

@@ -1,50 +1,15 @@
-import { niveles } from "./niveles.js";
 import { traducciones } from "./traducciones.js";
-import { memorySuperado, leerProgreso, guardarProgreso } from "./progreso.js";
-import {
-    crearPartida,
-    quedanPiezas,
-    errorDeColocacion,
-    colocarPieza,
-    retirarPieza,
-    comprobarPlano,
-    calcularPuntuacion
-} from "./juego.js";
-import { crearTablero, crearPiezas, actualizarCasilla, actualizarPiezas, mostrarMensaje } from "./interfaz.js";
+import { memorySuperado, leerProgreso, guardarProgreso, registrarVictoria } from "./progreso.js";
+import { niveles, crearPartida, quedanPiezas, errorDeColocacion, colocarPieza,
+    retirarPieza, comprobarPlano, calcularPuntuacion } from "./juego.js";
+import { crearTablero, crearPiezas, actualizarCasilla, actualizarPiezas } from "./interfaz.js";
 
 const FORMATO_PIEZA = "text/plain";
 
 document.addEventListener("DOMContentLoaded", () => {
     const selectorIdioma = document.getElementById("selector-idioma");
     const etiquetas = document.querySelectorAll("[data-traduccio]");
-    const idiomaCompartido = localStorage.getItem("cerda_lang");
-    let textos = traducciones.ca;
-
-    function traducirPagina(idioma) {
-        if (!Object.prototype.hasOwnProperty.call(traducciones, idioma)) {
-            idioma = "ca";
-        }
-
-        textos = traducciones[idioma];
-        document.documentElement.lang = idioma;
-        selectorIdioma.value = idioma;
-
-        for (const etiqueta of etiquetas) {
-            etiqueta.textContent = textos[etiqueta.dataset.traduccio];
-        }
-    }
-
-    if (!memorySuperado()) {
-        traducirPagina(idiomaCompartido);
-        document.getElementById("bloqueo").hidden = false;
-
-        selectorIdioma.addEventListener("change", () => {
-            traducirPagina(selectorIdioma.value);
-            localStorage.setItem("cerda_lang", selectorIdioma.value);
-        });
-        return;
-    }
-
+    const indicadores = document.querySelectorAll("[data-nivell]");
     const introduccion = document.getElementById("introduccion");
     const zonaJuego = document.getElementById("zona-juego");
     const tituloNivel = document.getElementById("titulo-nivel");
@@ -55,57 +20,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const movimientos = document.getElementById("movimientos");
     const ayudas = document.getElementById("ayudas");
     const puntuacion = document.getElementById("puntuacion");
-    const botonEmpezar = document.getElementById("boton-empezar");
     const botonAyuda = document.getElementById("boton-ayuda");
     const botonComprobar = document.getElementById("boton-comprobar");
     const botonRetirar = document.getElementById("boton-retirar");
-    const botonReiniciar = document.getElementById("boton-reiniciar");
     const botonSiguiente = document.getElementById("boton-siguiente");
     const enlaceHistoria = document.getElementById("enlace-historia");
-    const indicadores = document.querySelectorAll("[data-nivell]");
 
-    const guardado = leerProgreso();
-    const progreso = {
-        ...guardado,
-        status: guardado.status ?? "unlocked",
-        last_level_completed: guardado.last_level_completed ?? 0,
-        level_scores: guardado.level_scores ?? {},
-        partidas: guardado.partidas ?? {}
-    };
-
-    let nivel = niveles[0];
-    let partida;
-    let casillas = [];
-    let botonesPieza = [];
-    let modoRetirar = false;
+    const desbloqueado = memorySuperado();
+    const progreso = leerProgreso();
+    let nivel = nivelDisponible(progreso.nivelActual) ?? niveles[0];
+    let partida = null;
+    let textos = traducciones.ca;
     let aviso = null;
+    let modoRetirar = false;
     let piezaArrastrada = null;
     let destinoArrastre = null;
 
-    function buscarNivelDisponible(id) {
-        for (const opcion of niveles) {
-            if (opcion.id === id && id <= progreso.last_level_completed + 1) {
-                return opcion;
-            }
+    function nivelDisponible(id) {
+        const elegido = niveles[id - 1];
+        if (elegido && elegido.id === id && id <= progreso.last_level_completed + 1) {
+            return elegido;
         }
         return null;
     }
 
-    function recuperarPartida() {
-        const guardada = progreso.partidas[nivel.id];
-        const totalCasillas = nivel.filas * nivel.columnas;
-
-        // Si canvia la mida del nivell, el tauler antic ja no hi encaixa.
-        if (guardada && guardada.tablero.length === totalCasillas) {
-            return guardada;
+    function traducirPagina(idioma) {
+        if (!Object.prototype.hasOwnProperty.call(traducciones, idioma)) {
+            idioma = "ca";
         }
-        return crearPartida(nivel);
-    }
-
-    function guardarPartidaActual() {
-        progreso.partidas[nivel.id] = partida;
-        progreso.nivelActual = nivel.id;
-        guardarProgreso(progreso);
+        textos = traducciones[idioma];
+        document.documentElement.lang = idioma;
+        selectorIdioma.value = idioma;
+        for (const etiqueta of etiquetas) {
+            etiqueta.textContent = textos[etiqueta.dataset.traduccio];
+        }
     }
 
     function mostrarNiveles() {
@@ -115,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (id <= progreso.last_level_completed) {
                 estado = "completat";
-            } else if (id > progreso.last_level_completed + 1) {
+            } else if (!nivelDisponible(id)) {
                 estado = "bloquejat";
             } else if (id === nivel.id) {
                 estado = "actiu";
@@ -124,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
             indicador.disabled = estado === "bloquejat";
             indicador.dataset.estat = estado;
             indicador.textContent = textos.nivel(id, textos.estados[estado]);
-
             if (id === nivel.id) {
                 indicador.setAttribute("aria-current", "step");
             } else {
@@ -134,83 +81,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function mostrarControles() {
-        actualizarPiezas(botonesPieza, partida, textos);
+        actualizarPiezas(piezas.children, partida, textos);
         movimientos.textContent = String(partida.movimientos);
         ayudas.textContent = String(partida.ayudas);
         puntuacion.textContent = String(calcularPuntuacion(partida));
-
         botonAyuda.disabled = partida.completada;
         botonRetirar.disabled = partida.completada;
+        botonRetirar.setAttribute("aria-pressed", String(modoRetirar));
         botonComprobar.hidden = partida.completada;
-        botonComprobar.disabled = partida.completada;
         botonSiguiente.hidden = !partida.completada || nivel.id === niveles.length;
         enlaceHistoria.hidden = progreso.last_level_completed < niveles.length;
-
         const colocando = partida.piezaSeleccionada !== null && !partida.completada;
-        botonRetirar.setAttribute("aria-pressed", String(modoRetirar));
         tablero.classList.toggle("colocando", colocando && !modoRetirar);
         tablero.classList.toggle("retirando", modoRetirar);
-    }
-
-    function mostrarCasilla(posicion) {
-        actualizarCasilla(casillas[posicion], partida.tablero[posicion], partida.completada, textos);
     }
 
     function mostrarPartida() {
         const textosNivel = textos.niveles[nivel.id];
         tituloNivel.textContent = textos.nivel(nivel.id, textosNivel.titulo);
         descripcion.textContent = textosNivel.descripcion;
-
-        for (let posicion = 0; posicion < casillas.length; posicion++) {
-            mostrarCasilla(posicion);
+        for (const casilla of tablero.children) {
+            actualizarCasilla(casilla, partida, textos);
         }
         mostrarControles();
         mostrarNiveles();
     }
 
-    function actualizarAviso() {
-        if (aviso === null) {
-            return;
-        }
-
-        const textosNivel = textos.niveles[nivel.id];
-        const traduccion = textosNivel[aviso.clave] ?? textos.avisos[aviso.clave];
-        let texto = traduccion;
-
-        if (aviso.tipo !== null) {
-            const nombrePieza = textos.piezas[aviso.tipo];
-            texto = traduccion(nombrePieza);
-        }
-
-        mostrarMensaje(mensaje, texto, aviso.estado);
-    }
-
+    // Guardem la clau de l'avís per traduir-lo també durant la partida.
     function mostrarAviso(clave, estado = "informacio", tipo = null) {
         aviso = { clave, estado, tipo };
-        actualizarAviso();
+        const traduccion = textos.niveles[nivel.id][clave] ?? textos.avisos[clave];
+        mensaje.dataset.estat = estado;
+        mensaje.textContent = tipo === null ? traduccion : traduccion(textos.piezas[tipo]);
+    }
+
+    function guardarPartida() {
+        progreso.partidas[nivel.id] = partida;
+        progreso.nivelActual = nivel.id;
+        guardarProgreso(progreso);
     }
 
     function abrirNivel(id) {
-        const elegido = buscarNivelDisponible(id);
+        const elegido = nivelDisponible(id);
         if (elegido === null) {
             return;
         }
-
         terminarArrastre();
-        if (elegido !== nivel || partida === undefined) {
+        if (elegido !== nivel || partida === null) {
             nivel = elegido;
-            partida = recuperarPartida();
-            casillas = crearTablero(tablero, nivel);
-            botonesPieza = crearPiezas(piezas, nivel.inventario);
+            const guardada = progreso.partidas[id];
+            partida = guardada ?? crearPartida(nivel);
+            // Si el tauler desat té una altra mida, comencem amb el tauler actual.
+            if (partida.tablero.length !== nivel.lado * nivel.lado) {
+                partida = crearPartida(nivel);
+            }
+            crearTablero(tablero, nivel.lado);
+            crearPiezas(piezas, nivel.inventario);
             modoRetirar = false;
-            prepararArrastre();
         }
-
         introduccion.hidden = true;
         zonaJuego.hidden = false;
-        guardarPartidaActual();
+        guardarPartida();
         mostrarPartida();
-
         if (partida.completada) {
             mostrarAviso("victoria", "correcte");
         } else {
@@ -219,116 +151,28 @@ document.addEventListener("DOMContentLoaded", () => {
         zonaJuego.focus();
     }
 
-    function reiniciarPartida() {
-        terminarArrastre();
-        partida = crearPartida(nivel);
-        modoRetirar = false;
-        guardarPartidaActual();
-        mostrarPartida();
-        mostrarAviso("inicio");
-    }
-
-    function seleccionarTipo(tipo) {
-        if (!quedanPiezas(partida, tipo)) {
-            mostrarAviso("agotada", "error");
-            return;
-        }
-
-        partida.piezaSeleccionada = tipo;
-        modoRetirar = false;
-        guardarPartidaActual();
-        mostrarControles();
-        mostrarAviso("seleccionada", "informacio", tipo);
-    }
-
-    function intentarRetirar(posicion) {
-        modoRetirar = false;
-        if (retirarPieza(partida, posicion)) {
-            guardarPartidaActual();
-            mostrarCasilla(posicion);
-            mostrarAviso("retirada", "correcte");
-        } else {
-            mostrarAviso("vacia", "error");
-        }
+    // Quan es mou una peça, només repintem la casella que ha canviat.
+    function guardarMovimiento(casilla) {
+        guardarPartida();
+        actualizarCasilla(casilla, partida, textos);
         mostrarControles();
     }
 
-    function intentarColocar(posicion, tipo) {
+    function intentarColocar(casilla, tipo) {
         if (tipo === null) {
             mostrarAviso("sinSeleccion", "error");
             return;
         }
-
+        const posicion = Number(casilla.dataset.posicio);
         const error = colocarPieza(partida, nivel, posicion, tipo);
         if (error !== null) {
             mostrarAviso(error, "error");
             return;
         }
-
         modoRetirar = false;
-        guardarPartidaActual();
-        mostrarCasilla(posicion);
-        mostrarControles();
-
-        if (partida.tablero.includes(null)) {
-            mostrarAviso("colocada", "correcte");
-        } else {
-            mostrarAviso("listoParaComprobar", "correcte");
-        }
-    }
-
-    function prepararArrastre() {
-        for (const boton of botonesPieza) {
-            boton.addEventListener("dragstart", iniciarArrastre);
-            boton.addEventListener("dragend", terminarArrastre);
-        }
-        for (const casilla of casillas) {
-            casilla.addEventListener("dragover", resaltarDestino);
-            casilla.addEventListener("dragleave", salirDelDestino);
-            casilla.addEventListener("drop", soltarPieza);
-        }
-    }
-
-    function iniciarArrastre(event) {
-        const boton = event.currentTarget;
-        const tipo = boton.dataset.peca;
-        if (partida.completada || !quedanPiezas(partida, tipo)) {
-            event.preventDefault();
-            return;
-        }
-
-        event.dataTransfer.setData(FORMATO_PIEZA, tipo);
-        event.dataTransfer.effectAllowed = "move";
-        piezaArrastrada = boton;
-        boton.classList.add("arrastrando");
-    }
-
-    function resaltarDestino(event) {
-        if (piezaArrastrada === null) {
-            return;
-        }
-
-        event.preventDefault();
-        event.dataTransfer.dropEffect = "move";
-        const casilla = event.currentTarget;
-        if (casilla !== destinoArrastre) {
-            quitarResaltado();
-            destinoArrastre = casilla;
-        }
-
-        // Durant dragover el navegador encara no deixa llegir el contingut de dataTransfer.
-        const tipo = piezaArrastrada.dataset.peca;
-        const posicion = Number(casilla.dataset.posicio);
-        const esValida = errorDeColocacion(partida, nivel, posicion, tipo) === null;
-        casilla.classList.toggle("destino-valido", esValida);
-        casilla.classList.toggle("destino-invalido", !esValida);
-    }
-
-    function salirDelDestino(event) {
-        const casilla = event.currentTarget;
-        if (casilla === destinoArrastre && !casilla.contains(event.relatedTarget)) {
-            quitarResaltado();
-        }
+        guardarMovimiento(casilla);
+        const clave = partida.tablero.includes(null) ? "colocada" : "listoParaComprobar";
+        mostrarAviso(clave, "correcte");
     }
 
     function quitarResaltado() {
@@ -346,127 +190,159 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function soltarPieza(event) {
-        if (piezaArrastrada === null) {
-            return;
-        }
-
-        event.preventDefault();
-        const tipo = event.dataTransfer.getData(FORMATO_PIEZA);
-        const posicion = Number(event.currentTarget.dataset.posicio);
-        terminarArrastre();
-
-        if (!isNaN(posicion)) {
-            intentarColocar(posicion, tipo);
-        }
-    }
-
-    function comprobarPartida() {
-        const error = comprobarPlano(partida, nivel);
-        if (error !== null) {
-            mostrarAviso(error, "error");
-            mensaje.focus();
-            return;
-        }
-
-        partida.completada = true;
-        terminarArrastre();
-        modoRetirar = false;
-        progreso.last_level_completed = Math.max(progreso.last_level_completed, nivel.id);
-        const puntuacionAnterior = progreso.level_scores[nivel.id] ?? 0;
-        const puntuacionActual = calcularPuntuacion(partida);
-        progreso.level_scores[nivel.id] = Math.max(puntuacionAnterior, puntuacionActual);
-
-        let puntuacionTotal = 0;
-        for (const opcion of niveles) {
-            puntuacionTotal += progreso.level_scores[opcion.id] ?? 0;
-        }
-        progreso.best_score = puntuacionTotal;
-
-        if (progreso.last_level_completed === niveles.length) {
-            progreso.status = "completed";
-        }
-        guardarPartidaActual();
-        mostrarPartida();
-        mostrarAviso("victoria", "correcte");
-        mensaje.focus();
-    }
-
+    const idiomaGuardado = desbloqueado ? progreso.idioma : "ca";
+    traducirPagina(localStorage.getItem("cerda_lang") ?? idiomaGuardado);
     selectorIdioma.addEventListener("change", () => {
         traducirPagina(selectorIdioma.value);
         localStorage.setItem("cerda_lang", selectorIdioma.value);
+        if (!desbloqueado) {
+            return;
+        }
         progreso.idioma = selectorIdioma.value;
         guardarProgreso(progreso);
-
-        if (partida === undefined) {
+        if (partida === null) {
             mostrarNiveles();
         } else {
             mostrarPartida();
-            actualizarAviso();
+            mostrarAviso(aviso.clave, aviso.estado, aviso.tipo);
         }
     });
 
-    botonEmpezar.addEventListener("click", () => abrirNivel(nivel.id));
-    botonSiguiente.addEventListener("click", () => abrirNivel(nivel.id + 1));
-    botonReiniciar.addEventListener("click", reiniciarPartida);
-    botonComprobar.addEventListener("click", comprobarPartida);
+    if (!desbloqueado) {
+        document.getElementById("bloqueo").hidden = false;
+        return;
+    }
 
+    document.getElementById("boton-empezar").addEventListener("click", () => abrirNivel(nivel.id));
+    botonSiguiente.addEventListener("click", () => abrirNivel(nivel.id + 1));
     for (const indicador of indicadores) {
-        indicador.addEventListener("click", event => {
-            const id = Number(event.currentTarget.dataset.nivell);
-            if (!isNaN(id)) {
-                abrirNivel(id);
-            }
-        });
+        indicador.addEventListener("click", () => abrirNivel(Number(indicador.dataset.nivell)));
     }
 
     piezas.addEventListener("click", event => {
-        const boton = event.target.closest("button[data-peca]");
-        if (boton !== null && !partida.completada) {
-            seleccionarTipo(boton.dataset.peca);
+        const boton = event.target.closest(".boton-pieza");
+        if (!boton || partida.completada) {
+            return;
         }
+        const tipo = boton.dataset.peca;
+        if (!quedanPiezas(partida, tipo)) {
+            mostrarAviso("agotada", "error");
+            return;
+        }
+        partida.piezaSeleccionada = tipo;
+        modoRetirar = false;
+        guardarPartida();
+        mostrarControles();
+        mostrarAviso("seleccionada", "informacio", tipo);
     });
 
     tablero.addEventListener("click", event => {
-        const casilla = event.target.closest("button[data-posicio]");
-        if (casilla === null || partida.completada) {
+        const casilla = event.target.closest(".casilla");
+        if (!casilla || partida.completada) {
+            return;
+        }
+        if (!modoRetirar) {
+            intentarColocar(casilla, partida.piezaSeleccionada);
             return;
         }
 
-        const posicion = Number(casilla.dataset.posicio);
-        if (isNaN(posicion)) {
+        modoRetirar = false;
+        if (retirarPieza(partida, Number(casilla.dataset.posicio))) {
+            guardarMovimiento(casilla);
+            mostrarAviso("retirada", "correcte");
+        } else {
+            mostrarControles();
+            mostrarAviso("vacia", "error");
+        }
+    });
+
+    // Els contenidors escolten els events dels botons, també quan canviem de nivell.
+    piezas.addEventListener("dragstart", event => {
+        const boton = event.target.closest(".boton-pieza");
+        if (!boton || !boton.draggable) {
+            event.preventDefault();
             return;
         }
-        if (modoRetirar) {
-            intentarRetirar(posicion);
-        } else {
-            intentarColocar(posicion, partida.piezaSeleccionada);
+        piezaArrastrada = boton;
+        boton.classList.add("arrastrando");
+        event.dataTransfer.setData(FORMATO_PIEZA, boton.dataset.peca);
+        event.dataTransfer.effectAllowed = "move";
+    });
+    piezas.addEventListener("dragend", terminarArrastre);
+
+    tablero.addEventListener("dragover", event => {
+        const casilla = event.target.closest(".casilla");
+        if (!piezaArrastrada || !casilla) {
+            return;
+        }
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        if (casilla !== destinoArrastre) {
+            quitarResaltado();
+            destinoArrastre = casilla;
+        }
+        // El tipus es llegeix del botó fins que es pot accedir a dataTransfer a drop.
+        const tipo = piezaArrastrada.dataset.peca;
+        const posicion = Number(casilla.dataset.posicio);
+        const valida = errorDeColocacion(partida, nivel, posicion, tipo) === null;
+        casilla.classList.toggle("destino-valido", valida);
+        casilla.classList.toggle("destino-invalido", !valida);
+    });
+
+    tablero.addEventListener("dragleave", event => {
+        const casilla = event.target.closest(".casilla");
+        if (casilla && casilla === destinoArrastre && !casilla.contains(event.relatedTarget)) {
+            quitarResaltado();
+        }
+    });
+
+    tablero.addEventListener("drop", event => {
+        const casilla = event.target.closest(".casilla");
+        if (piezaArrastrada && casilla) {
+            event.preventDefault();
+            const tipo = event.dataTransfer.getData(FORMATO_PIEZA);
+            terminarArrastre();
+            intentarColocar(casilla, tipo);
         }
     });
 
     botonRetirar.addEventListener("click", () => {
         modoRetirar = !modoRetirar;
         mostrarControles();
-
-        if (modoRetirar) {
-            mostrarAviso("retirar");
-        } else {
-            mostrarAviso("cancelarRetirada");
-        }
+        mostrarAviso(modoRetirar ? "retirar" : "cancelarRetirada");
     });
-
     botonAyuda.addEventListener("click", () => {
         partida.ayudas++;
-        guardarPartidaActual();
+        guardarPartida();
         mostrarControles();
         mostrarAviso("pista");
     });
+    document.getElementById("boton-reiniciar").addEventListener("click", () => {
+        terminarArrastre();
+        modoRetirar = false;
+        partida = crearPartida(nivel);
+        guardarPartida();
+        mostrarPartida();
+        mostrarAviso("inicio");
+    });
 
-    nivel = buscarNivelDisponible(guardado.nivelActual) ?? niveles[0];
-    traducirPagina(idiomaCompartido ?? guardado.idioma ?? "ca");
+    botonComprobar.addEventListener("click", () => {
+        const error = comprobarPlano(partida, nivel);
+        if (error !== null) {
+            mostrarAviso(error, "error");
+        } else {
+            terminarArrastre();
+            modoRetirar = false;
+            partida.completada = true;
+            registrarVictoria(progreso, nivel.id, calcularPuntuacion(partida));
+            guardarPartida();
+            mostrarPartida();
+            mostrarAviso("victoria", "correcte");
+        }
+        mensaje.focus();
+    });
+
     document.getElementById("progreso-niveles").hidden = false;
-
-    // Si hi ha un tauler desat, reprenem el nivell directament.
     if (progreso.partidas[nivel.id]) {
         abrirNivel(nivel.id);
     } else {
