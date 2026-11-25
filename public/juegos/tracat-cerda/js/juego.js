@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const siguiente = document.getElementById("siguiente");
     const botonesNivel = document.querySelectorAll("[data-nivel]");
     const etiquetas = document.querySelectorAll("[data-texto]");
-    const clave = "cerda_tracat";
+    const claveProgreso = "cerda_tracat";
+    const claveIdioma = "cerda_lang";
 
     let numero = 0;
     let desbloqueado = 0;
@@ -25,25 +26,41 @@ document.addEventListener("DOMContentLoaded", () => {
     let diccionario = textos.ca;
     let puntero = null;
 
-    function leerProgreso() {
+    function leerPartida() {
+        const partida = { codigo: "ca", progreso: {} };
         try {
-            return JSON.parse(localStorage.getItem(clave)) ?? {};
+            const codigoGuardado = localStorage.getItem(claveIdioma);
+            if (codigoGuardado !== null) {
+                partida.codigo = codigoGuardado;
+            }
+            const progresoGuardado = localStorage.getItem(claveProgreso);
+            if (progresoGuardado !== null) {
+                partida.progreso = JSON.parse(progresoGuardado) ?? {};
+            }
         } catch (error) {
-            console.warn("No se pudo leer el trazado guardado.", error);
-            return {};
+            console.warn("No se pudo recuperar la partida guardada.", error);
+        }
+        return partida;
+    }
+
+    function guardarDato(clave, valor) {
+        try {
+            localStorage.setItem(clave, valor);
+        } catch (error) {
+            console.warn("No se pudo guardar el dato.", clave, error);
         }
     }
 
     function guardarProgreso() {
-        try {
-            localStorage.setItem(clave, JSON.stringify({ numero, desbloqueado, camino }));
-        } catch (error) {
-            console.warn("No se pudo guardar el trazado.", error);
-        }
+        const progreso = { numero, desbloqueado, camino };
+        guardarDato(claveProgreso, JSON.stringify(progreso));
     }
 
     function ultimaCasilla() {
-        return camino[camino.length - 1] ?? origen;
+        if (camino.length === 0) {
+            return origen;
+        }
+        return camino[camino.length - 1];
     }
 
     // Cada paso cambia la fila o la columna en una unidad.
@@ -54,7 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function errorDePaso(posicion) {
-        if (!Number.isInteger(posicion) || posicion < 0 || posicion >= casillas.length) {
+        const casilla = casillas[posicion];
+        if (!casilla) {
             return "fuera";
         }
         if (camino.length === 0) {
@@ -63,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (distancia(posicion, ultimaCasilla()) !== 1) {
             return "lado";
         }
-        if (casillas[posicion].dataset.tipo === "verde") {
+        if (casilla.dataset.tipo === "verde") {
             return "protegida";
         }
         if (camino.includes(posicion)) {
@@ -276,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (puntero !== null || !evento.isPrimary || evento.button !== 0) {
             return;
         }
-        if (casilla.dataset.posicion === undefined) {
+        if (casilla.parentElement !== tablero) {
             return;
         }
 
@@ -294,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // En táctil, el evento puede seguir llegando al botón inicial.
         const casilla = document.elementFromPoint(evento.clientX, evento.clientY);
-        if (casilla && casilla.parentElement === tablero && casilla.dataset.posicion !== undefined) {
+        if (casilla && casilla.parentElement === tablero) {
             intentarPaso(Number(casilla.dataset.posicion));
         } else {
             intentarPaso(-1);
@@ -315,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tablero.addEventListener("click", evento => {
         const casilla = evento.target;
         // El puntero ya se procesa al pulsar. Este clic activa el botón desde el teclado.
-        if (casilla.dataset.posicion !== undefined && evento.detail === 0) {
+        if (casilla.parentElement === tablero && evento.detail === 0) {
             intentarPaso(Number(casilla.dataset.posicion));
             casillas[ultimaCasilla()].focus();
         }
@@ -388,37 +406,28 @@ document.addEventListener("DOMContentLoaded", () => {
         idioma.value = codigo;
     }
 
-    let codigoGuardado = "ca";
-    try {
-        codigoGuardado = localStorage.getItem("cerda_lang") ?? "ca";
-    } catch (error) {
-        console.warn("No se pudo recuperar el idioma.", error);
-    }
-    aplicarIdioma(codigoGuardado);
+    const partida = leerPartida();
+    aplicarIdioma(partida.codigo);
     idioma.addEventListener("change", () => {
         aplicarIdioma(idioma.value);
         pintarTextos();
         pintarTablero();
-        try {
-            localStorage.setItem("cerda_lang", idioma.value);
-        } catch (error) {
-            console.warn("No se pudo guardar el idioma.", error);
-        }
+        guardarDato(claveIdioma, idioma.value);
     });
 
-    const progreso = leerProgreso();
+    const progreso = partida.progreso;
+    let nivelGuardado = progreso.desbloqueado;
+    let caminoGuardado = progreso.camino;
     // Las partidas anteriores se guardaban con los nombres en catalán.
-    const nivelGuardado = progreso.desbloqueado ?? progreso["desbloquejat"];
-    if (Number.isInteger(nivelGuardado) && niveles[nivelGuardado]) {
+    if (nivelGuardado === undefined) {
+        nivelGuardado = progreso["desbloquejat"];
+        caminoGuardado = progreso["cami"];
+    }
+    if (niveles[nivelGuardado]) {
         desbloqueado = nivelGuardado;
     }
-    if (Number.isInteger(progreso.numero) && niveles[progreso.numero] && progreso.numero <= desbloqueado) {
+    if (niveles[progreso.numero] && progreso.numero <= desbloqueado) {
         numero = progreso.numero;
     }
-    const caminoGuardado = progreso.camino ?? progreso["cami"];
-    if (Array.isArray(caminoGuardado)) {
-        cargarNivel(numero, caminoGuardado);
-    } else {
-        cargarNivel(numero);
-    }
+    cargarNivel(numero, caminoGuardado);
 });
