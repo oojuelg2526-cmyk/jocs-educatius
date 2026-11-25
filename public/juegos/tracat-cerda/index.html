@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-text="titol">Traça el camí de Cerdà</title>
+    <link rel="stylesheet" href="../../css/web.css">
+    <link rel="stylesheet" href="css/joc.css">
+</head>
+<body class="joc-tracat">
+    <a class="saltar" href="#tauler" data-text="saltar">Ves al tauler</a>
+    <header class="capcalera">
+        <div class="contenedor cabecera-interior">
+            <a class="marca" href="../../" data-text="marca">Cerdà ha perdut el plànol</a>
+            <div class="control-idioma">
+                <label for="idioma" data-text="idioma">Idioma</label>
+                <select id="idioma">
+                    <option value="ca" lang="ca">Català</option>
+                    <option value="es" lang="es">Castellano</option>
+                    <option value="en" lang="en">English</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenedor contingut">
+        <header class="presentacio">
+            <h1 data-text="titol">Traça el camí de Cerdà</h1>
+            <p data-text="relat">A la taula de Cerdà, assaja com connectar els espais de Barcelona abans de passar el recorregut al plànol.</p>
+        </header>
+
+        <div class="nivells" role="group" data-etiqueta="nivells">
+            <button type="button" data-nivell="0">1</button>
+            <button type="button" data-nivell="1" disabled>2</button>
+            <button type="button" data-nivell="2" disabled>3</button>
+        </div>
+
+        <div class="disposicio">
+            <section class="paper mapa" aria-labelledby="titol-mapa">
+                <div class="cap-mapa">
+                    <h2 id="titol-mapa" data-text="mapa">Plànol de treball</h2>
+                    <p id="passos">0</p>
+                </div>
+                <div id="tauler" role="group" aria-labelledby="titol-mapa" aria-describedby="controls" tabindex="-1"></div>
+                <p id="avis" role="status" data-estat="informacio"></p>
+                <div class="accions">
+                    <button type="button" id="desfer" data-text="desfer">Desfés un pas</button>
+                    <button type="button" id="reiniciar" data-text="reiniciar">Reinicia</button>
+                    <button type="button" id="seguent" data-text="seguent" hidden>Nivell següent</button>
+                </div>
+            </section>
+
+            <aside class="paper quadern" aria-labelledby="missio">
+                <h2 id="missio"></h2>
+                <p id="objectiu"></p>
+                <div class="nota">
+                    <h3 data-text="perQue">Per què?</h3>
+                    <p id="explicacio"></p>
+                </div>
+                <h3 data-text="llegenda">Llegenda</h3>
+                <ul class="llegenda">
+                    <li><span class="simbol origen" aria-hidden="true">●</span><span data-text="origen">Origen</span></li>
+                    <li><span class="simbol desti" aria-hidden="true">◆</span><span data-text="desti">Destí</span></li>
+                    <li id="llegenda-verd" hidden><span class="simbol verd" aria-hidden="true">▧</span><span data-text="verd">Zona verda</span></li>
+                    <li id="llegenda-placa" hidden><span class="simbol placa" aria-hidden="true">✚</span><span data-text="placa">Plaça</span></li>
+                </ul>
+                <p id="controls" data-text="controls">Arrossega amb el ratolí o el dit. També pots tocar cada casella o prémer Retorn a l’origen i continuar amb les fletxes.</p>
+            </aside>
+        </div>
+    </main>
+    <script type="module" src="js/joc.js"></script>
+</body>
+</html>
