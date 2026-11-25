@@ -399,19 +399,19 @@ const DATOS_NIVEL_3 = [
 document.addEventListener("DOMContentLoaded", () => {
     const textos = {
         ca: {
-            bloqueado: "Completa el Memory i l’Eixample per jugar a la línia del temps.",
+            bloqueado: "Completa la línia del temps, per poder jugar al joc del metro.",
             portada: "Torna a la portada",
             metro: "Continua cap al metro",
             reintentar: "Torna-ho a provar"
         },
         es: {
-            bloqueado: "Completa Memory y el Eixample para jugar a la línea del tiempo.",
+            bloqueado: "Completa la línea del tiempo, para poder jugar al juego del metro.",
             portada: "Volver a la portada",
             metro: "Continuar al Metro",
             reintentar: "Volver a intentarlo"
         },
         en: {
-            bloqueado: "Complete Memory and the Eixample to play the timeline.",
+            bloqueado: "Complete the timeline to play the underground game.",
             portada: "Back to the home page",
             metro: "Continue to the Metro",
             reintentar: "Try again"
