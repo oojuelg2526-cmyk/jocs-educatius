@@ -1,169 +1,18 @@
-/*
-Estilo del juego Línea del Tiempo
-Las variables de colores y tipografías son las del estilo común del proyecto 
-(papel sepia, tinta y regla antigua); cuando exista el CSS común se importarán de allí. 
-*/
-
-:root {
-    /* Alias de la paleta común (variables.css) */
-    --paper: var(--papel);
-    --paper-2: var(--papel-2);
-    --ink: var(--tinta);
-    --ink-soft: var(--tinta-suave);
-    --line: var(--linea);
-    --red: var(--rojo);
-    --green: var(--verde);
-    --blue: var(--azul);
-    --gold: var(--dorado);
-    --font-title: var(--letra-titulo);
-    --font-body: var(--letra-cuerpo);
-}
-
-body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-body);
-    line-height: 1.5;
-}
-
-h1,
-h2 {
-    font-family: var(--font-title);
-    margin: 0;
-}
-
-/* Accés al joc i resultat del nivell */
-[hidden] {
-    display: none !important;
-}
-
-.acceso-juego {
-    padding: 1rem;
-}
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    padding: 1rem;
-    background: rgb(43 42 40 / 55%);
-}
-
-.overlay .card {
-    padding: 1rem;
-    border: 1px solid var(--line);
-    background: var(--paper-2);
-}
-
-#end-message {
-    white-space: pre-line;
-}
-
-#end-screen[data-estat="superat"] h2 {
-    color: var(--green);
-}
-
-#end-screen[data-estat="perdut"] h2 {
-    color: var(--red);
-}
-
-button,
-select {
-    font: inherit;
-}
-
-:focus-visible {
-    outline: 3px solid var(--blue);
-    outline-offset: 2px;
-}
-
-
-
-.top {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding: 0.7rem 1rem;
-    background: var(--paper-2);
-    border-bottom: 2px solid var(--ink);
-}
-
-.top h1 {
-    font-size: 1.4rem;
-    margin-right: auto;
-}
-
-.levels {
-    display: flex;
-    gap: 0.4rem;
-}
-
-.levels button {
-    min-height: 44px;
-    padding: 0.4rem 0.9rem;
-    border: 2px solid var(--ink);
-    border-radius: var(--radio);
-    background: var(--paper);
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.levels button[aria-current="true"] {
-    background: var(--ink);
-    color: var(--paper);
-}
-
-.levels button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-}
-
-.lang {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: var(--ink-soft);
-}
-
-.lang select {
-    min-height: 44px;
-    padding: 0.3rem 0.5rem;
-    border: 2px solid var(--ink);
-    border-radius: var(--radio);
-    background: var(--paper);
-    color: var(--ink);
-}
-
-
-
-.layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 1.25rem;
-    width: min(1100px, 100% - 2rem);
-    margin: 1.25rem auto;
-}
-
 /* =========================================
-   CSS ESPECÍFICO: LÍNEA DEL TIEMPO
+   CSS DEL JUEGO LÍNEA DEL TIEMPO
    ========================================= */
 
 /* Regla graduada (Línea del tiempo) */
 .timeline-ruler {
     display: flex;
-    gap: 1rem;
-    padding: 1.5rem 1rem 3rem 1rem;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem 2.8rem 1rem;
     background: linear-gradient(to bottom, #d4ba8a, #c0a068);
     border: 3px solid var(--ink);
     border-radius: 8px;
     position: relative;
     overflow-x: auto;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
@@ -186,32 +35,32 @@ select {
 /* Zonas donde soltar las tarjetas */
 .drop-zone {
     flex: 1;
-    min-width: 100px;
-    height: 140px;
+    min-width: 112px;
+    height: 162px;
     border: 2px dashed var(--ink-soft);
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22);
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     position: relative;
     transition: all 0.2s;
 }
 
-/* Etiqueta de la época debajo del hueco */
+/* Indicador ordinal debajo del hueco (ej: "Hito 1", "Hito 2") para no regalar la fecha */
 .drop-zone::after {
-    content: attr(data-label);
+    content: attr(data-posicion);
     position: absolute;
-    bottom: -28px;
-    font-size: 0.85rem;
+    bottom: -26px;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--ink);
     white-space: nowrap;
 }
 
 .drop-zone.drag-over {
-    background: rgba(184, 134, 11, 0.3);
-    /* Resplandor dorado */
+    background: rgba(184, 134, 11, 0.35);
     border-color: var(--gold);
     border-style: solid;
 }
@@ -220,9 +69,9 @@ select {
 .cards-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.85rem;
     justify-content: center;
-    min-height: 160px;
+    min-height: 180px;
     padding: 1rem;
     background: var(--paper-2);
     border: 2px solid var(--line);
@@ -231,19 +80,26 @@ select {
 
 /* Tarjetas históricas (Draggables) */
 .history-card {
-    width: 100px;
-    height: 130px;
+    width: 106px;
+    height: 152px;
     background: var(--paper);
     border: 2px solid var(--ink-soft);
     border-radius: 4px;
-    padding: 0.4rem;
+    padding: 0.35rem;
+    box-sizing: border-box;
     cursor: grab;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     text-align: center;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+    transition: transform 0.12s, box-shadow 0.12s, border-color 0.2s;
+}
+
+.history-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink);
 }
 
 .history-card:active {
@@ -254,23 +110,63 @@ select {
     opacity: 0.5;
     transform: scale(1.05);
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
-    /* Sombra 3D al levantar */
 }
 
+/* Contenedor de la fotografía histórica */
 .history-card .card-img {
     width: 100%;
-    height: 60px;
+    height: 74px;
     background: #dcd0b8;
-    /* Placeholder para grabado monocromático */
     border: 1px solid var(--ink-soft);
-    margin-bottom: 0.4rem;
-    background-image: repeating-linear-gradient(45deg, #ccc, #ccc 2px, #dcd0b8 2px, #dcd0b8 4px);
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.history-card .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* Efecto fotográfico de archivo antiguo acorde con la paleta sepia */
+    filter: sepia(0.35) contrast(1.05);
+    transition: filter 0.2s;
+}
+
+.history-card:hover .card-img img {
+    filter: sepia(0.1) contrast(1.08);
 }
 
 .history-card .card-title {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-top: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.history-card .card-date {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: rgba(203, 189, 156, 0.45);
+    padding: 1px 6px;
+    border-radius: 3px;
+    width: 90%;
+}
+
+/* Caja de pistas educativas */
+.hint-box {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--paper-2);
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    font-size: 0.9rem;
 }
 
 /* Animaciones de error/acierto */
