@@ -1,0 +1,21 @@
+/* Variables comunes de «Cerdà perdió el plano»: colores, tipografías y medidas.
+   Las usan la web (web.css) y los juegos, para que todo tenga el mismo estilo. */
+
+:root {
+  --papel: #f3ead6;
+  --papel-2: #faf5e9;
+  --papel-3: #ede2c6;
+  --tinta: #2b2a28;
+  --tinta-suave: #57524a;
+  --linea: #cbbd9c;
+  --rojo: #a63d2a;
+  --rojo-oscuro: #8a3122;
+  --verde: #35624f;
+  --azul: #2a4668;
+  --sepia: #6f5226;
+  --radio: 10px;
+  --sombra: 0 2px 0 rgba(43, 42, 40, 0.12);
+  --letra-titulo: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --letra-cuerpo: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --ancho: 1100px;
+}
