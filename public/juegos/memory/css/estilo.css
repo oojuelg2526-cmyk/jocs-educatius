@@ -2,25 +2,25 @@
    Los colores son los de docs/guia-de-estilo.html. */
 
 :root {
-  --paper: #efe2c2;
-  --paper-2: #e4d1a5;
-  --paper-hi: #fbf4e2;
-  --ink: #2a1f16;
-  --ink-soft: #5b4733;
-  --sepia: #8a6a3e;
-  --line: rgba(90, 62, 30, .22);
-  --red: #a3361f;
+  /* Alias de la paleta común (variables.css): el resto del archivo no cambia */
+  --paper: var(--papel);
+  --paper-2: var(--papel-3);
+  --paper-hi: var(--papel-2);
+  --ink: var(--tinta);
+  --ink-soft: var(--tinta-suave);
+  --line: var(--linea);
+  --red: var(--rojo);
   --gold: #c8962a;
   --gold-hi: #ecc65e;
-  --green: #3c7a3a;
-  --teal: #24485a;
+  --green: var(--verde);
+  --teal: var(--azul);
   --sea: #b9d2d4;
-  --name: #2a1f16;
+  --name: var(--tinta);
   --barrio: #2f6f5c;
   --fact: #8a4b22;
-  --radius: 14px;
+  --radius: var(--radio);
   --shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 10px 24px -12px rgba(60, 38, 12, .55);
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --serif: var(--letra-cuerpo);
 }
 
 * { box-sizing: border-box; }
@@ -31,11 +31,6 @@ body {
   font-family: var(--serif);
   color: var(--ink);
   background-color: var(--paper);
-  /* Papel: luz arriba a la izquierda y borde más oscuro */
-  background-image:
-    radial-gradient(ellipse at 15% 10%, rgba(255, 250, 230, .7), transparent 55%),
-    radial-gradient(ellipse at center, transparent 55%, rgba(110, 70, 25, .22));
-  background-attachment: fixed;
 }
 
 /* Fondo: la cuadrícula del Eixample girada, como en el plano de Cerdà */
@@ -55,19 +50,17 @@ button, select { font: inherit; color: inherit; cursor: pointer; }
 /* ---------- Cabecera ---------- */
 .cabecera {
   display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
-  padding: 14px 24px;
-  border-bottom: 3px double var(--ink);
-  background: rgba(251, 244, 226, .6);
+  padding: 10px 24px;
 }
 .marca { display: flex; gap: 12px; align-items: center; }
 .sello { width: 44px; height: 44px; flex: none; }
 .sello circle { fill: var(--teal); stroke: var(--gold); stroke-width: 2; }
 .sello path { fill: var(--gold-hi); }
-h1 { margin: 0; font-size: 1.7rem; font-variant: small-caps; line-height: 1.1; }
+h1 { margin: 0; font-size: 1.4rem; font-family: var(--letra-titulo); line-height: 1.1; }
 .subtitulo { margin: 3px 0 0; font-style: italic; font-size: .9rem; color: var(--ink-soft); }
 
 .niveles, .herramientas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.pestana, .boton-redondo, select { border: 1.5px solid var(--ink); background: var(--paper-hi); border-radius: 999px; }
+.pestana, .boton-redondo, select { border: 2px solid var(--ink); background: var(--paper); border-radius: var(--radio); }
 .pestana { padding: 6px 14px; font-weight: 700; }
 .pestana.superado { border-color: var(--green); color: var(--green); }
 .pestana[aria-current="true"] { background: var(--ink); color: var(--paper-hi); }
@@ -97,8 +90,8 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 
 /* Botones con relieve: sombra sólida abajo que se hunde al pulsar */
 .boton {
-  padding: 10px 18px; border: 2px solid var(--ink); border-radius: 999px;
-  background: var(--paper-hi); font-weight: 700; box-shadow: 0 3px 0 var(--ink);
+  padding: 10px 18px; border: 2px solid var(--ink); border-radius: var(--radio);
+  background: var(--paper); font-weight: 700; box-shadow: 0 3px 0 var(--ink);
 }
 .boton:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 .boton-principal { background: var(--red); border-color: #6e1f10; color: #fff; box-shadow: 0 3px 0 #6e1f10; }
