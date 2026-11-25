@@ -104,8 +104,8 @@ class JuegoLineaTiempo {
         const mazo = document.getElementById("cards-deck");
 
         // Limpiamos el tablero antes de generar los elementos
-        timeline.innerHTML = '';
-        mazo.innerHTML = '';
+        timeline.innerText = '';
+        mazo.innerText = '';
 
         // Clonamos los arrays para no modificar el original al ordenar
         const hitosOrdenados = [...this.hitos].sort((a, b) => a.orden - b.orden);
@@ -285,7 +285,8 @@ class JuegoLineaTiempo {
 
             // 2. Comprobamos si ya ha llegado a 3 errores
             if (this.metricas.errores >= 3) {
-                new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+                //Iniciamos el Nivel 1: 4 hitos, tiempo 4 minutos (240 segundos)
+                new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
                 document.getElementById("hint-text").textContent =
                     "Has llegado a 3 errores. Vuelves a empezar en el nivel 1.";
             } else {
@@ -334,15 +335,15 @@ class JuegoLineaTiempo {
             if (this.nivelActual === 1) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
+                    // Iniciamos Nivel 2: 6 hitos, tiempo 3 minutos (180 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_2, 180, 2);
                 }, 3000);
             }
             else if (this.nivelActual === 2) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 3: 8 hitos, tiempo reducido (60 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_3, 60, 3);
+                    // Iniciamos Nivel 3: 8 hitos, tiempo 2 minutos (120 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_3, 120, 3);
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
@@ -399,19 +400,19 @@ const DATOS_NIVEL_3 = [
 document.addEventListener("DOMContentLoaded", () => {
     const textos = {
         ca: {
-            bloqueado: "Completa el Memory i l’Eixample per jugar a la línia del temps.",
+            bloqueado: "Completa la línia del temps, per poder jugar al joc del metro.",
             portada: "Torna a la portada",
             metro: "Continua cap al metro",
             reintentar: "Torna-ho a provar"
         },
         es: {
-            bloqueado: "Completa Memory y el Eixample para jugar a la línea del tiempo.",
+            bloqueado: "Completa la línea del tiempo, para poder jugar al juego del metro.",
             portada: "Volver a la portada",
             metro: "Continuar al Metro",
             reintentar: "Volver a intentarlo"
         },
         en: {
-            bloqueado: "Complete Memory and the Eixample to play the timeline.",
+            bloqueado: "Complete the timeline to play the underground game.",
             portada: "Back to the home page",
             metro: "Continue to the Metro",
             reintentar: "Try again"
@@ -432,5 +433,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("zona-timeline").hidden = false;
     document.getElementById("pie-timeline").hidden = false;
     document.getElementById("reintentar-timeline").addEventListener("click", () => location.reload());
-    new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+    new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
 });
