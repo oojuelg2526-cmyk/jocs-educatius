@@ -68,6 +68,11 @@ function goFirstLevel() {
   startLevel(1);
 }
 
+// Vuelve a la portada de la web
+function goHome() {
+  location.assign("../../");
+}
+
 // ----- terminar un nivel -----
 
 // Se ha ganado el nivel o se ha acabado el tiempo.
@@ -97,7 +102,7 @@ function endLevel() {
     // último nivel: escena final con el plano completo
     showCard(t("final_title"), t("final_text"), [
       { label: t("again"), primary: true, onClick: goFirstLevel },
-      { label: t("home"), onClick: () => location.assign("../../") },
+      { label: t("home"), onClick: goHome },
       { label: t("close"), onClick: hideCard },
     ], [starsElement(res.stars), planElement()]);
   } else {
@@ -233,20 +238,33 @@ window.addEventListener("resize", onResize);
 // ----- arranque -----
 function mostrarBloqueo() {
   showCard(t("locked_title"), t("locked_text"), [
-    { label: t("home"), primary: true, onClick: () => location.assign("../../") },
+    { label: t("home"), primary: true, onClick: goHome },
   ]);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const idiomaGuardado = localStorage.getItem("cerda_lang");
-  const idioma = Object.hasOwn(LANGUAGE_NAMES, idiomaGuardado) ? idiomaGuardado : "ca";
+// Lo primero que se hace al abrir la página
+function startGame() {
+  // el idioma guardado (si no hay ninguno válido, catalán)
+  let idioma = localStorage.getItem("cerda_lang");
+  if (LANGUAGE_NAMES[idioma] === undefined) {
+    idioma = "ca";
+  }
   setLang(idioma);
   langSelect.value = idioma;
   document.documentElement.lang = idioma;
   applyTexts();
-  if (ultimoJuegoSuperado() >= 3) {
-    startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1));
-  } else {
+
+  // el juego 4 solo se abre si se han superado los 3 anteriores
+  if (ultimoJuegoSuperado() < 3) {
     mostrarBloqueo();
+    return;
   }
-});
+
+  // empieza por el nivel que toca (como mucho, el último)
+  let level = lastLevelCompleted() + 1;
+  if (level > LEVELS.length) {
+    level = LEVELS.length;
+  }
+  startLevel(level);
+}
+document.addEventListener("DOMContentLoaded", startGame);
