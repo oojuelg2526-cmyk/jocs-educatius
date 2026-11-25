@@ -8,41 +8,37 @@
 }
 
 :root {
-    --color-fondo: #e8dfca;
-    --color-papel: #f8f1df;
-    --color-tinta: #352b20;
-    --color-secundario: #806b4f;
-    --color-borde: #c5b28e;
-    --color-verde: #71845b;
-    --color-rojo: #9d5140;
+    --color-fondo: var(--papel);
+    --color-papel: var(--papel-2);
+    --color-tinta: var(--tinta);
+    --color-secundario: var(--sepia);
+    --color-borde: var(--linea);
+    --color-verde: var(--verde);
+    --color-rojo: var(--rojo);
 }
 
 body {
     background-color: var(--color-fondo);
     color: var(--color-tinta);
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--letra-cuerpo);
     min-height: 100vh;
 }
 
 /* Capçalera */
 
 .cabecera {
-    background-color: #3d3428;
-    color: #f8f1df;
-    padding: 20px 7%;
-    display: flex;
-    flex-wrap: wrap;
+    padding: 12px 7%;
     justify-content: space-between;
     align-items: center;
     gap: 15px;
 }
 
 .marca h1 {
-    font-size: 23px;
+    font-size: 1.25rem;
 }
 
 .marca p {
-    color: #d3c3a5;
+    color: var(--tinta-suave);
     margin-top: 5px;
 }
 
@@ -69,10 +65,10 @@ body {
 
 .papel {
     background-color: var(--color-papel);
-    border: 1px solid var(--color-borde);
-    box-shadow: 3px 4px 10px rgba(50, 35, 15, 0.12);
+    border: 2px solid var(--tinta);
+    box-shadow: var(--sombra);
     padding: 25px;
-    border-radius: 3px;
+    border-radius: var(--radio);
 }
 
 /* Introducció */
@@ -98,9 +94,11 @@ body {
 
 .boton {
     background-color: var(--color-tinta);
-    color: white;
-    border: none;
-    padding: 12px 20px;
+    color: var(--papel);
+    border: 2px solid var(--tinta);
+    border-radius: var(--radio);
+    font-weight: 600;
+    padding: 10px 20px;
     cursor: pointer;
     font-family: inherit;
     font-size: 15px;
@@ -117,9 +115,9 @@ body {
 }
 
 .secundario {
-    background-color: #e5dac2;
+    background-color: var(--papel);
     color: var(--color-tinta);
-    border: 1px solid var(--color-borde);
+    border: 2px solid var(--tinta);
 }
 
 .secundario[aria-pressed="true"] {
@@ -422,10 +420,7 @@ body {
 /* Peu de pàgina */
 
 footer {
-    text-align: center;
-    padding: 25px;
-    color: var(--color-secundario);
-    font-size: 13px;
+    margin-top: 0;
 }
 
 /* Disseny adaptable */

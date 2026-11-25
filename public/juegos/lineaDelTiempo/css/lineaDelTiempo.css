@@ -5,27 +5,18 @@ Las variables de colores y tipografías son las del estilo común del proyecto
 */
 
 :root {
-    --paper: #f3ead6;
-
-    --paper-2: #fbf6ea;
-
-    --ink: #2b2a28;
-
-    --ink-soft: #5a554a;
-
-    --line: #cbbd9c;
-
-    --red: #a63d2a;
-
-    --green: #35624f;
-
-    --blue: #2a4668;
-
-    --gold: #b8860b;
-
-    --font-title: Georgia, "Iowan Old Style", "Times New Roman", serif;
-
-    --font-body: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* Alias de la paleta común (variables.css) */
+    --paper: var(--papel);
+    --paper-2: var(--papel-2);
+    --ink: var(--tinta);
+    --ink-soft: var(--tinta-suave);
+    --line: var(--linea);
+    --red: var(--rojo);
+    --green: var(--verde);
+    --blue: var(--azul);
+    --gold: var(--dorado);
+    --font-title: var(--letra-titulo);
+    --font-body: var(--letra-cuerpo);
 }
 
 body {
@@ -115,7 +106,7 @@ select {
     min-height: 44px;
     padding: 0.4rem 0.9rem;
     border: 2px solid var(--ink);
-    border-radius: 8px;
+    border-radius: var(--radio);
     background: var(--paper);
     cursor: pointer;
     font-weight: 600;
@@ -143,7 +134,7 @@ select {
     min-height: 44px;
     padding: 0.3rem 0.5rem;
     border: 2px solid var(--ink);
-    border-radius: 8px;
+    border-radius: var(--radio);
     background: var(--paper);
     color: var(--ink);
 }
