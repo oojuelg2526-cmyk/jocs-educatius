@@ -33,6 +33,7 @@ const MONUMENTOS = [
   },
   {
     id: "palau", nombre: "Palau de la Música Catalana", barrio: "Sant Pere, Santa Caterina i la Ribera", color: 350,
+    foto: { archivo: "palau.webp", autor: "Josep Renalias", licencia: "CC BY-SA 3.0", fuente: "https://commons.wikimedia.org/wiki/File:Palau_de_la_M%C3%BAsica_-_Interior_general.JPG" },
     dato: { ca: "Obra de Domènech i Montaner, de 1905 a 1908.", es: "Obra de Domènech i Montaner, de 1905 a 1908.", en: "By Domènech i Montaner, 1905 to 1908." },
   },
   {
