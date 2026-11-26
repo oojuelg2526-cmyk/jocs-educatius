@@ -2,27 +2,33 @@
 // Este archivo solo guarda datos (arrays y objetos); no tiene lógica ni toca la página.
 // [PENDENT] contrastar cada barrio y dato con una fuente fiable antes de publicar.
 
-// Los 12 monumentos. color = tono (0-360) del fondo de su ilustración y de su punto en el mapa.
-// La imagen de cada uno está en img/<id>.png.
+// Los 12 monumentos. color = tono (0-360) del fondo de su imagen y de su punto en el mapa.
+// foto = foto real en img/ con su autor, licencia y página original (salen en «Crèdits de les imatges»).
+// Si un monumento no tiene foto, se usa su ilustración 3D img/<id>.png.
 const MONUMENTOS = [
   {
     id: "sagrada", nombre: "Sagrada Família", barrio: "la Sagrada Família", color: 28,
+    foto: { archivo: "sagrada.webp", autor: "Canaan", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:SF_maig_2_cropped.jpg" },
     dato: { ca: "Les obres van començar el 1882.", es: "Las obras empezaron en 1882.", en: "Building began in 1882." },
   },
   {
     id: "guell", nombre: "Park Güell", barrio: "la Salut", color: 95,
+    foto: { archivo: "guell.webp", autor: "john.purvis", licencia: "CC BY 2.0", fuente: "https://commons.wikimedia.org/wiki/File:Guell_Park_Python_(5361412701).jpg" },
     dato: { ca: "Patrimoni Mundial de la UNESCO des del 1984.", es: "Patrimonio Mundial de la UNESCO desde 1984.", en: "UNESCO World Heritage Site since 1984." },
   },
   {
     id: "batllo", nombre: "Casa Batlló", barrio: "la Dreta de l'Eixample", color: 190,
+    foto: { archivo: "batllo.webp", autor: "ChristianSchd", licencia: "CC BY-SA 3.0", fuente: "https://commons.wikimedia.org/wiki/File:Casa_Batllo_Overview_Barcelona_Spain_cut.jpg" },
     dato: { ca: "Gaudí la va reformar entre 1904 i 1906.", es: "Gaudí la reformó entre 1904 y 1906.", en: "Gaudí remodelled it between 1904 and 1906." },
   },
   {
     id: "pedrera", nombre: "La Pedrera", barrio: "la Dreta de l'Eixample", color: 35,
+    foto: { archivo: "pedrera.webp", autor: "Thomas Ledl", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Casa_Mil%C3%A0,_general_view.jpg" },
     dato: { ca: "Es va construir entre 1906 i 1912.", es: "Se construyó entre 1906 y 1912.", en: "Built between 1906 and 1912." },
   },
   {
     id: "catedral", nombre: "Catedral de Barcelona", barrio: "el Gòtic", color: 215,
+    foto: { archivo: "catedral.webp", autor: "Fernando", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Barcelona_Cathedral_Saint_Eulalia.jpg" },
     dato: { ca: "La construcció gòtica va començar el 1298.", es: "Su construcción gótica empezó en 1298.", en: "Its Gothic construction began in 1298." },
   },
   {
@@ -31,31 +37,45 @@ const MONUMENTOS = [
   },
   {
     id: "montjuic", nombre: "Castell de Montjuïc", barrio: "Montjuïc", color: 140,
+    foto: { archivo: "montjuic.webp", autor: "Daniel Kronborg", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Castell_de_Montju%C3%AFc_entrance.jpg" },
     dato: { ca: "El castell actual es va aixecar a partir del 1751.", es: "El castillo actual se levantó a partir de 1751.", en: "The current castle was built from 1751." },
   },
   {
     id: "santpau", nombre: "Hospital de Sant Pau", barrio: "el Baix Guinardó", color: 15,
+    foto: { archivo: "santpau.webp", autor: "Suicasmo", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Main_facade_of_Hospital_de_la_Santa_Creu_i_Sant_Pau_20171225.jpg" },
     dato: { ca: "Patrimoni Mundial de la UNESCO des del 1997.", es: "Patrimonio Mundial de la UNESCO desde 1997.", en: "UNESCO World Heritage Site since 1997." },
   },
   {
     id: "glories", nombre: "Torre Glòries", barrio: "el Parc i la Llacuna del Poblenou", color: 270,
+    foto: { archivo: "glories.webp", autor: "Alvesgaspar", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Barcelona_March_2015-8a.jpg" },
     dato: { ca: "Obra de Jean Nouvel, inaugurada el 2005.", es: "Obra de Jean Nouvel, inaugurada en 2005.", en: "By Jean Nouvel, opened in 2005." },
   },
   {
     id: "boqueria", nombre: "Mercat de la Boqueria", barrio: "el Raval", color: 5,
+    foto: { archivo: "boqueria.webp", autor: "Nicholas Gemini", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Mercat_de_la_Boqueria_02.jpg" },
     dato: { ca: "Mercat oficial des del 1840.", es: "Mercado oficial desde 1840.", en: "An official market since 1840." },
   },
   {
     id: "tibidabo", nombre: "Temple del Tibidabo", barrio: "Vallvidrera, el Tibidabo i les Planes", color: 240,
+    foto: { archivo: "tibidabo.webp", autor: "Felix König", licencia: "CC BY 3.0", fuente: "https://commons.wikimedia.org/wiki/File:Temple_Expiatori_del_Sagrat_Cor_2013.jpg" },
     dato: { ca: "Es va construir entre 1902 i 1961.", es: "Se construyó entre 1902 y 1961.", en: "Built between 1902 and 1961." },
   },
   {
     id: "pedralbes", nombre: "Monestir de Pedralbes", barrio: "Pedralbes", color: 60,
+    foto: { archivo: "pedralbes.webp", autor: "Richard Mortel", licencia: "CC BY 2.0", fuente: "https://commons.wikimedia.org/wiki/File:Monastery_of_Pedralbes,_early_14th_century,_cloister_(11)_(30408494583).jpg" },
     dato: { ca: "Fundat el 1326.", es: "Fundado en 1326.", en: "Founded in 1326." },
   },
 ];
 
-// Los 3 niveles. Cada pareja es «ilustración del monumento + un texto»; tipo dice qué texto:
+// Página de cada licencia de las fotos (para enlazarla en los créditos)
+const LICENCIAS = {
+  "CC BY 2.0": "https://creativecommons.org/licenses/by/2.0/",
+  "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/",
+  "CC BY-SA 3.0": "https://creativecommons.org/licenses/by-sa/3.0/",
+  "CC BY-SA 4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+};
+
+// Los 3 niveles. Cada pareja es «imagen del monumento + un texto»; tipo dice qué texto:
 //   nombre → su nombre · barrio → el barrio donde está · dato → un dato histórico.
 // estrellas = [fallos máximos para 3 estrellas, fallos máximos para 2]. Con más fallos, 1 estrella.
 const NIVELES = [
@@ -88,9 +108,9 @@ const TEXTOS = {
     tipo_nombre: "Nombre",
     tipo_barrio: "Barrio",
     tipo_dato: "Dato",
-    intro_nombre: "Gira dos cartas. Si la ilustración y el nombre son del mismo monumento, ¡es pareja!",
-    intro_barrio: "Ahora el texto es el barrio. Busca la ilustración y el barrio donde está ese monumento.",
-    intro_dato: "Ahora el texto es un dato histórico. Busca la ilustración y el dato que cuenta algo de ese monumento.",
+    intro_nombre: "Gira dos cartas. Si la imagen y el nombre son del mismo monumento, ¡es pareja!",
+    intro_barrio: "Ahora el texto es el barrio. Busca la imagen y el barrio donde está ese monumento.",
+    intro_dato: "Ahora el texto es un dato histórico. Busca la imagen y el dato que cuenta algo de ese monumento.",
     ejemplo: "Así es una pareja",
     reglas: "Reglas",
     regla_perder: "No puedes perder: cada fallo solo te quita estrellas.",
@@ -121,6 +141,12 @@ const TEXTOS = {
     final_texto: "Aquí está la trama de manzanas del Eixample. Sigue hacia el Eixample: allí empieza el siguiente juego.",
     estrellas_de: "{n} de 3 estrellas",
     ilustracion: "Ilustración de",
+    foto: "Foto de",
+    creditos: "Créditos de las imágenes",
+    creditos_nota: "Fotos de Wikimedia Commons, recortadas y reducidas para el juego. En alguna se ha tapado un rótulo que daría la respuesta.",
+    creditos_ilustracion: "Los monumentos sin foto llevan una ilustración 3D hecha por el equipo.",
+    creditos_original: "original",
+    volver_instrucciones: "Volver",
     carta_tapada: "Carta {n}, tapada",
   },
   ca: {
@@ -141,9 +167,9 @@ const TEXTOS = {
     tipo_nombre: "Nom",
     tipo_barrio: "Barri",
     tipo_dato: "Dada",
-    intro_nombre: "Gira dues cartes. Si la il·lustració i el nom són del mateix monument, és parella!",
-    intro_barrio: "Ara el text és el barri. Busca la il·lustració i el barri on és aquell monument.",
-    intro_dato: "Ara el text és una dada històrica. Busca la il·lustració i la dada que explica alguna cosa d'aquell monument.",
+    intro_nombre: "Gira dues cartes. Si la imatge i el nom són del mateix monument, és parella!",
+    intro_barrio: "Ara el text és el barri. Busca la imatge i el barri on és aquell monument.",
+    intro_dato: "Ara el text és una dada històrica. Busca la imatge i la dada que explica alguna cosa d'aquell monument.",
     ejemplo: "Així és una parella",
     reglas: "Regles",
     regla_perder: "No pots perdre: cada error només et treu estrelles.",
@@ -174,6 +200,12 @@ const TEXTOS = {
     final_texto: "Aquí és la trama d'illes de l'Eixample. Continua cap a l'Eixample: allà comença el joc següent.",
     estrellas_de: "{n} de 3 estrelles",
     ilustracion: "Il·lustració de",
+    foto: "Foto de",
+    creditos: "Crèdits de les imatges",
+    creditos_nota: "Fotos de Wikimedia Commons, retallades i reduïdes per al joc. En alguna s'ha tapat un rètol que donaria la resposta.",
+    creditos_ilustracion: "Els monuments sense foto porten una il·lustració 3D feta per l'equip.",
+    creditos_original: "original",
+    volver_instrucciones: "Tornar",
     carta_tapada: "Carta {n}, tapada",
   },
   en: {
@@ -194,9 +226,9 @@ const TEXTOS = {
     tipo_nombre: "Name",
     tipo_barrio: "Neighbourhood",
     tipo_dato: "Fact",
-    intro_nombre: "Flip two cards. If the illustration and the name belong to the same monument, it's a pair!",
-    intro_barrio: "Now the text is the neighbourhood. Find the illustration and the neighbourhood where that monument is.",
-    intro_dato: "Now the text is a historical fact. Find the illustration and the fact that tells you something about that monument.",
+    intro_nombre: "Flip two cards. If the picture and the name belong to the same monument, it's a pair!",
+    intro_barrio: "Now the text is the neighbourhood. Find the picture and the neighbourhood where that monument is.",
+    intro_dato: "Now the text is a historical fact. Find the picture and the fact that tells you something about that monument.",
     ejemplo: "This is a pair",
     reglas: "Rules",
     regla_perder: "You can't lose: each mistake only costs you stars.",
@@ -227,6 +259,12 @@ const TEXTOS = {
     final_texto: "Here is the grid of Eixample blocks. Head on to the Eixample: the next game starts there.",
     estrellas_de: "{n} of 3 stars",
     ilustracion: "Illustration of",
+    foto: "Photo of",
+    creditos: "Image credits",
+    creditos_nota: "Photos from Wikimedia Commons, cropped and resized for the game. A sign that would give away the answer has been covered in one of them.",
+    creditos_ilustracion: "Monuments without a photo use a 3D illustration made by the team.",
+    creditos_original: "original",
+    volver_instrucciones: "Back",
     carta_tapada: "Card {n}, face down",
   },
 };
