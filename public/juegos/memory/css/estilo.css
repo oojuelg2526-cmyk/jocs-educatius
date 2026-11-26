@@ -160,6 +160,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   background: radial-gradient(circle at 50% 38%, hsl(var(--color) 75% 86%), hsl(var(--color) 50% 62%) 60%, hsl(var(--color) 45% 42%));
 }
 .ilustracion img { width: 94%; height: 94%; object-fit: contain; }
+/* Foto real: llena todo el marco (recortada a 3:4, sin bandas de color) */
+.ilustracion.con-foto { overflow: hidden; }
+.con-foto img { width: 100%; height: 100%; object-fit: cover; }
 .nombre-reserva { padding: 6px; font-weight: 700; font-variant: small-caps; color: hsl(var(--color) 55% 14%); }
 .ilustracion img + .nombre-reserva { display: none; } /* si la imagen existe, el nombre no se ve */
 
@@ -231,6 +234,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 .reglas { margin: 0; padding-left: 20px; text-align: left; line-height: 1.4; }
 .estrellas-final { margin: 4px 0; font-size: 3rem; color: var(--gold); letter-spacing: 6px; }
 .resumen { font-weight: 700; }
+.creditos { margin: 0; padding-left: 20px; text-align: left; font-size: .85rem; line-height: 1.5; }
+.creditos a { color: var(--ink); }
+.nota-creditos { margin: 10px 0 0; font-size: .8rem; color: var(--ink-soft); text-align: left; }
 .botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
 
 /* ---------- Tablet y móvil ---------- */
