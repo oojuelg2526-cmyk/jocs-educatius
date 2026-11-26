@@ -130,7 +130,12 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   position: relative; display: block; width: 100%; height: 100%;
   transform-style: preserve-3d; transition: transform .5s;
 }
-.carta.girada .interior { transform: rotateY(180deg); }
+.carta.girada .interior,
+.tablero.previa .carta .interior { transform: rotateY(180deg); }
+.nombre-monumento { display: block; margin-bottom: 2px; font-size: .72rem; font-weight: 800; line-height: 1.05; font-style: normal; }
+.tipo-dato .nombre-monumento { font-size: .66rem; color: #2b1808; }
+.tipo-barrio .nombre-monumento { font-size: .64rem; }
+.tipo-barrio .texto { font-size: .72rem; line-height: 1.1; }
 
 .cara {
   position: absolute; inset: 0;
@@ -176,7 +181,7 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 
 /* Dato: pergamino */
 .tipo-dato { background: radial-gradient(ellipse at 50% 40%, #fbf0cf, #ecd7a4 75%, #d9bd80); }
-.tipo-dato .texto { font-size: .8rem; font-style: italic; color: #4a2c12; }
+.tipo-dato .texto { font-size: .7rem; line-height: 1.12; font-style: italic; color: #4a2c12; }
 
 /* Pareja encontrada: borde verde con brillo. Pista: borde dorado que late */
 .carta.acertada .frente { box-shadow: 0 0 0 3px var(--green); transition: box-shadow .4s .3s; }
@@ -259,7 +264,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   .tablero[data-nivel="3"] .carta { max-width: 160px; }
   .cara { padding: 22px 5px 5px; border-radius: 10px; }
   .texto { font-size: .78rem; }
-  .tipo-dato .texto { font-size: .7rem; }
+  .tipo-dato .texto { font-size: .6rem; }
+  .nombre-monumento, .tipo-dato .nombre-monumento, .tipo-barrio .nombre-monumento { font-size: .58rem; }
+  .tipo-barrio .texto { font-size: .62rem; }
   .marcadores { grid-template-columns: repeat(2, 1fr); }
   .marcador b { font-size: 1.1rem; }
   .ejemplo .cara { width: 96px; }

@@ -164,3 +164,15 @@ test("cada foto existe, pesa poco y tiene autor, licencia conocida y página ori
     assert.match(m.foto.fuente, /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
   });
 });
+
+test("la vista previa solo existe en los niveles 2 y 3 y dura unos segundos", () => {
+  assert.equal(NIVELES[0].vistaPrevia, 0);
+  NIVELES.slice(1).forEach((nivel) => {
+    assert.ok(nivel.vistaPrevia >= 3000 && nivel.vistaPrevia <= 8000, `nivel ${nivel.numero}`);
+  });
+});
+
+test("el mensaje de la vista previa está en los tres idiomas", () => {
+  const TEXTOS = juego("TEXTOS");
+  ["es", "ca", "en"].forEach((idioma) => assert.ok(TEXTOS[idioma].msg_previa, idioma));
+});
