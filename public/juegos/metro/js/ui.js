@@ -67,6 +67,9 @@ function buildBoard(game) {
         if (contains(game.level.closed, cell.id)) {
           div.classList.add("closed");
         }
+        if (contains(game.level.rush, cell.id)) {
+          div.classList.add("rush"); // borde de rayas: se cierra y se abre con el reloj
+        }
         const name = document.createElement("span");
         name.className = "name";
         name.textContent = t(cell.nameKey);
@@ -105,6 +108,17 @@ function render(game) {
     if (piece.taken === false) {
       const pieceCell = document.querySelector('[data-pos="' + piece.r + "," + piece.c + '"]');
       pieceCell.classList.add("piece");
+    }
+  }
+
+  // las estaciones de hora punta se cierran y se abren con el reloj
+  for (let i = 0; i < game.level.rush.length; i++) {
+    const station = findStation(game.grid, game.level.rush[i]);
+    const stationCell = document.querySelector('[data-pos="' + station.r + "," + station.c + '"]');
+    if (isRushClosed(game, station.id)) {
+      stationCell.classList.add("closed");
+    } else {
+      stationCell.classList.remove("closed");
     }
   }
 
@@ -208,6 +222,7 @@ function renderMission(game) {
   const to = t(level.stations[level.end].nameKey);
   byId("level-name").textContent = t("level") + " " + level.id + " · " + t(level.nameKey);
   byId("mission-text").textContent = t("mission_text", { from: from, to: to });
+  byId("tip").textContent = t(level.tipKey);
 }
 
 // Tarjeta central (nivel superado, tiempo agotado, final).
@@ -220,9 +235,11 @@ function showCard(title, text, buttons, extras) {
   heading.textContent = title;
   card.appendChild(heading);
 
-  const paragraph = document.createElement("p");
-  paragraph.textContent = text;
-  card.appendChild(paragraph);
+  if (text !== "") {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    card.appendChild(paragraph);
+  }
 
   if (extras !== undefined) {
     for (let i = 0; i < extras.length; i++) {
@@ -285,6 +302,19 @@ function planElement() {
   wrap.className = "final-plan";
   wrap.appendChild(image);
   return wrap;
+}
+
+// La lista de instrucciones de "Cómo se juega"
+function howToElement() {
+  const keys = ["how_who", "how_goal", "how_move", "how_lines", "how_obstacles", "how_score", "how_time"];
+  const list = document.createElement("ul");
+  list.className = "how-list";
+  for (let i = 0; i < keys.length; i++) {
+    const item = document.createElement("li");
+    item.textContent = t(keys[i]);
+    list.appendChild(item);
+  }
+  return list;
 }
 
 // Pone los textos fijos de la página en el idioma actual.
