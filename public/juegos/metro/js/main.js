@@ -18,7 +18,6 @@ const MESSAGES = {
   line: ["msg_line", "warn"],
   closed: ["msg_closed", "warn"],
   piece: ["msg_piece", "good"],
-  rush: ["msg_rush", "warn"],
 };
 
 let game = null;
@@ -49,6 +48,9 @@ function startLevel(n) {
   renderMission(game);
   renderLevelTabs(n, lastLevelCompleted());
   render(game);
+  followToken(game, "auto");
+
+  byId("tip-box").open = false; // el consejo empieza cerrado: se abre pulsando «Consejo»
 
   const here = cellAt(game, game.row, game.col);
   showMessage(t("msg_start", { station: t(here.nameKey), line: LINE_NAMES[game.line] }));
@@ -136,6 +138,8 @@ function endLevel() {
 
 // ----- un movimiento -----
 
+
+
 // Se lo pasamos a las reglas (game.js) y contamos al jugador lo que ha pasado.
 function step(dir) {
   if (game === null || finished || helpOpen) {
@@ -145,6 +149,10 @@ function step(dir) {
 
   if (res.event === "missing-pieces") {
     showMessage(t("msg_missing", { n: res.left }), "warn");
+  } else if (res.event === "piece" && piecesLeft(game) === 0) {
+    // ya están todos los trozos: se dice a qué estación hay que ir
+    const destination = t(game.level.stations[game.level.end].nameKey);
+    showMessage(t("msg_all_pieces", { station: destination }), "good");
   } else if (MESSAGES[res.event] !== undefined) {
     const message = MESSAGES[res.event];
     showMessage(t(message[0]), message[1]);
@@ -155,6 +163,7 @@ function step(dir) {
   }
 
   render(game);
+  followToken(game, "smooth");
   if (game.status === "won") {
     endLevel();
   }
@@ -246,6 +255,7 @@ function onLanguage() {
   renderMission(game);
   renderLevelTabs(game.level.id, lastLevelCompleted());
   render(game);
+  followToken(game, "auto");
   if (helpOpen) {
     showHowToPlay(); // se vuelve a escribir en el idioma nuevo
   }
@@ -256,6 +266,7 @@ langSelect.addEventListener("change", onLanguage);
 function onResize() {
   if (game !== null) {
     render(game);
+    followToken(game, "auto");
   }
 }
 window.addEventListener("resize", onResize);
