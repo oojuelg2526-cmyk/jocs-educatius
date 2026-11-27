@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Laberinto de metro</title>
-  <link rel="stylesheet" href="css/metro.css?v=7">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/comun.css">
+  <link rel="stylesheet" href="css/metro.css?v=21">
 </head>
 <body>
   <a class="skip" href="#main" data-i18n="skip">Saltar al contenido</a>
@@ -21,20 +23,36 @@
   </header>
 
   <main id="main" class="layout">
-    <section class="board-wrap">
-      <div id="board" class="board" aria-label="Mapa del metro"></div>
+    <section class="game">
+      <div class="mission">
+        <p class="eyebrow" id="level-name"></p>
+        <p id="mission-text"></p>
+        <details id="tip-box" class="tip-box">
+          <summary data-i18n="tip_title">Consejo</summary>
+          <p id="tip" class="tip"></p>
+        </details>
+      </div>
+
+      <div class="board-wrap">
+        <div id="board" class="board" aria-label="Mapa del metro"></div>
+      </div>
+
       <p id="message" class="message" role="status" aria-live="polite"></p>
-      <div id="line-selector" class="line-selector" hidden>
-        <p data-i18n="line_prompt">Correspondencia: ¿qué línea coges?</p>
+
+      <div id="line-selector" class="line-selector">
+        <p id="line-label"></p>
         <div></div>
+      </div>
+
+      <div class="dpad" aria-label="Cruceta">
+        <button type="button" data-dir="up" aria-label="Arriba">▲</button>
+        <button type="button" data-dir="left" aria-label="Izquierda">◀</button>
+        <button type="button" data-dir="down" aria-label="Abajo">▼</button>
+        <button type="button" data-dir="right" aria-label="Derecha">▶</button>
       </div>
     </section>
 
     <aside class="panel">
-      <p class="eyebrow" id="level-name"></p>
-      <h2 data-i18n="mission">Misión</h2>
-      <p id="mission-text"></p>
-
       <dl class="stats">
         <div><dt data-i18n="pieces">Trozos del plano</dt><dd id="pieces">0 / 0</dd></div>
         <div><dt data-i18n="time">Tiempo</dt><dd id="time">00:00</dd></div>
@@ -45,20 +63,18 @@
       <ul class="legend" aria-label="Líneas">
         <li><span class="swatch l1"></span>L1</li>
         <li><span class="swatch l2"></span>L2</li>
+        <li><span class="swatch l3"></span>L3</li>
         <li><span class="swatch l4"></span>L4</li>
       </ul>
 
-      <button id="help" class="btn" type="button" data-i18n="help">Mirar el plano (−50)</button>
-      <p class="hint" data-i18n="help_hint">Enseña los nombres durante 3 segundos.</p>
-      <button id="restart" class="btn secondary" type="button" data-i18n="restart">Empezar de nuevo</button>
-
-      <p class="hint" data-i18n="controls">Mueve la ficha con las flechas o WASD.</p>
-      <div class="dpad" aria-label="Cruceta">
-        <button type="button" data-dir="up" aria-label="Arriba">▲</button>
-        <button type="button" data-dir="left" aria-label="Izquierda">◀</button>
-        <button type="button" data-dir="down" aria-label="Abajo">▼</button>
-        <button type="button" data-dir="right" aria-label="Derecha">▶</button>
+      <div class="panel-buttons">
+        <button id="help" class="btn" type="button" data-i18n="help">Mirar el plano (−50)</button>
+        <button id="restart" class="btn secondary" type="button" data-i18n="restart">Empezar de nuevo</button>
+        <button id="how" class="btn secondary" type="button" data-i18n="how_button">¿Cómo se juega?</button>
       </div>
+
+      <p class="hint" data-i18n="help_hint">Enseña los nombres durante 3 segundos.</p>
+      <p class="hint" data-i18n="controls">Mueve la ficha con las flechas o WASD.</p>
     </aside>
   </main>
 
@@ -68,12 +84,13 @@
     <div id="card" class="card" role="dialog" aria-modal="true" tabindex="-1"></div>
   </div>
 
+  <script src="/js/sesion.js"></script>
   <script src="../../js/progresion.js"></script>
-  <script src="js/levels.js?v=7"></script>
-  <script src="js/lang.js?v=7"></script>
-  <script src="js/game.js?v=7"></script>
-  <script src="js/ui.js?v=7"></script>
-  <script src="js/storage.js?v=7"></script>
-  <script src="js/main.js?v=7"></script>
+  <script src="js/levels.js?v=21"></script>
+  <script src="js/lang.js?v=21"></script>
+  <script src="js/game.js?v=21"></script>
+  <script src="js/ui.js?v=21"></script>
+  <script src="js/storage.js?v=21"></script>
+  <script src="js/main.js?v=21"></script>
 </body>
 </html>

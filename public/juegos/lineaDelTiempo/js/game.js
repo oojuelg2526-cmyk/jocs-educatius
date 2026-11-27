@@ -38,6 +38,17 @@ class JuegoLineaTiempo {
         this.metricas = new MetricasPartida();
 
         this.nivelActual = nivelActual;
+
+        // Actualizamos dinámicamente los textos del nivel en la interfaz
+        const headerLevel = document.getElementById("header-level");
+        const panelLevel = document.getElementById("panel-level");
+        if (headerLevel) headerLevel.textContent = `Nivel ${this.nivelActual} · Línea del tiempo`;
+        if (panelLevel) panelLevel.textContent = `NIVEL ${this.nivelActual} de 3`;
+
+        // Reiniciamos marcadores visuales al iniciar nivel
+        document.getElementById("moves-display").innerText = "0";
+        document.getElementById("points-display").innerText = this.puntos;
+
         this.tiempoRestante = tiempo; // Asignación dinámica del tiempo
         this.puntos = 850;
         this.movimientos = 0;
@@ -61,12 +72,12 @@ class JuegoLineaTiempo {
     // Persistencia de métricas adaptadas a las exigencias de BD
     // =========================================================
     async guardarMetricasBD() {
-        // Recuperamos las métricas generales de sesión compartidas (guardadas previamente en localStorage/sessionStorage)
-        const username = localStorage.getItem("username") || "Anónimo";
-        const sessionId = localStorage.getItem("session_id") || "0000-0000";
+        // Usuario y sesión comunes a los cuatro juegos (los da /js/sesion.js)
+        const username = Cerda.usuario();
+        const sessionId = Cerda.sesionActual("timeline");
 
-        // Calculamos la duración total de la sesión (asumiendo que se guardó 'session_start_time' al entrar al proyecto)
-        const sessionStartTime = localStorage.getItem("session_start_time") || Date.now();
+        // Duración total de la sesión: desde que se abrió el juego en esta pestaña
+        const sessionStartTime = Cerda.inicioSesion("timeline");
         const sessionLength = Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000);
 
         // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
@@ -89,23 +100,10 @@ class JuegoLineaTiempo {
             nivel_jugado: this.nivelActual
         };
 
-        try {
-            // Ajusta '/api/guardar-metricas' al endpoint real de tu proyecto
-            const respuesta = await fetch('/api/guardar-metricas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(datosBD)
-            });
-
-            if (respuesta.ok) {
-                console.log("Métricas enviadas correctamente al servidor SQL Server:", datosBD);
-            } else {
-                console.error("Error del servidor al intentar guardar las métricas:", respuesta.status);
-            }
-        } catch (error) {
-            console.error("No se pudo conectar con el servidor para guardar las métricas:", error);
+        // Cerda.enviar hace el fetch a '/api/guardar-metricas' y, si falla, solo avisa en la consola
+        const respuesta = await Cerda.enviar(datosBD);
+        if (respuesta !== null && respuesta.ok) {
+            console.log("Métricas enviadas correctamente al servidor:", datosBD);
         }
     }
 
@@ -117,8 +115,8 @@ class JuegoLineaTiempo {
         const mazo = document.getElementById("cards-deck");
 
         // Limpiamos el tablero antes de generar los elementos
-        timeline.innerHTML = '';
-        mazo.innerHTML = '';
+        timeline.innerText = '';
+        mazo.innerText = '';
 
         // Clonamos los arrays para no modificar el original al ordenar
         const hitosOrdenados = [...this.hitos].sort((a, b) => a.orden - b.orden);
@@ -126,14 +124,16 @@ class JuegoLineaTiempo {
         const hitosDesordenados = [...this.hitos].sort(() => Math.random() - 0.5);
 
         // 1. Crear los huecos (zonas de destino) en la regla del tiempo
-        hitosOrdenados.forEach(hito => {
-            const hueco = document.createElement("div"); // RA6
+        hitosOrdenados.forEach((hito, index) => {
+            const hueco = document.createElement("div");
             hueco.classList.add("drop-zone");
             hueco.dataset.esperado = hito.orden;
             hueco.dataset.label = hito.epoca;
+            // Muestra "1º más antiguo", "2º", etc., sin desvelar la fecha exacta antes de tiempo
+            hueco.dataset.posicion = index === 0 ? "1º (Más antiguo)" : `${index + 1}º`;
 
-            this.asignarEventosDrop(hueco); // RA5
-            timeline.appendChild(hueco); // RA6
+            this.asignarEventosDrop(hueco);
+            timeline.appendChild(hueco);
         });
 
         // El mazo inicial también acepta cartas por si el usuario devuelve una
@@ -298,7 +298,8 @@ class JuegoLineaTiempo {
 
             // 2. Comprobamos si ya ha llegado a 3 errores
             if (this.metricas.errores >= 3) {
-                new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+                //Iniciamos el Nivel 1: 4 hitos, tiempo 4 minutos (240 segundos)
+                new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
                 document.getElementById("hint-text").textContent =
                     "Has llegado a 3 errores. Vuelves a empezar en el nivel 1.";
             } else {
@@ -347,19 +348,19 @@ class JuegoLineaTiempo {
             if (this.nivelActual === 1) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
+                    // Iniciamos Nivel 2: 6 hitos, tiempo 3 minutos (180 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_2, 180, 2);
                 }, 3000);
             }
             else if (this.nivelActual === 2) {
                 setTimeout(() => {
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 3: 8 hitos, tiempo reducido (60 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_3, 60, 3);
+                    // Iniciamos Nivel 3: 8 hitos, tiempo 2 minutos (120 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_3, 120, 3);
                 }, 3000);
             }
             else if (this.nivelActual === 3) {
-                mensajeFinal.innerText += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.
+                mensajeFinal.textContent += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
                 localStorage.setItem("juego3Superado", "true");
                 enlaceMetro.hidden = false;
                 enlaceMetro.focus();
@@ -381,50 +382,50 @@ class JuegoLineaTiempo {
 
 // Ajuste Nivel 1: 4 hitos históricos con amplia diferencia de siglos
 const DATOS_NIVEL_1 = [
-    { id: "m1", title: "Barcino romana", label: "Época romana", order: 1, hint: "Fundada por el emperador Augusto." },
-    { id: "m2", title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
-    { id: "m3", title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
-    { id: "m4", title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n1_barcino.jpg', title: "Barcino romana", label: "Época romana", order: 1, hint: "Fundada por el emperador Augusto." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n1_murallas.jpg', title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n1_eixample.jpg', title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n1_jjoo.jpg', title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
 ];
 
 // Ajuste Nivel 2: 6 hitos con eventos de la Edad Media, Moderna y Contemporánea.
 const DATOS_NIVEL_2 = [
-    { id: "m1", title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
-    { id: "m2", title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
-    { id: "m3", title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
-    { id: "m4", title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
-    { id: "m5", title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
-    { id: "m6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n2_consell.jpg', title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n2_generalitat.jpg', title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n2_1714.jpg', title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n2_industria.jpg', title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
+    { id: "m5", img: '/juegos/lineaDelTiempo/img/n2_expoUniversal.jpg', title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
+    { id: "m6", img: '/juegos/lineaDelTiempo/img/n2_segundaRepublica.jpg', title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
 ];
 
 // Ajuste Nivel 3: 8 hitos históricos con fechas más cercanas entre sí. Tiempo reducido y mayor exigencia de precisión.
 const DATOS_NIVEL_3 = [
-    { id: "m1", title: "Semana Trágica", label: "1909", order: 1, hint: "Revuelta popular antimilitarista." },
-    { id: "m2", title: "Mancomunidad", label: "1914", order: 2, hint: "Agrupación de las 4 diputaciones." },
-    { id: "m3", title: "Exposición Internacional", label: "1929", order: 3, hint: "Urbanización de la montaña de Montjuïc." },
-    { id: "m4", title: "Inicio Guerra Civil", label: "1936", order: 4, hint: "Fracaso del golpe de estado en la ciudad." },
-    { id: "m5", title: "Bombardeos aéreos", label: "1938", order: 5, hint: "Ataques sistemáticos sobre la población civil." },
-    { id: "m6", title: "Caída de Barcelona", label: "1939", order: 6, hint: "Entrada de las tropas franquistas." },
-    { id: "m7", title: "Huelga de Tranvías", label: "1951", order: 7, hint: "Boicot ciudadano por la subida del billete." },
-    { id: "m8", title: "Asamblea de Catalunya", label: "1971", order: 8, hint: "Plataforma unitaria antifranquista." }
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n3_semanaTragica.png', title: "Semana Trágica", label: "1909", order: 1, hint: "Revuelta popular antimilitarista." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n3_mancomunidad.png', title: "Mancomunidad", label: "1914", order: 2, hint: "Agrupación de las 4 diputaciones." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n3_exposicionInternacional.png', title: "Exposición Internacional", label: "1929", order: 3, hint: "Urbanización de la montaña de Montjuïc." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n3_inicioGuerraCivil.png', title: "Inicio Guerra Civil", label: "1936", order: 4, hint: "Fracaso del golpe de estado en la ciudad." },
+    { id: "m5", img: '/juegos/lineaDelTiempo/img/n3_bombardeosAereos.png', title: "Bombardeos aéreos", label: "1938", order: 5, hint: "Ataques sistemáticos sobre la población civil." },
+    { id: "m6", img: '/juegos/lineaDelTiempo/img/n3_caidaDeBarcelona.png', title: "Caída de Barcelona", label: "1939", order: 6, hint: "Entrada de las tropas franquistas." },
+    { id: "m7", img: '/juegos/lineaDelTiempo/img/n3_huelgaDeTranvias.png', title: "Huelga de Tranvías", label: "1951", order: 7, hint: "Boicot ciudadano por la subida del billete." },
+    { id: "m8", img: '/juegos/lineaDelTiempo/img/n3_asambleaDeCatalunya.png', title: "Asamblea de Catalunya", label: "1971", order: 8, hint: "Plataforma unitaria antifranquista." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
     const textos = {
         ca: {
-            bloqueado: "Completa el Memory i l’Eixample per jugar a la línia del temps.",
+            bloqueado: "Completa la línia del temps, per poder jugar al joc del metro.",
             portada: "Torna a la portada",
             metro: "Continua cap al metro",
             reintentar: "Torna-ho a provar"
         },
         es: {
-            bloqueado: "Completa Memory y el Eixample para jugar a la línea del tiempo.",
+            bloqueado: "Completa la línea del tiempo, para poder jugar al juego del metro.",
             portada: "Volver a la portada",
             metro: "Continuar al Metro",
             reintentar: "Volver a intentarlo"
         },
         en: {
-            bloqueado: "Complete Memory and the Eixample to play the timeline.",
+            bloqueado: "Complete the timeline to play the underground game.",
             portada: "Back to the home page",
             metro: "Continue to the Metro",
             reintentar: "Try again"
@@ -445,5 +446,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("zona-timeline").hidden = false;
     document.getElementById("pie-timeline").hidden = false;
     document.getElementById("reintentar-timeline").addEventListener("click", () => location.reload());
-    new JuegoLineaTiempo(DATOS_NIVEL_1, 120, 1);
+    new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
 });

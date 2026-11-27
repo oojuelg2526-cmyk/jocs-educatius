@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Historia de Barcelona - Nivel 3</title>
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/comun.css">
     <link rel="stylesheet" href="./css/lineaDelTiempo.css">
 </head>
 
 <body>
     <!-- Cabecera común -->
     <header class="top">
-        <h1>Historia de Barcelona <span style="font-size: 1rem; font-weight: normal; color: var(--ink-soft);">Nivel 3 ·
+        <h1>Historia de Barcelona <span id="header-level"
+                style="font-size: 1rem; font-weight: normal; color: var(--ink-soft);">Nivel 1 ·
                 Línea del tiempo</span></h1>
         <div class="lang">
             <span style="color: var(--gold); font-size: 1.2rem;">★★★</span>
@@ -46,12 +49,13 @@
         </section>
 
         <!-- Panel de estado (Derecha) -->
+        <!-- Panel de estado (Derecha) -->
         <aside class="panel">
             <p class="eyebrow">Misión</p>
             <h2>Ordena los hitos de Barcelona</h2>
-            <p style="color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 1rem;">NIVEL 3 de 3<br>Ildefons Cerdà
+            <p style="color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 1rem;"><span id="panel-level">NIVEL 1 de
+                    3</span><br>Ildefons Cerdà
                 perdió el plano</p>
-
             <p class="game-description" style="font-size: 0.9rem; line-height: 1.45; margin-bottom: 1.25rem;">
                 Ayuda a Ildefons Cerdà a reconstruir la historia de la ciudad. Arrastra las tarjetas hasta la línea del
                 tiempo y ordénalas cronológicamente, del acontecimiento más antiguo al más reciente. Cuando creas tener
@@ -85,7 +89,8 @@
             <p id="end-message">Has recuperado la tercera pieza del plano.</p>
             <div class="card-buttons">
                 <a id="ir-metro" href="../metro/index.html" data-progresion="metro" hidden>Continua cap al metro</a>
-                <button type="button" id="reintentar-timeline" data-progresion="reintentar" hidden>Torna-ho a provar</button>
+                <button type="button" id="reintentar-timeline" data-progresion="reintentar" hidden>Torna-ho a
+                    provar</button>
             </div>
         </div>
     </div>
@@ -93,6 +98,7 @@
     <footer class="acceso-juego" id="pie-timeline" hidden>
         <a href="../../" data-progresion="portada">Torna a la portada</a>
     </footer>
+    <script src="/js/sesion.js"></script>
     <script src="../../js/progresion.js"></script>
     <script src="./js/game.js"></script>
 </body>

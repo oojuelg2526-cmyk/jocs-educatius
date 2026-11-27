@@ -67,8 +67,14 @@ function buildBoard(game) {
         if (contains(game.level.closed, cell.id)) {
           div.classList.add("closed");
         }
+        if (cell.id === game.level.end) {
+          div.classList.add("goal"); // la estación de destino lleva una bandera
+        }
         const name = document.createElement("span");
         name.className = "name";
+        if (c >= game.cols - 3) {
+          name.className = "name right"; // junto al borde derecho el nombre se escribe hacia la izquierda
+        }
         name.textContent = t(cell.nameKey);
         div.appendChild(name);
         if (game.level.hideNames === false || isImportant(game, cell)) {
@@ -108,6 +114,15 @@ function render(game) {
     }
   }
 
+  // cuando ya se tienen todos los trozos, el destino se marca para que se vea a dónde ir
+  const goal = findStation(game.grid, game.level.end);
+  const goalCell = document.querySelector('[data-pos="' + goal.r + "," + goal.c + '"]');
+  if (piecesLeft(game) === 0) {
+    goalCell.classList.add("ready");
+  } else {
+    goalCell.classList.remove("ready");
+  }
+
   // panel de la derecha
   const taken = game.pieces.length - piecesLeft(game);
   byId("pieces").textContent = taken + " / " + game.pieces.length;
@@ -126,18 +141,25 @@ function render(game) {
   renderLineSelector(game);
 }
 
-// El selector de línea solo aparece en una estación con varias líneas.
+// Los botones de línea están siempre a la vista, abajo.
+// En una estación con varias líneas se puede elegir; en el resto solo se ve la línea en la que viajas.
 function renderLineSelector(game) {
   const lines = cellAt(game, game.row, game.col).lines;
   const box = byId("line-selector").querySelector("div");
-  box.innerHTML = "";
 
   if (lines.length < 2) {
-    byId("line-selector").hidden = true;
+    byId("line-label").textContent = t("line_current", { line: LINE_NAMES[game.line] });
+  } else {
+    byId("line-label").textContent = t("line_prompt");
+  }
+
+  // los botones solo se vuelven a crear si ha cambiado algo
+  const state = lines.join(",") + "/" + game.line;
+  if (box.dataset.state === state) {
     return;
   }
-  byId("line-selector").hidden = false;
-
+  box.dataset.state = state;
+  box.innerHTML = "";
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const button = document.createElement("button");
@@ -146,8 +168,18 @@ function renderLineSelector(game) {
     button.dataset.line = line;
     button.textContent = LINE_NAMES[line];
     button.setAttribute("aria-pressed", String(line === game.line));
+    if (lines.length < 2) {
+      button.disabled = true; // no hay otra línea que elegir
+    }
     box.appendChild(button);
   }
+}
+
+// Si el mapa no cabe en la ventana, la ventana se desplaza para que la ficha quede en el centro.
+// behavior: "smooth" (suave, al moverse) o "auto" (de golpe, al empezar un nivel).
+function followToken(game, behavior) {
+  const cell = document.querySelector('[data-pos="' + game.row + "," + game.col + '"]');
+  cell.scrollIntoView({ block: "center", inline: "center", behavior: behavior });
 }
 
 // Un número siempre con dos cifras: 5 -> "05"
@@ -208,6 +240,7 @@ function renderMission(game) {
   const to = t(level.stations[level.end].nameKey);
   byId("level-name").textContent = t("level") + " " + level.id + " · " + t(level.nameKey);
   byId("mission-text").textContent = t("mission_text", { from: from, to: to });
+  byId("tip").textContent = t(level.tipKey);
 }
 
 // Tarjeta central (nivel superado, tiempo agotado, final).
@@ -220,9 +253,11 @@ function showCard(title, text, buttons, extras) {
   heading.textContent = title;
   card.appendChild(heading);
 
-  const paragraph = document.createElement("p");
-  paragraph.textContent = text;
-  card.appendChild(paragraph);
+  if (text !== "") {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    card.appendChild(paragraph);
+  }
 
   if (extras !== undefined) {
     for (let i = 0; i < extras.length; i++) {
@@ -285,6 +320,19 @@ function planElement() {
   wrap.className = "final-plan";
   wrap.appendChild(image);
   return wrap;
+}
+
+// La lista de instrucciones de "Cómo se juega"
+function howToElement() {
+  const keys = ["how_who", "how_goal", "how_move", "how_map", "how_lines", "how_obstacles", "how_score", "how_time"];
+  const list = document.createElement("ul");
+  list.className = "how-list";
+  for (let i = 0; i < keys.length; i++) {
+    const item = document.createElement("li");
+    item.textContent = t(keys[i]);
+    list.appendChild(item);
+  }
+  return list;
 }
 
 // Pone los textos fijos de la página en el idioma actual.

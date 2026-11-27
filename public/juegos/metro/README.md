@@ -18,9 +18,9 @@ Se mueve la ficha con las flechas o WASD (o la cruceta en el móvil).
 ## Los 3 niveles
 | Nivel | Qué pasa | Mejor ruta |
 |---|---|---|
-| 1 · Primer viaje | La L1 de Urgell a Arc de Triomf: 3 trozos del plano | 18 movimientos |
-| 2 · Correspondencias | Catalunya está cerrada: hay que dar la vuelta por la L2 y la L4 y cambiar de línea en Passeig de Gràcia. 3 trozos | 31 movimientos |
-| 3 · El plano completo | 5 trozos, 150 segundos de tiempo límite y los nombres de las estaciones ocultos | 36 movimientos |
+| 1 · Primer viaje | La L1 real, de Rocafort a Glòries, con las estaciones en su orden. Los 3 trozos están en los extremos de la línea | 46 movimientos |
+| 2 · Correspondencias | El centro con la L1, L2, L3 y L4. Catalunya está cerrada: hay que ir por la L2 y la L4 y cambiar de línea. 6 trozos | 72 movimientos |
+| 3 · El plano completo | Toda la red del centro. 7 trozos, 300 segundos de tiempo límite y los nombres de las estaciones ocultos | 110 movimientos |
 
 Para hacer un nivel más largo basta con dibujar un mapa más grande en `js/levels.js`: el código no cambia.
 
