@@ -17,10 +17,6 @@ function contains(list, value) {
   return false;
 }
 
-// Hora punta: una estación de "rush" está abierta 12 segundos y cerrada 6, y vuelve a empezar.
-const RUSH_OPEN = 12;
-const RUSH_CLOSED = 6;
-
 // Convierte el mapa de textos en una tabla de casillas (array de arrays).
 function makeGrid(level) {
   const grid = [];
@@ -30,7 +26,7 @@ function makeGrid(level) {
       const letter = level.map[r][c];
       if (letter === "#") {
         row.push({ type: "wall", lines: [] });
-      } else if (letter === "1" || letter === "2" || letter === "4") {
+      } else if (letter === "1" || letter === "2" || letter === "3" || letter === "4") {
         row.push({ type: "track", lines: [Number(letter)] });
       } else {
         const station = level.stations[letter];
@@ -109,18 +105,6 @@ function piecesLeft(game) {
   return left;
 }
 
-// ¿Está cerrada ahora esta estación por la hora punta?
-function isRushClosed(game, id) {
-  if (contains(game.level.rush, id) === false) {
-    return false;
-  }
-  const secondInCycle = game.seconds % (RUSH_OPEN + RUSH_CLOSED);
-  if (secondInCycle >= RUSH_OPEN) {
-    return true;
-  }
-  return false;
-}
-
 // ¿Se puede entrar en esa casilla? Devuelve "ok" o el motivo por el que no.
 function canEnter(game, r, c) {
   const cell = cellAt(game, r, c);
@@ -132,9 +116,6 @@ function canEnter(game, r, c) {
   }
   if (cell.type === "station" && contains(game.level.closed, cell.id)) {
     return "closed";
-  }
-  if (cell.type === "station" && isRushClosed(game, cell.id)) {
-    return "rush"; // cerrada solo durante unos segundos
   }
   return "ok";
 }
@@ -149,7 +130,7 @@ function move(game, dirName) {
   const c = game.col + dir[1];
   const reason = canEnter(game, r, c);
   if (reason !== "ok") {
-    return { event: reason }; // wall, line, closed o rush
+    return { event: reason }; // wall, line o closed
   }
 
   game.row = r;
