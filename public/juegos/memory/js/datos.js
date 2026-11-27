@@ -79,10 +79,11 @@ const LICENCIAS = {
 // Los 3 niveles. Cada pareja es «imagen del monumento + un texto»; tipo dice qué texto:
 //   nombre → su nombre · barrio → el barrio donde está · dato → un dato histórico.
 // estrellas = [fallos máximos para 3 estrellas, fallos máximos para 2]. Con más fallos, 1 estrella.
+// vistaPrevia = milisegundos que se ven todas las cartas boca arriba al empezar (0 = no hay).
 const NIVELES = [
-  { numero: 1, tipo: "nombre", parejas: 4, estrellas: [2, 5] },
-  { numero: 2, tipo: "barrio", parejas: 6, estrellas: [3, 7] },
-  { numero: 3, tipo: "dato", parejas: 8, estrellas: [4, 9] },
+  { numero: 1, tipo: "nombre", parejas: 4, estrellas: [2, 5], vistaPrevia: 0 },
+  { numero: 2, tipo: "barrio", parejas: 6, estrellas: [3, 7], vistaPrevia: 4000 },
+  { numero: 3, tipo: "dato", parejas: 8, estrellas: [4, 9], vistaPrevia: 6000 },
 ];
 
 const PISTAS_POR_NIVEL = 3;
@@ -135,6 +136,7 @@ const TEXTOS = {
     volver: "Volver al nivel 1",
     ir_eixample: "Continuar al Eixample",
     msg_empezar: "Gira dos cartas y encuentra las parejas.",
+    msg_previa: "Mira bien las cartas: se taparán enseguida. ¡Intenta recordar dónde está cada una!",
     msg_fallo: "No son pareja. Fíjate bien: se taparán en un momento.",
     msg_pista: "Mira las cartas que brillan.",
     ganar_titulo: "¡Nivel superado!",
@@ -194,6 +196,7 @@ const TEXTOS = {
     volver: "Tornar al nivell 1",
     ir_eixample: "Continua cap a l’Eixample",
     msg_empezar: "Gira dues cartes i troba les parelles.",
+    msg_previa: "Mira bé les cartes: es taparan de seguida. Intenta recordar on és cadascuna!",
     msg_fallo: "No són parella. Fixa-t'hi bé: es taparan d'aquí a un moment.",
     msg_pista: "Mira les cartes que brillen.",
     ganar_titulo: "Nivell superat!",
@@ -253,6 +256,7 @@ const TEXTOS = {
     volver: "Back to level 1",
     ir_eixample: "Continue to the Eixample",
     msg_empezar: "Flip two cards and find the pairs.",
+    msg_previa: "Look at the cards carefully: they will turn over in a moment. Try to remember where each one is!",
     msg_fallo: "Not a pair. Look closely: they will turn over in a moment.",
     msg_pista: "Look at the glowing cards.",
     ganar_titulo: "Level complete!",

@@ -102,6 +102,9 @@ function crearCara(id, tipo) {
     marco.appendChild(crear("span", "nombre-reserva", monumento.nombre));
     cara.appendChild(marco);
   } else {
+    // En las cartas de barrio y de dato se pone también el nombre del monumento,
+    // para no tener que adivinar de qué monumento habla el texto.
+    if (tipo !== "nombre") cara.appendChild(crear("span", "nombre-monumento", monumento.nombre));
     cara.appendChild(crear("span", "texto", textoDeCarta(tipo, monumento)));
   }
   return cara;
@@ -295,8 +298,23 @@ function crearEnlace(url, texto) {
 // Botón «¡A jugar!»: cierra la ventana y el reloj vuelve a contar
 function empezarAJugar() {
   fondoVentana.hidden = true;
-  if (!partida.terminada) jugando = true;
   tablero.querySelector(".carta").focus();
+  const ms = partida.nivel.vistaPrevia;
+  if (ms > 0 && partida.movimientos === 0) {
+    // Vista previa: todas las cartas boca arriba un momento. No se puede jugar ni corre el reloj.
+    const nivelActual = partida.nivel.numero;
+    tablero.classList.add("previa");
+    mensaje.textContent = t("msg_previa");
+    setTimeout(() => {
+      tablero.classList.remove("previa");
+      // Si mientras tanto se ha cambiado de nivel, la vista previa ya no toca
+      if (partida.nivel.numero !== nivelActual) return;
+      mensaje.textContent = t("msg_empezar");
+      if (!partida.terminada && fondoVentana.hidden) jugando = true;
+    }, ms);
+    return;
+  }
+  if (!partida.terminada) jugando = true;
 }
 
 // ---------- Partida ----------
