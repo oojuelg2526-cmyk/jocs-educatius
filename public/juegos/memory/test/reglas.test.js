@@ -152,3 +152,27 @@ test("en el nivel de barrios no se repite ningún barrio", () => {
     assert.equal(new Set(barrios).size, barrios.length);
   }
 });
+
+test("cada foto existe, pesa poco y tiene autor, licencia conocida y página original", () => {
+  const LICENCIAS = juego("LICENCIAS");
+  juego("MONUMENTOS").filter((m) => m.foto).forEach((m) => {
+    const archivo = path.join(__dirname, "..", "img", m.foto.archivo);
+    assert.ok(fs.existsSync(archivo), `falta ${m.foto.archivo}`);
+    assert.ok(fs.statSync(archivo).size <= 120 * 1024, `${m.foto.archivo} pesa más de 120 KB`);
+    assert.ok(m.foto.autor, `${m.id} sin autor`);
+    assert.ok(LICENCIAS[m.foto.licencia], `${m.id}: licencia sin enlace`);
+    assert.match(m.foto.fuente, /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+  });
+});
+
+test("la vista previa solo existe en los niveles 2 y 3 y dura unos segundos", () => {
+  assert.equal(NIVELES[0].vistaPrevia, 0);
+  NIVELES.slice(1).forEach((nivel) => {
+    assert.ok(nivel.vistaPrevia >= 3000 && nivel.vistaPrevia <= 8000, `nivel ${nivel.numero}`);
+  });
+});
+
+test("el mensaje de la vista previa está en los tres idiomas", () => {
+  const TEXTOS = juego("TEXTOS");
+  ["es", "ca", "en"].forEach((idioma) => assert.ok(TEXTOS[idioma].msg_previa, idioma));
+});
