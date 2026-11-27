@@ -70,7 +70,7 @@ function traducirPagina() {
 
 // ---------- Cartas y tablero ----------
 
-// Cara visible de una carta: etiqueta de color arriba y debajo la ilustración o el texto
+// Cara visible de una carta: etiqueta de color arriba y debajo la imagen o el texto
 function crearCara(id, tipo) {
   const monumento = buscarMonumento(id);
   const cara = crear("span", "cara");
@@ -81,14 +81,30 @@ function crearCara(id, tipo) {
     const marco = crear("span", "ilustracion");
     marco.style.setProperty("--color", monumento.color);
     const imagen = crear("img");
-    imagen.src = `img/${monumento.id}.png`;
-    imagen.alt = "";
-    // Si falta la imagen, se quita y queda el nombre sobre el fondo de color
-    imagen.addEventListener("error", () => imagen.remove());
+    imagen.alt = ""; // el nombre ya lo dice el aria-label del botón de la carta
+    if (monumento.foto) {
+      marco.classList.add("con-foto");
+      imagen.src = `img/${monumento.foto.archivo}`;
+    } else {
+      imagen.src = `img/${monumento.id}.png`; // ilustración 3D
+    }
+    // Si falla la foto se prueba la ilustración 3D; si falla también, se quita
+    // y queda el nombre sobre el fondo de color
+    imagen.addEventListener("error", () => {
+      if (marco.classList.contains("con-foto")) {
+        marco.classList.remove("con-foto");
+        imagen.src = `img/${monumento.id}.png`;
+      } else {
+        imagen.remove();
+      }
+    });
     marco.appendChild(imagen);
     marco.appendChild(crear("span", "nombre-reserva", monumento.nombre));
     cara.appendChild(marco);
   } else {
+    // En las cartas de barrio y de dato se pone también el nombre del monumento,
+    // para no tener que adivinar de qué monumento habla el texto.
+    if (tipo !== "nombre") cara.appendChild(crear("span", "nombre-monumento", monumento.nombre));
     cara.appendChild(crear("span", "texto", textoDeCarta(tipo, monumento)));
   }
   return cara;
@@ -130,7 +146,7 @@ function pintarCartas() {
 // Lo que lee el lector de pantalla de una carta boca arriba
 function describirCarta(carta) {
   const monumento = buscarMonumento(carta.pareja);
-  if (carta.tipo === "imagen") return `${t("ilustracion")} ${monumento.nombre}`;
+  if (carta.tipo === "imagen") return `${t(monumento.foto ? "foto" : "ilustracion")} ${monumento.nombre}`;
   return `${t("tipo_" + carta.tipo)}: ${textoDeCarta(carta.tipo, monumento)}`;
 }
 
@@ -224,7 +240,7 @@ function abrirVentana(antetitulo, titulo, contenido, botones) {
 
 function mostrarInstrucciones() {
   const nivel = partida.nivel;
-  // Ejemplo fijo de pareja: la ilustración y el texto del mismo monumento
+  // Ejemplo fijo de pareja: la imagen y el texto del mismo monumento
   const ejemplo = crear("div", "ejemplo");
   ejemplo.appendChild(crearCara(MONUMENTO_EJEMPLO, "imagen"));
   ejemplo.appendChild(crear("span", "mas", "+"));
@@ -242,14 +258,63 @@ function mostrarInstrucciones() {
     crear("p", "apartado", t("reglas")),
     reglas,
   ];
-  abrirVentana(t("nivel_de", nivel.numero), t("nivel_" + nivel.numero), contenido, [{ texto: t("jugar"), alPulsar: empezarAJugar }]);
+  abrirVentana(t("nivel_de", nivel.numero), t("nivel_" + nivel.numero), contenido, [
+    { texto: t("jugar"), alPulsar: empezarAJugar },
+    { texto: t("creditos"), alPulsar: mostrarCreditos },
+  ]);
+}
+
+// Créditos de las fotos (las licencias CC BY y CC BY-SA obligan a citar autor y licencia).
+// Se abren desde las instrucciones y «Volver» regresa a ellas.
+function mostrarCreditos() {
+  const lista = crear("ul", "creditos");
+  MONUMENTOS.filter((monumento) => monumento.foto).forEach((monumento) => {
+    const foto = monumento.foto;
+    const fila = crear("li");
+    fila.appendChild(crear("b", "", monumento.nombre));
+    fila.appendChild(document.createTextNode(` · ${foto.autor} · `));
+    fila.appendChild(crearEnlace(LICENCIAS[foto.licencia], foto.licencia));
+    fila.appendChild(document.createTextNode(" · "));
+    fila.appendChild(crearEnlace(foto.fuente, t("creditos_original")));
+    lista.appendChild(fila);
+  });
+  const contenido = [
+    lista,
+    crear("p", "nota-creditos", t("creditos_nota")),
+    crear("p", "nota-creditos", t("creditos_ilustracion")),
+  ];
+  abrirVentana("Wikimedia Commons", t("creditos"), contenido, [{ texto: t("volver_instrucciones"), alPulsar: mostrarInstrucciones }]);
+}
+
+// Enlace que se abre en otra pestaña (así no se pierde la partida)
+function crearEnlace(url, texto) {
+  const enlace = crear("a", "", texto);
+  enlace.href = url;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+  return enlace;
 }
 
 // Botón «¡A jugar!»: cierra la ventana y el reloj vuelve a contar
 function empezarAJugar() {
   fondoVentana.hidden = true;
-  if (!partida.terminada) jugando = true;
   tablero.querySelector(".carta").focus();
+  const ms = partida.nivel.vistaPrevia;
+  if (ms > 0 && partida.movimientos === 0) {
+    // Vista previa: todas las cartas boca arriba un momento. No se puede jugar ni corre el reloj.
+    const nivelActual = partida.nivel.numero;
+    tablero.classList.add("previa");
+    mensaje.textContent = t("msg_previa");
+    setTimeout(() => {
+      tablero.classList.remove("previa");
+      // Si mientras tanto se ha cambiado de nivel, la vista previa ya no toca
+      if (partida.nivel.numero !== nivelActual) return;
+      mensaje.textContent = t("msg_empezar");
+      if (!partida.terminada && fondoVentana.hidden) jugando = true;
+    }, ms);
+    return;
+  }
+  if (!partida.terminada) jugando = true;
 }
 
 // ---------- Partida ----------

@@ -26,7 +26,7 @@ function makeGrid(level) {
       const letter = level.map[r][c];
       if (letter === "#") {
         row.push({ type: "wall", lines: [] });
-      } else if (letter === "1" || letter === "2" || letter === "4") {
+      } else if (letter === "1" || letter === "2" || letter === "3" || letter === "4") {
         row.push({ type: "track", lines: [Number(letter)] });
       } else {
         const station = level.stations[letter];

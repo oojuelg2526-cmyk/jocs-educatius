@@ -2,25 +2,25 @@
    Los colores son los de docs/guia-de-estilo.html. */
 
 :root {
-  --paper: #efe2c2;
-  --paper-2: #e4d1a5;
-  --paper-hi: #fbf4e2;
-  --ink: #2a1f16;
-  --ink-soft: #5b4733;
-  --sepia: #8a6a3e;
-  --line: rgba(90, 62, 30, .22);
-  --red: #a3361f;
+  /* Alias de la paleta común (variables.css): el resto del archivo no cambia */
+  --paper: var(--papel);
+  --paper-2: var(--papel-3);
+  --paper-hi: var(--papel-2);
+  --ink: var(--tinta);
+  --ink-soft: var(--tinta-suave);
+  --line: var(--linea);
+  --red: var(--rojo);
   --gold: #c8962a;
   --gold-hi: #ecc65e;
-  --green: #3c7a3a;
-  --teal: #24485a;
+  --green: var(--verde);
+  --teal: var(--azul);
   --sea: #b9d2d4;
-  --name: #2a1f16;
+  --name: var(--tinta);
   --barrio: #2f6f5c;
   --fact: #8a4b22;
-  --radius: 14px;
+  --radius: var(--radio);
   --shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 10px 24px -12px rgba(60, 38, 12, .55);
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --serif: var(--letra-cuerpo);
 }
 
 * { box-sizing: border-box; }
@@ -31,11 +31,6 @@ body {
   font-family: var(--serif);
   color: var(--ink);
   background-color: var(--paper);
-  /* Papel: luz arriba a la izquierda y borde más oscuro */
-  background-image:
-    radial-gradient(ellipse at 15% 10%, rgba(255, 250, 230, .7), transparent 55%),
-    radial-gradient(ellipse at center, transparent 55%, rgba(110, 70, 25, .22));
-  background-attachment: fixed;
 }
 
 /* Fondo: la cuadrícula del Eixample girada, como en el plano de Cerdà */
@@ -55,19 +50,17 @@ button, select { font: inherit; color: inherit; cursor: pointer; }
 /* ---------- Cabecera ---------- */
 .cabecera {
   display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
-  padding: 14px 24px;
-  border-bottom: 3px double var(--ink);
-  background: rgba(251, 244, 226, .6);
+  padding: 10px 24px;
 }
 .marca { display: flex; gap: 12px; align-items: center; }
 .sello { width: 44px; height: 44px; flex: none; }
 .sello circle { fill: var(--teal); stroke: var(--gold); stroke-width: 2; }
 .sello path { fill: var(--gold-hi); }
-h1 { margin: 0; font-size: 1.7rem; font-variant: small-caps; line-height: 1.1; }
+h1 { margin: 0; font-size: 1.4rem; font-family: var(--letra-titulo); line-height: 1.1; }
 .subtitulo { margin: 3px 0 0; font-style: italic; font-size: .9rem; color: var(--ink-soft); }
 
 .niveles, .herramientas { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.pestana, .boton-redondo, select { border: 1.5px solid var(--ink); background: var(--paper-hi); border-radius: 999px; }
+.pestana, .boton-redondo, select { border: 2px solid var(--ink); background: var(--paper); border-radius: var(--radio); }
 .pestana { padding: 6px 14px; font-weight: 700; }
 .pestana.superado { border-color: var(--green); color: var(--green); }
 .pestana[aria-current="true"] { background: var(--ink); color: var(--paper-hi); }
@@ -97,8 +90,8 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 
 /* Botones con relieve: sombra sólida abajo que se hunde al pulsar */
 .boton {
-  padding: 10px 18px; border: 2px solid var(--ink); border-radius: 999px;
-  background: var(--paper-hi); font-weight: 700; box-shadow: 0 3px 0 var(--ink);
+  padding: 10px 18px; border: 2px solid var(--ink); border-radius: var(--radio);
+  background: var(--paper); font-weight: 700; box-shadow: 0 3px 0 var(--ink);
 }
 .boton:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
 .boton-principal { background: var(--red); border-color: #6e1f10; color: #fff; box-shadow: 0 3px 0 #6e1f10; }
@@ -137,7 +130,12 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   position: relative; display: block; width: 100%; height: 100%;
   transform-style: preserve-3d; transition: transform .5s;
 }
-.carta.girada .interior { transform: rotateY(180deg); }
+.carta.girada .interior,
+.tablero.previa .carta .interior { transform: rotateY(180deg); }
+.nombre-monumento { display: block; margin-bottom: 2px; font-size: .72rem; font-weight: 800; line-height: 1.05; font-style: normal; }
+.tipo-dato .nombre-monumento { font-size: .66rem; color: #2b1808; }
+.tipo-barrio .nombre-monumento { font-size: .64rem; }
+.tipo-barrio .texto { font-size: .72rem; line-height: 1.1; }
 
 .cara {
   position: absolute; inset: 0;
@@ -167,6 +165,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   background: radial-gradient(circle at 50% 38%, hsl(var(--color) 75% 86%), hsl(var(--color) 50% 62%) 60%, hsl(var(--color) 45% 42%));
 }
 .ilustracion img { width: 94%; height: 94%; object-fit: contain; }
+/* Foto real: llena todo el marco (recortada a 3:4, sin bandas de color) */
+.ilustracion.con-foto { overflow: hidden; }
+.con-foto img { width: 100%; height: 100%; object-fit: cover; }
 .nombre-reserva { padding: 6px; font-weight: 700; font-variant: small-caps; color: hsl(var(--color) 55% 14%); }
 .ilustracion img + .nombre-reserva { display: none; } /* si la imagen existe, el nombre no se ve */
 
@@ -180,7 +181,7 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 
 /* Dato: pergamino */
 .tipo-dato { background: radial-gradient(ellipse at 50% 40%, #fbf0cf, #ecd7a4 75%, #d9bd80); }
-.tipo-dato .texto { font-size: .8rem; font-style: italic; color: #4a2c12; }
+.tipo-dato .texto { font-size: .7rem; line-height: 1.12; font-style: italic; color: #4a2c12; }
 
 /* Pareja encontrada: borde verde con brillo. Pista: borde dorado que late */
 .carta.acertada .frente { box-shadow: 0 0 0 3px var(--green); transition: box-shadow .4s .3s; }
@@ -238,6 +239,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
 .reglas { margin: 0; padding-left: 20px; text-align: left; line-height: 1.4; }
 .estrellas-final { margin: 4px 0; font-size: 3rem; color: var(--gold); letter-spacing: 6px; }
 .resumen { font-weight: 700; }
+.creditos { margin: 0; padding-left: 20px; text-align: left; font-size: .85rem; line-height: 1.5; }
+.creditos a { color: var(--ink); }
+.nota-creditos { margin: 10px 0 0; font-size: .8rem; color: var(--ink-soft); text-align: left; }
 .botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
 
 /* ---------- Tablet y móvil ---------- */
@@ -260,7 +264,9 @@ select { height: 40px; padding: 0 10px; font-weight: 700; }
   .tablero[data-nivel="3"] .carta { max-width: 160px; }
   .cara { padding: 22px 5px 5px; border-radius: 10px; }
   .texto { font-size: .78rem; }
-  .tipo-dato .texto { font-size: .7rem; }
+  .tipo-dato .texto { font-size: .6rem; }
+  .nombre-monumento, .tipo-dato .nombre-monumento, .tipo-barrio .nombre-monumento { font-size: .58rem; }
+  .tipo-barrio .texto { font-size: .62rem; }
   .marcadores { grid-template-columns: repeat(2, 1fr); }
   .marcador b { font-size: 1.1rem; }
   .ejemplo .cara { width: 96px; }
