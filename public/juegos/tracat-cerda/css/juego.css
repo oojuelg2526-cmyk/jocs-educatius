@@ -1,0 +1,312 @@
+/* Papel, tinta y tipografía de la portada. */
+.juego-trazado {
+    background-color: var(--papel);
+    background-image: repeating-linear-gradient(0deg, transparent 0 5px, #6f522609 5px 6px);
+}
+
+.juego-trazado > .cabecera {
+    background: var(--papel-2);
+    border-bottom: 1px solid var(--linea);
+}
+
+.juego-trazado .cabecera-interior {
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+}
+
+.control-idioma {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.control-idioma select {
+    background: var(--papel-2);
+    border: 1px solid var(--linea);
+    border-radius: 4px;
+    padding: .35rem;
+}
+
+.contenido {
+    padding-block: clamp(1.4rem, 4vw, 3rem) 2rem;
+}
+
+.presentacion h1 {
+    font-size: clamp(2.2rem, 6vw, 4.25rem);
+    letter-spacing: -.045em;
+    color: var(--tinta);
+}
+
+.presentacion p {
+    max-width: 58ch;
+    margin-block: .75rem 1.35rem;
+    color: var(--tinta-suave);
+}
+
+.distribucion {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.papel {
+    padding: clamp(.8rem, 2.5vw, 1.6rem);
+    background: var(--papel-2);
+    border: 1px solid var(--linea);
+    border-radius: 6px;
+    box-shadow: var(--sombra);
+    min-width: 0;
+}
+
+.mapa {
+    border-top: 3px solid var(--azul);
+}
+
+.cuaderno {
+    border-top: 3px solid var(--rojo);
+}
+
+.cuaderno p {
+    margin-block: .5rem 1rem;
+}
+
+.nota {
+    background: var(--papel-3);
+    border-left: 3px solid var(--rojo);
+    padding: .9rem;
+    margin-bottom: 1.2rem;
+}
+
+.nota p {
+    margin-bottom: 0;
+}
+
+.cabecera-mapa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .35rem .85rem;
+    margin-bottom: .85rem;
+}
+
+#pasos {
+    margin: 0;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--azul);
+}
+
+/* Cada casilla dibuja medio tramo hacia las casillas vecinas del camino. */
+#tablero {
+    display: grid;
+    width: min(100%, 26rem);
+    margin-inline: auto;
+    border: 2px solid var(--azul);
+    background: var(--azul);
+    touch-action: none;
+    user-select: none;
+}
+
+#tablero[data-tamano="5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+#tablero[data-tamano="6"] {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+#tablero[data-tamano="7"] {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.casilla {
+    display: grid;
+    place-items: center;
+    position: relative;
+    min-width: 0;
+    aspect-ratio: 1;
+    border: 1px solid #a39a847a;
+    padding: 0;
+    background-color: #f5eddc;
+    background-image:
+        linear-gradient(var(--norte, transparent), var(--norte, transparent)),
+        linear-gradient(var(--sur, transparent), var(--sur, transparent)),
+        linear-gradient(var(--este, transparent), var(--este, transparent)),
+        linear-gradient(var(--oeste, transparent), var(--oeste, transparent));
+    background-position: center top, center bottom, right center, left center;
+    background-size: 4px 50%, 4px 50%, 50% 4px, 50% 4px;
+    background-repeat: no-repeat;
+    color: var(--azul);
+    cursor: pointer;
+}
+
+.casilla:hover {
+    background-color: #e9e1cd;
+}
+
+.casilla:focus-visible {
+    z-index: 1;
+    outline-offset: -4px;
+}
+
+.casilla span,
+.simbolo {
+    display: grid;
+    place-items: center;
+    line-height: 1;
+}
+
+.casilla span {
+    pointer-events: none;
+}
+
+.casilla.norte {
+    --norte: var(--azul);
+}
+
+.casilla.sur {
+    --sur: var(--azul);
+}
+
+.casilla.este {
+    --este: var(--azul);
+}
+
+.casilla.oeste {
+    --oeste: var(--azul);
+}
+
+.casilla.trazada {
+    background-color: #e6e9e4;
+}
+
+.casilla.trazada[data-tipo="calle"] span {
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--azul);
+}
+
+.casilla[data-tipo="origen"] span,
+.casilla[data-tipo="destino"] span,
+.casilla[data-tipo="plaza"] span,
+.simbolo {
+    width: 1.65rem;
+    height: 1.65rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: var(--papel-2);
+}
+
+.casilla[data-tipo="destino"],
+.simbolo.destino {
+    color: var(--rojo-oscuro);
+}
+
+.casilla[data-tipo="verde"],
+.simbolo.verde {
+    color: #284d3d;
+    background-color: #dce4cc;
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, #35624f28 6px 8px);
+    cursor: default;
+}
+
+.casilla[data-tipo="plaza"],
+.simbolo.plaza {
+    color: var(--sepia);
+}
+
+.casilla[data-tipo="plaza"] span,
+.simbolo.plaza {
+    background: #f4e5b8;
+}
+
+.leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem .85rem;
+    padding: 0;
+    list-style: none;
+}
+
+.leyenda li {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
+
+#controles {
+    padding-top: .85rem;
+    margin-bottom: 0;
+    border-top: 1px solid var(--linea);
+    color: var(--tinta-suave);
+}
+
+.niveles,
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.niveles {
+    margin-bottom: .85rem;
+}
+
+.niveles button,
+.acciones button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: .4rem .8rem;
+    border: 1px solid var(--linea);
+    border-radius: 4px;
+    background: var(--papel-2);
+    cursor: pointer;
+}
+
+.niveles button[aria-current="step"],
+#siguiente {
+    color: var(--papel-2);
+    background: var(--azul);
+    border-color: var(--azul);
+}
+
+button:disabled {
+    opacity: .58;
+    cursor: default;
+}
+
+#aviso {
+    color: var(--azul);
+    font-weight: 600;
+    min-height: 3em;
+    margin-block: .85rem .5rem;
+}
+
+#aviso[data-estado="error"] {
+    color: var(--rojo-oscuro);
+}
+
+#aviso[data-estado="correcto"] {
+    color: var(--verde);
+}
+
+[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    .distribucion {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cuaderno {
+        grid-row: 1;
+    }
+
+    .marca {
+        font-size: .95rem;
+    }
+}

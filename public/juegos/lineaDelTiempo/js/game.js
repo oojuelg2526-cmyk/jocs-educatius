@@ -19,7 +19,7 @@ class MetricasPartida {
         this.fechaInicio = new Date();
     }
 
-    // RA3: Método que usa Date para calcular los segundos exactos jugados
+    // RA3: Método que usa Date para calcular los segundos exactos jugados del nivel
     calcularTiempoTotal() {
         const ahora = new Date();
         return Math.floor((ahora - this.fechaInicio) / 1000);
@@ -30,10 +30,25 @@ class MetricasPartida {
 class JuegoLineaTiempo {
     // Añadimos 'tiempo' y 'nivelActual' como parámetros
     constructor(datosNivel, tiempo, nivelActual) {
+        // Guardamos los datos originales del nivel para poder reiniciarlo si falla
+        this.datosNivel = datosNivel;
+        this.tiempoInicial = tiempo;
+
         this.hitos = datosNivel.map(dato => new HitoHistorico(dato.id, dato.title, dato.label, dato.order, dato.hint));
         this.metricas = new MetricasPartida();
 
         this.nivelActual = nivelActual;
+
+        // Actualizamos dinámicamente los textos del nivel en la interfaz
+        const headerLevel = document.getElementById("header-level");
+        const panelLevel = document.getElementById("panel-level");
+        if (headerLevel) headerLevel.textContent = `Nivel ${this.nivelActual} · Línea del tiempo`;
+        if (panelLevel) panelLevel.textContent = `NIVEL ${this.nivelActual} de 3`;
+
+        // Reiniciamos marcadores visuales al iniciar nivel
+        document.getElementById("moves-display").innerText = "0";
+        document.getElementById("points-display").innerText = this.puntos;
+
         this.tiempoRestante = tiempo; // Asignación dinámica del tiempo
         this.puntos = 850;
         this.movimientos = 0;
@@ -43,6 +58,7 @@ class JuegoLineaTiempo {
         const oldBtn = document.getElementById("btn-verify");
         const newBtn = oldBtn.cloneNode(true);
         oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+        newBtn.disabled = false;
 
         newBtn.addEventListener("click", () => {
             this.comprobarOrden();
@@ -53,15 +69,54 @@ class JuegoLineaTiempo {
     }
 
     // =========================================================
+    // Persistencia de métricas adaptadas a las exigencias de BD
+    // =========================================================
+    async guardarMetricasBD() {
+        // Usuario y sesión comunes a los cuatro juegos (los da /js/sesion.js)
+        const username = Cerda.usuario();
+        const sessionId = Cerda.sesionActual("timeline");
+
+        // Duración total de la sesión: desde que se abrió el juego en esta pestaña
+        const sessionStartTime = Cerda.inicioSesion("timeline");
+        const sessionLength = Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000);
+
+        // Objeto JSON con las claves EXACTAS indicadas en los requerimientos
+        const datosBD = {
+            // Identificador del juego
+            game: "timeline",
+            // Métricas generales de sesión
+            username: username,
+            session_id: sessionId,
+            date_time: new Date().toISOString(), // Fecha y hora actuales de la finalización
+            session_length: sessionLength,
+
+            // Métricas propias de este juego/nivel
+            errors_made: this.metricas.errores,
+            level_time: this.metricas.calcularTiempoTotal(),
+            hints_used: this.metricas.pistasUsadas,
+            final_score: this.metricas.puntuacionFinal || this.puntos,
+
+            // Dato extra recomendado para saber a qué nivel corresponden las métricas
+            nivel_jugado: this.nivelActual
+        };
+
+        // Cerda.enviar hace el fetch a '/api/guardar-metricas' y, si falla, solo avisa en la consola
+        const respuesta = await Cerda.enviar(datosBD);
+        if (respuesta !== null && respuesta.ok) {
+            console.log("Métricas enviadas correctamente al servidor:", datosBD);
+        }
+    }
+
+    // =========================================================
     // RA6: Manipulación del DOM (crear elementos, leer atributos)
     // =========================================================
     prepararTablero() {
         const timeline = document.getElementById("timeline");
         const mazo = document.getElementById("cards-deck");
 
-        // Al superar el nivel anterior, limpiamos el tablero anterior antes de pasar al siguiente nivel
-        timeline.innerHTML = '';
-        mazo.innerHTML = '';
+        // Limpiamos el tablero antes de generar los elementos
+        timeline.innerText = '';
+        mazo.innerText = '';
 
         // Clonamos los arrays para no modificar el original al ordenar
         const hitosOrdenados = [...this.hitos].sort((a, b) => a.orden - b.orden);
@@ -69,17 +124,19 @@ class JuegoLineaTiempo {
         const hitosDesordenados = [...this.hitos].sort(() => Math.random() - 0.5);
 
         // 1. Crear los huecos (zonas de destino) en la regla del tiempo
-        hitosOrdenados.forEach(hito => {
-            const hueco = document.createElement("div"); // RA6
+        hitosOrdenados.forEach((hito, index) => {
+            const hueco = document.createElement("div");
             hueco.classList.add("drop-zone");
             hueco.dataset.esperado = hito.orden;
             hueco.dataset.label = hito.epoca;
+            // Muestra "1º más antiguo", "2º", etc., sin desvelar la fecha exacta antes de tiempo
+            hueco.dataset.posicion = index === 0 ? "1º (Más antiguo)" : `${index + 1}º`;
 
-            this.asignarEventosDrop(hueco); // RA5
-            timeline.appendChild(hueco); // RA6
+            this.asignarEventosDrop(hueco);
+            timeline.appendChild(hueco);
         });
 
-        // El mazo inicial también tiene que aceptar cartas por si el usuario se arrepiente y devuelve una
+        // El mazo inicial también acepta cartas por si el usuario devuelve una
         this.asignarEventosDrop(mazo);
 
         // 2. Crear las tarjetas arrastrables sin usar innerHTML
@@ -113,7 +170,6 @@ class JuegoLineaTiempo {
     // RA5: Gestión de eventos Drag & Drop nativo
     // =========================================================
     asignarEventosDrag(carta) {
-        // Cuando empezamos a arrastrar la carta
         carta.addEventListener("dragstart", (e) => {
             e.dataTransfer.setData("text/plain", e.target.id);
             e.dataTransfer.effectAllowed = "move";
@@ -126,7 +182,6 @@ class JuegoLineaTiempo {
             this.metricas.pistasUsadas++;
         });
 
-        // Cuando soltamos la carta (independientemente de dónde caiga)
         carta.addEventListener("dragend", (e) => {
             e.target.classList.remove("dragging");
         });
@@ -163,7 +218,7 @@ class JuegoLineaTiempo {
 
             // Controlar que no haya ya una carta en ese hueco de la línea del tiempo
             if (destino.id !== "cards-deck" && destino.querySelector(".history-card")) {
-                return; // Salimos de la función sin hacer nada
+                return;
             }
 
             // Recuperamos el ID de la carta que estamos arrastrando
@@ -227,7 +282,7 @@ class JuegoLineaTiempo {
                     hayErrores = true;
                 }
             } else {
-                hayErrores = true; // Si entra aquí es que falta alguna carta por poner
+                hayErrores = true; // Falta alguna carta por colocar
             }
         });
 
@@ -237,6 +292,32 @@ class JuegoLineaTiempo {
         } else if (hayErrores) {
             this.metricas.errores++;
             this.actualizarPuntos(-50); // Penalización severa por fallar el intento de validación
+
+            // 1. Paramos el tiempo
+            clearInterval(this.temporizador);
+
+            // 2. Comprobamos si ya ha llegado a 3 errores
+            if (this.metricas.errores >= 3) {
+                //Iniciamos el Nivel 1: 4 hitos, tiempo 4 minutos (240 segundos)
+                new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
+                document.getElementById("hint-text").textContent =
+                    "Has llegado a 3 errores. Vuelves a empezar en el nivel 1.";
+            } else {
+                document.getElementById("hint-text").textContent =
+                    `Vuelve a intentarlo. Llevas ${this.metricas.errores} de 3 errores permitidos.`;
+
+                // Deshabilitamos el botón mientras pasan los 5 segundos para evitar clics múltiples
+                const btnVerify = document.getElementById("btn-verify");
+                btnVerify.disabled = true;
+
+                // 4. Pasados 5 segundos, reiniciamos el nivel actual
+                setTimeout(() => {
+                    btnVerify.disabled = false;
+                    this.tiempoRestante = this.tiempoInicial; // Restauramos el tiempo del nivel
+                    this.prepararTablero(); // Devolvemos las cartas al mazo desordenadas
+                    this.iniciarReloj(); // Volvemos a poner el reloj en marcha
+                }, 5000);
+            }
         }
     }
 
@@ -247,66 +328,123 @@ class JuegoLineaTiempo {
         const tituloFinal = document.getElementById("end-title");
         const mensajeFinal = document.getElementById("end-message");
         const pantallaFinal = document.getElementById("end-screen");
+        const enlaceMetro = document.getElementById("ir-metro");
+        const botonReintentar = document.getElementById("reintentar-timeline");
+        document.getElementById("btn-verify").disabled = true;
+        enlaceMetro.hidden = true;
+        botonReintentar.hidden = victoria;
 
         if (victoria) {
-            tituloFinal.innerText = `¡Nivel ${this.nivelActual} Completado!`;
-            tituloFinal.style.color = "var(--green)";
-            mensajeFinal.innerText = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
+            // Guardamos las métricas al superar el nivel con éxito
+            this.guardarMetricasBD();
+
+            tituloFinal.textContent = `¡Nivel ${this.nivelActual} Completado!`;
+            pantallaFinal.dataset.estat = "superat";
+            mensajeFinal.textContent = `Tiempo real jugado: ${tiempoReal}s\nPuntuación final: ${this.metricas.puntuacionFinal}\nErrores cometidos: ${this.metricas.errores}`;
 
             pantallaFinal.removeAttribute("hidden");
 
-            // Lógica de como pasamos de un nivel a otro
+            // Lógica de transición de niveles
             if (this.nivelActual === 1) {
                 setTimeout(() => {
-                    alert("¡Prepárate para el Nivel 2!");
                     pantallaFinal.setAttribute("hidden", true);
-                    // Iniciamos Nivel 2: 6 hitos, tiempo moderado (90 segundos)
-                    new JuegoLineaTiempo(DATOS_NIVEL_2, 90, 2);
-                }, 3000); // Pasa al siguiente nivel tras 3 segundos
-            } else {
-                mensajeFinal.innerText += "\n¡Has completado todos los niveles!";
+                    // Iniciamos Nivel 2: 6 hitos, tiempo 3 minutos (180 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_2, 180, 2);
+                }, 3000);
+            }
+            else if (this.nivelActual === 2) {
+                setTimeout(() => {
+                    pantallaFinal.setAttribute("hidden", true);
+                    // Iniciamos Nivel 3: 8 hitos, tiempo 2 minutos (120 segundos)
+                    new JuegoLineaTiempo(DATOS_NIVEL_3, 120, 3);
+                }, 3000);
+            }
+            else if (this.nivelActual === 3) {
+                mensajeFinal.textContent += "\n\n¡Has completado todos los niveles!\n¡Cerdà ha recuperado el plano!\nEl siguiente juego ha sido desbloqueado.";
+                localStorage.setItem("juego3Superado", "true");
+                enlaceMetro.hidden = false;
+                enlaceMetro.focus();
             }
 
         } else {
-            tituloFinal.innerText = "Tiempo agotado";
-            tituloFinal.style.color = "var(--red)";
-            mensajeFinal.innerText = "Inténtalo de nuevo.";
-            pantallaFinal.removeAttribute("hidden");
+            tituloFinal.textContent = "Tiempo agotado";
+            pantallaFinal.dataset.estat = "perdut";
+            mensajeFinal.textContent = "Inténtalo de nuevo.";
+            pantallaFinal.hidden = false;
+            botonReintentar.focus();
         }
     }
 }
 
 // =========================================================
-// RA1, RA2: Inicio del script cliente
+// RA1, RA2: Inicio del script cliente y Datos
 // =========================================================
 
 // Ajuste Nivel 1: 4 hitos históricos con amplia diferencia de siglos
 const DATOS_NIVEL_1 = [
-    { id: "m1", title: "Barcino romana", label: "Época romana", order: 1, hint: "Fundada por el emperador Augusto." },
-    { id: "m2", title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
-    { id: "m3", title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
-    { id: "m4", title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n1_barcino.jpg', title: "Barcino romana", label: "Época romana", order: 1, hint: "Fundada por el emperador Augusto." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n1_murallas.jpg', title: "Murallas medievales", label: "S. XI-XV", order: 2, hint: "Protegían la ciudad durante la expansión gótica." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n1_eixample.jpg', title: "El Eixample", label: "1860s", order: 3, hint: "Ildefons Cerdà ideó esta cuadrícula." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n1_jjoo.jpg', title: "JJOO", label: "1992", order: 4, hint: "Abrió definitivamente la ciudad al mar." }
 ];
 
 // Ajuste Nivel 2: 6 hitos con eventos de la Edad Media, Moderna y Contemporánea.
 const DATOS_NIVEL_2 = [
-    { id: "n2_1", title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
-    { id: "n2_2", title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
-    { id: "n2_3", title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
-    { id: "n2_4", title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
-    { id: "n2_5", title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
-    { id: "n2_6", title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n2_consell.jpg', title: "Consell de Cent", label: "S. XIII", order: 1, hint: "Institución de autogobierno municipal de Barcelona." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n2_generalitat.jpg', title: "Generalitat", label: "S. XIV", order: 2, hint: "Nace como diputación del General de Catalunya." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n2_1714.jpg', title: "Guerra de Sucesión", label: "1714", order: 3, hint: "Caída de Barcelona y Decreto de Nueva Planta." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n2_industria.jpg', title: "Revolución Industrial", label: "S. XIX", order: 4, hint: "Instalación de las primeras fábricas de vapor (Vapor Vell)." },
+    { id: "m5", img: '/juegos/lineaDelTiempo/img/n2_expoUniversal.jpg', title: "Exposición Universal", label: "1888", order: 5, hint: "Urbanización del parque de la Ciutadella." },
+    { id: "m6", img: '/juegos/lineaDelTiempo/img/n2_segundaRepublica.jpg', title: "Segunda República", label: "1931", order: 6, hint: "Proclamación de la República desde el balcón de la Generalitat." }
+];
+
+// Ajuste Nivel 3: 8 hitos históricos con fechas más cercanas entre sí. Tiempo reducido y mayor exigencia de precisión.
+const DATOS_NIVEL_3 = [
+    { id: "m1", img: '/juegos/lineaDelTiempo/img/n3_semanaTragica.png', title: "Semana Trágica", label: "1909", order: 1, hint: "Revuelta popular antimilitarista." },
+    { id: "m2", img: '/juegos/lineaDelTiempo/img/n3_mancomunidad.png', title: "Mancomunidad", label: "1914", order: 2, hint: "Agrupación de las 4 diputaciones." },
+    { id: "m3", img: '/juegos/lineaDelTiempo/img/n3_exposicionInternacional.png', title: "Exposición Internacional", label: "1929", order: 3, hint: "Urbanización de la montaña de Montjuïc." },
+    { id: "m4", img: '/juegos/lineaDelTiempo/img/n3_inicioGuerraCivil.png', title: "Inicio Guerra Civil", label: "1936", order: 4, hint: "Fracaso del golpe de estado en la ciudad." },
+    { id: "m5", img: '/juegos/lineaDelTiempo/img/n3_bombardeosAereos.png', title: "Bombardeos aéreos", label: "1938", order: 5, hint: "Ataques sistemáticos sobre la población civil." },
+    { id: "m6", img: '/juegos/lineaDelTiempo/img/n3_caidaDeBarcelona.png', title: "Caída de Barcelona", label: "1939", order: 6, hint: "Entrada de las tropas franquistas." },
+    { id: "m7", img: '/juegos/lineaDelTiempo/img/n3_huelgaDeTranvias.png', title: "Huelga de Tranvías", label: "1951", order: 7, hint: "Boicot ciudadano por la subida del billete." },
+    { id: "m8", img: '/juegos/lineaDelTiempo/img/n3_asambleaDeCatalunya.png', title: "Asamblea de Catalunya", label: "1971", order: 8, hint: "Plataforma unitaria antifranquista." }
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Recuperamos el estado del juego anterior (asumiendo que se guardó al ganarlo)
-    const juegoAnteriorSuperado = localStorage.getItem("juego2Superado") === "true";
-
-    if (juegoAnteriorSuperado) {
-        // Ejecutamos el juego solo si el anterior está superado
-        new JuegoLineaTiempo(DATOS_NIVEL_1);
-    } else {
-        // Mostrar mensaje si el usuario intenta acceder sin permiso
-        alert("🔒 Este juego está bloqueado. Supera el juego anterior para jugar.");
+    const textos = {
+        ca: {
+            bloqueado: "Completa la línia del temps, per poder jugar al joc del metro.",
+            portada: "Torna a la portada",
+            metro: "Continua cap al metro",
+            reintentar: "Torna-ho a provar"
+        },
+        es: {
+            bloqueado: "Completa la línea del tiempo, para poder jugar al juego del metro.",
+            portada: "Volver a la portada",
+            metro: "Continuar al Metro",
+            reintentar: "Volver a intentarlo"
+        },
+        en: {
+            bloqueado: "Complete the timeline to play the underground game.",
+            portada: "Back to the home page",
+            metro: "Continue to the Metro",
+            reintentar: "Try again"
+        }
+    };
+    const idiomaGuardado = localStorage.getItem("cerda_lang");
+    const idioma = Object.hasOwn(textos, idiomaGuardado) ? idiomaGuardado : "ca";
+    for (const elemento of document.querySelectorAll("[data-progresion]")) {
+        elemento.textContent = textos[idioma][elemento.dataset.progresion];
+        elemento.lang = idioma;
     }
+
+    if (ultimoJuegoSuperado() < 2) {
+        document.getElementById("zona-bloqueada").hidden = false;
+        return;
+    }
+
+    document.getElementById("zona-timeline").hidden = false;
+    document.getElementById("pie-timeline").hidden = false;
+    document.getElementById("reintentar-timeline").addEventListener("click", () => location.reload());
+    new JuegoLineaTiempo(DATOS_NIVEL_1, 240, 1);
 });

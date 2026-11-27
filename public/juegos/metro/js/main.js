@@ -1,159 +1,311 @@
 // Une todo: lee las teclas, lleva el reloj y decide qué se ve en cada momento.
-import { createGame, move, chooseLine, useHelp, toggleRush, tickSecond, result, currentCell } from "./game.js";
-import { LEVELS } from "./levels.js";
-import { LANG_CODES, getLang, setLang, t } from "./lang.js";
-import { isUnlocked, lastLevelCompleted, saveLevelDone, username } from "./storage.js";
-import { newSession, addAttempt, saveSession } from "./metrics.js";
-import * as ui from "./ui.js";
 
-const KEYS = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
+// Qué dirección es cada tecla (siempre en minúsculas)
+const KEYS = {
+  arrowup: "up",
+  arrowdown: "down",
+  arrowleft: "left",
+  arrowright: "right",
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
+};
+
+// Qué mensaje enseñar cuando un movimiento no sale bien o recoge un trozo: [clave del texto, tipo]
+const MESSAGES = {
+  wall: ["msg_wall", "warn"],
+  line: ["msg_line", "warn"],
+  closed: ["msg_closed", "warn"],
+  piece: ["msg_piece", "good"],
+};
 
 let game = null;
-let session = newSession(username());
-let secondTimer = null;
-let rushTimer = null;
+let timer = null;
 let finished = false;
+let helpOpen = false; // true mientras se enseñan las instrucciones
+const session = newSession(); // una sesión por cada vez que se abre el juego
+const sessionStart = Cerda.inicioSesion("metro"); // cuándo empezó la visita (si se recarga, no cambia)
 
-function stopTimers() {
-  clearInterval(secondTimer);
-  clearInterval(rushTimer);
-}
+// ----- empezar un nivel -----
 
-// Empieza (o reinicia) un nivel.
-function startLevel(n) {
-  stopTimers();
-  ui.hideCard();
-  finished = false;
-  game = createGame(LEVELS[n - 1]);
-  ui.buildBoard(game);
-  ui.renderMission(game);
-  ui.renderLevelTabs(n, lastLevelCompleted(), startLevel);
-  ui.render(game);
-  ui.showMessage(t("msg_start", { station: t(currentCell(game).nameKey), line: `L${game.line}` }));
-
-  // cada segundo pasa un segundo; la hora punta abre y cierra el paso cada 3 s
-  secondTimer = setInterval(() => {
-    tickSecond(game);
-    ui.render(game);
-    if (game.status === "timeout") endLevel();
-  }, 1000);
-  if (game.rushCells.size) {
-    rushTimer = setInterval(() => {
-      toggleRush(game);
-      ui.render(game);
-    }, 3000);
+// Cada segundo pasa un segundo; en el nivel con tiempo límite, puede acabarse.
+function everySecond() {
+  tickSecond(game);
+  render(game);
+  if (game.status === "timeout") {
+    endLevel();
   }
 }
 
-// Se ha ganado o se ha acabado el tiempo.
+// Empieza (o reinicia) el nivel n.
+function startLevel(n) {
+  clearInterval(timer);
+  hideCard();
+  finished = false;
+  game = createGame(LEVELS[n - 1]);
+  buildBoard(game);
+  renderMission(game);
+  renderLevelTabs(n, lastLevelCompleted());
+  render(game);
+  followToken(game, "auto");
+
+  byId("tip-box").open = false; // el consejo empieza cerrado: se abre pulsando «Consejo»
+
+  const here = cellAt(game, game.row, game.col);
+  showMessage(t("msg_start", { station: t(here.nameKey), line: LINE_NAMES[game.line] }));
+
+  timer = setInterval(everySecond, 1000);
+}
+
+// ----- botones de las tarjetas -----
+
+function repeatLevel() {
+  startLevel(game.level.id);
+}
+
+function goNextLevel() {
+  startLevel(game.level.id + 1);
+}
+
+function goFirstLevel() {
+  startLevel(1);
+}
+
+// Vuelve a la portada de la web
+function goHome() {
+  location.assign("../../");
+}
+
+// ----- instrucciones: "Cómo se juega" -----
+
+// Enseña las instrucciones. Si hay una partida en marcha, el reloj se para mientras tanto.
+function showHowToPlay() {
+  helpOpen = true;
+  clearInterval(timer);
+  showCard(t("how_title"), "", [
+    { label: t("how_start"), primary: true, onClick: closeHowToPlay },
+  ], [howToElement()]);
+}
+
+function closeHowToPlay() {
+  helpOpen = false;
+  hideCard();
+  if (game !== null && finished === false) {
+    timer = setInterval(everySecond, 1000); // el reloj sigue
+  }
+}
+
+// ----- terminar un nivel -----
+
+// Se ha ganado el nivel o se ha acabado el tiempo.
 function endLevel() {
-  if (finished) return;
+  if (finished) {
+    return;
+  }
   finished = true;
-  stopTimers();
+  clearInterval(timer);
+
   const res = result(game);
   addAttempt(session, res);
-  saveSession(session);
+  saveSession(session, sessionStart);
+  sendToServer(session, res, sessionStart); // además, a la base de datos
 
-  if (!res.won) {
-    ui.showCard({
-      title: t("timeout_title"),
-      text: t("timeout_text", { n: game.level.timeLimit }),
-      buttons: [{ label: t("again"), primary: true, onClick: () => startLevel(game.level.id) }],
-    });
+  if (res.won === false) {
+    showCard(t("timeout_title"), t("timeout_text", { n: game.level.timeLimit }), [
+      { label: t("again"), primary: true, onClick: repeatLevel },
+    ]);
     return;
   }
 
   saveLevelDone(res.level, res.score);
-  const last = res.level === LEVELS.length;
-  ui.renderLevelTabs(res.level, lastLevelCompleted(), startLevel);
-  const extra = document.createElement("div");
-  extra.append(ui.starsElement(res.stars));
-  if (last) extra.append(ui.planElement());
-  ui.showCard({
-    title: last ? t("final_title") : t("win_title"),
-    text: last ? t("final_text") : t("win_text", { moves: res.moves, points: res.score }),
-    extra,
-    buttons: [
-      last
-        ? { label: t("again"), primary: true, onClick: () => startLevel(1) }
-        : { label: t("next"), primary: true, onClick: () => startLevel(res.level + 1) },
-      { label: t("close"), onClick: ui.hideCard },
-    ],
-  });
+  renderLevelTabs(res.level, lastLevelCompleted());
+
+  if (res.level === LEVELS.length) {
+    // último nivel: escena final con el plano completo
+    showCard(t("final_title"), t("final_text"), [
+      { label: t("again"), primary: true, onClick: goFirstLevel },
+      { label: t("home"), onClick: goHome },
+      { label: t("close"), onClick: hideCard },
+    ], [starsElement(res.stars), planElement()]);
+  } else {
+    showCard(t("win_title"), t("win_text", { moves: res.moves, points: res.score }), [
+      { label: t("next"), primary: true, onClick: goNextLevel },
+      { label: t("close"), onClick: hideCard },
+    ], [starsElement(res.stars)]);
+  }
 }
 
-// Un movimiento: se lo pasamos a las reglas y contamos al jugador lo que ha pasado.
+// ----- un movimiento -----
+
+
+
+// Se lo pasamos a las reglas (game.js) y contamos al jugador lo que ha pasado.
 function step(dir) {
-  if (!game || finished || game.status !== "playing") return;
+  if (game === null || finished || helpOpen) {
+    return;
+  }
   const res = move(game, dir);
-  const messages = {
-    wall: ["msg_wall", "warn"],
-    closed: ["msg_closed", "warn"],
-    rush: ["msg_rush", "warn"],
-    "change-line": ["msg_change_line", "warn"],
-    piece: ["msg_piece", "good"],
-  };
-  if (res.event === "missing-pieces") ui.showMessage(t("msg_missing", { n: res.left }), "warn");
-  else if (messages[res.event]) ui.showMessage(t(messages[res.event][0]), messages[res.event][1]);
-  else if (res.station) ui.showMessage(t(res.station.nameKey.replace("st_", "fact_")));
-  ui.render(game);
-  if (game.status === "won") endLevel();
+
+  if (res.event === "missing-pieces") {
+    showMessage(t("msg_missing", { n: res.left }), "warn");
+  } else if (res.event === "piece" && piecesLeft(game) === 0) {
+    // ya están todos los trozos: se dice a qué estación hay que ir
+    const destination = t(game.level.stations[game.level.end].nameKey);
+    showMessage(t("msg_all_pieces", { station: destination }), "good");
+  } else if (MESSAGES[res.event] !== undefined) {
+    const message = MESSAGES[res.event];
+    showMessage(t(message[0]), message[1]);
+  } else if (res.station) {
+    // cada estación tiene su "¿Sabías que...?": st_catalunya -> fact_catalunya
+    const factKey = res.station.nameKey.replace("st_", "fact_");
+    showMessage(t(factKey));
+  }
+
+  render(game);
+  followToken(game, "smooth");
+  if (game.status === "won") {
+    endLevel();
+  }
 }
 
-function showLocked() {
-  ui.showCard({ title: t("locked_title"), text: t("locked_text"), buttons: [] });
-}
+// ----- eventos (lo que hace el jugador) -----
 
-// ----- eventos -----
-document.addEventListener("keydown", (e) => {
-  const dir = KEYS[e.key] ?? KEYS[e.key.toLowerCase?.()];
-  if (!dir || e.target.matches?.("select, input")) return;
+// Teclas
+function onKey(e) {
+  const dir = KEYS[e.key.toLowerCase()];
+  if (dir === undefined || e.target.tagName === "SELECT") {
+    return;
+  }
   e.preventDefault();
   step(dir);
-});
+}
+document.addEventListener("keydown", onKey);
 
-document.querySelectorAll("[data-dir]").forEach((b) => b.addEventListener("click", () => step(b.dataset.dir)));
-
-document.getElementById("line-selector").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-line]");
-  if (!b || !game || finished) return;
-  if (chooseLine(game, Number(b.dataset.line))) {
-    ui.showMessage(t("msg_line", { line: `L${game.line}` }));
-    ui.render(game);
-  }
-});
-
-document.getElementById("help").addEventListener("click", () => {
-  if (!game || finished) return;
-  useHelp(game);
-  ui.flashNames();
-  ui.render(game);
-});
-
-document.getElementById("restart").addEventListener("click", () => game && startLevel(game.level.id));
-
-const langSelect = document.getElementById("lang");
-langSelect.innerHTML = LANG_CODES.map((c) => `<option value="${c}">${{ es: "Castellano", ca: "Català", en: "English" }[c]}</option>`).join("");
-langSelect.addEventListener("change", () => {
-  setLang(langSelect.value);
-  localStorage.setItem("cerda_lang", getLang());
-  ui.applyTexts();
-  if (game) startLevelKeepingProgress();
-});
-
-// Al cambiar de idioma se vuelve a dibujar el nivel sin perder la partida.
-function startLevelKeepingProgress() {
-  ui.buildBoard(game);
-  ui.renderMission(game);
-  ui.renderLevelTabs(game.level.id, lastLevelCompleted(), startLevel);
-  ui.render(game);
+// Botones de la cruceta (para el móvil)
+function onDirButton(e) {
+  step(e.currentTarget.dataset.dir);
+}
+const dirButtons = document.querySelectorAll("[data-dir]");
+for (let i = 0; i < dirButtons.length; i++) {
+  dirButtons[i].addEventListener("click", onDirButton);
 }
 
-window.addEventListener("resize", () => game && ui.render(game));
+// Botones de nivel (arriba)
+function onLevelButton(e) {
+  const button = e.target.closest("[data-level]");
+  if (button === null) {
+    return;
+  }
+  startLevel(Number(button.dataset.level));
+}
+byId("levels").addEventListener("click", onLevelButton);
+
+// Botones de línea (solo aparecen en las correspondencias)
+function onLineButton(e) {
+  const button = e.target.closest("[data-line]");
+  if (button === null || game === null || finished || helpOpen) {
+    return;
+  }
+  if (chooseLine(game, Number(button.dataset.line))) {
+    showMessage(t("msg_line_now", { line: LINE_NAMES[game.line] }));
+    render(game);
+  }
+}
+byId("line-selector").addEventListener("click", onLineButton);
+
+// Botón "Mirar el plano"
+function onHelp() {
+  if (game === null || finished || helpOpen) {
+    return;
+  }
+  useHelp(game);
+  flashNames();
+  render(game);
+}
+byId("help").addEventListener("click", onHelp);
+
+// Botón "Empezar de nuevo"
+function onRestart() {
+  if (game !== null) {
+    startLevel(game.level.id);
+  }
+}
+byId("restart").addEventListener("click", onRestart);
+byId("how").addEventListener("click", showHowToPlay);
+
+// Selector de idioma
+const langSelect = byId("lang");
+const LANGUAGE_NAMES = { es: "Castellano", ca: "Català", en: "English" };
+for (const code in LANGUAGE_NAMES) {
+  langSelect.innerHTML += '<option value="' + code + '">' + LANGUAGE_NAMES[code] + "</option>";
+}
+
+function onLanguage() {
+  setLang(langSelect.value);
+  localStorage.setItem("cerda_lang", langSelect.value);
+  document.documentElement.lang = langSelect.value;
+  applyTexts();
+  if (game === null) {
+    mostrarBloqueo();
+    return; // juego bloqueado: no hay nivel que dibujar
+  }
+  // se vuelve a dibujar el nivel (los nombres cambian de idioma) sin perder la partida
+  buildBoard(game);
+  renderMission(game);
+  renderLevelTabs(game.level.id, lastLevelCompleted());
+  render(game);
+  followToken(game, "auto");
+  if (helpOpen) {
+    showHowToPlay(); // se vuelve a escribir en el idioma nuevo
+  }
+}
+langSelect.addEventListener("change", onLanguage);
+
+// Si cambia el tamaño de la ventana, la ficha se vuelve a colocar
+function onResize() {
+  if (game !== null) {
+    render(game);
+    followToken(game, "auto");
+  }
+}
+window.addEventListener("resize", onResize);
 
 // ----- arranque -----
-setLang(localStorage.getItem("cerda_lang") || document.documentElement.lang || "es");
-langSelect.value = getLang();
-ui.applyTexts();
-if (isUnlocked()) startLevel(Math.min(LEVELS.length, lastLevelCompleted() + 1));
-else showLocked();
+function mostrarBloqueo() {
+  showCard(t("locked_title"), t("locked_text"), [
+    { label: t("home"), primary: true, onClick: goHome },
+  ]);
+}
+
+// Lo primero que se hace al abrir la página
+function startGame() {
+  // el idioma guardado (si no hay ninguno válido, catalán)
+  let idioma = localStorage.getItem("cerda_lang");
+  if (LANGUAGE_NAMES[idioma] === undefined) {
+    idioma = "ca";
+  }
+  setLang(idioma);
+  langSelect.value = idioma;
+  document.documentElement.lang = idioma;
+  applyTexts();
+
+  // el juego 4 solo se abre si se han superado los 3 anteriores
+  if (ultimoJuegoSuperado() < 3) {
+    mostrarBloqueo();
+    return;
+  }
+
+  // empieza por el nivel que toca (como mucho, el último)
+  let level = lastLevelCompleted() + 1;
+  if (level > LEVELS.length) {
+    level = LEVELS.length;
+  }
+  startLevel(level);
+
+  // al que juega por primera vez se le explica cómo se juega
+  if (lastLevelCompleted() === 0) {
+    showHowToPlay();
+  }
+}
+document.addEventListener("DOMContentLoaded", startGame);

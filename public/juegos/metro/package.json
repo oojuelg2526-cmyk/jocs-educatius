@@ -1,7 +1,6 @@
 {
   "name": "laberinto-de-metro",
   "private": true,
-  "type": "module",
   "scripts": {
     "test": "node --test"
   }

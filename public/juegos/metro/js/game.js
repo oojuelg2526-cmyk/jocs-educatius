@@ -1,155 +1,227 @@
-// Reglas del juego. No toca la página: solo trabaja con datos, así se puede probar sin navegador.
+// Reglas del juego. No toca la página: solo trabaja con datos (objetos y arrays).
 
-export const DIRS = {
+const DIRS = {
   up: [-1, 0],
   down: [1, 0],
   left: [0, -1],
   right: [0, 1],
 };
 
-const key = (r, c) => `${r},${c}`;
+// ¿Está este valor dentro de la lista?
+function contains(list, value) {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === value) {
+      return true;
+    }
+  }
+  return false;
+}
 
-// Convierte el mapa de textos en una tabla de casillas.
-function readMap(level) {
-  return level.map.map((row, r) =>
-    [...row].map((ch, c) => {
-      if (ch === "#") return { type: "wall", lines: [] };
-      if (/[0-9]/.test(ch)) return { type: "track", lines: [Number(ch)] };
-      const st = level.stations[ch];
-      return { type: "station", id: ch, nameKey: st.nameKey, lines: st.lines, r, c };
-    })
-  );
+// Convierte el mapa de textos en una tabla de casillas (array de arrays).
+function makeGrid(level) {
+  const grid = [];
+  for (let r = 0; r < level.map.length; r++) {
+    const row = [];
+    for (let c = 0; c < level.map[r].length; c++) {
+      const letter = level.map[r][c];
+      if (letter === "#") {
+        row.push({ type: "wall", lines: [] });
+      } else if (letter === "1" || letter === "2" || letter === "3" || letter === "4") {
+        row.push({ type: "track", lines: [Number(letter)] });
+      } else {
+        const station = level.stations[letter];
+        row.push({ type: "station", id: letter, nameKey: station.nameKey, lines: station.lines, r: r, c: c });
+      }
+    }
+    grid.push(row);
+  }
+  return grid;
 }
 
 function findStation(grid, id) {
-  for (const row of grid) {
-    for (const cell of row) if (cell.id === id) return cell;
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[r].length; c++) {
+      if (grid[r][c].id === id) {
+        return grid[r][c];
+      }
+    }
   }
   return null;
 }
 
 // Crea una partida nueva de un nivel.
-export function createGame(level) {
-  const grid = readMap(level);
+function createGame(level) {
+  const grid = makeGrid(level);
   const start = findStation(grid, level.start);
+
+  // los trozos del plano: cada uno con su fila, su columna y si ya se ha cogido
+  const pieces = [];
+  for (let i = 0; i < level.pieces.length; i++) {
+    pieces.push({ r: level.pieces[i][0], c: level.pieces[i][1], taken: false });
+  }
+
   return {
-    level,
-    grid,
+    level: level,
+    grid: grid,
     rows: grid.length,
     cols: grid[0].length,
-    pos: { r: start.r, c: start.c },
+    row: start.r, // dónde está la ficha
+    col: start.c,
     line: start.lines[0], // línea en la que viaja ahora
     moves: 0,
     helps: 0,
     seconds: 0,
-    collected: new Set(), // trozos ya recogidos ("fila,columna")
-    closedCells: new Set(level.closed.map((id) => key(findStation(grid, id).r, findStation(grid, id).c))),
-    rushCells: new Map(level.rush.map(([r, c]) => [key(r, c), false])), // false = cerrada ahora mismo
+    pieces: pieces,
     status: "playing", // playing | won | timeout
   };
 }
 
-export const cellAt = (game, r, c) => game.grid[r]?.[c] ?? null;
-export const currentCell = (game) => cellAt(game, game.pos.r, game.pos.c);
-export const isPieceAt = (game, r, c) => game.level.pieces.some(([pr, pc]) => pr === r && pc === c);
-export const piecesLeft = (game) => game.level.pieces.length - game.collected.size;
+// La casilla de esa posición, o null si se sale del mapa.
+function cellAt(game, r, c) {
+  if (r < 0 || r >= game.rows || c < 0 || c >= game.cols) {
+    return null;
+  }
+  return game.grid[r][c];
+}
 
-// ¿Se puede entrar en esa casilla viajando en la línea actual?
-export function canEnter(game, r, c) {
+// El trozo del plano que hay en esa casilla (o null).
+function pieceAt(game, r, c) {
+  for (let i = 0; i < game.pieces.length; i++) {
+    if (game.pieces[i].r === r && game.pieces[i].c === c) {
+      return game.pieces[i];
+    }
+  }
+  return null;
+}
+
+// Cuántos trozos del plano quedan por coger.
+function piecesLeft(game) {
+  let left = 0;
+  for (let i = 0; i < game.pieces.length; i++) {
+    if (game.pieces[i].taken === false) {
+      left++;
+    }
+  }
+  return left;
+}
+
+// ¿Se puede entrar en esa casilla? Devuelve "ok" o el motivo por el que no.
+function canEnter(game, r, c) {
   const cell = cellAt(game, r, c);
-  if (!cell || cell.type === "wall") return { ok: false, reason: "wall" };
-  if (!cell.lines.includes(game.line)) return { ok: false, reason: "wrong-line" };
-  if (game.closedCells.has(key(r, c))) return { ok: false, reason: "closed" };
-  if (game.rushCells.get(key(r, c)) === false) return { ok: false, reason: "rush" };
-  return { ok: true };
+  if (cell === null || cell.type === "wall") {
+    return "wall";
+  }
+  if (contains(cell.lines, game.line) === false) {
+    return "line"; // esa vía es de otra línea
+  }
+  if (cell.type === "station" && contains(game.level.closed, cell.id)) {
+    return "closed";
+  }
+  return "ok";
 }
 
 // Mueve la ficha. Devuelve qué ha pasado para que la pantalla lo cuente.
-export function move(game, dirName) {
-  if (game.status !== "playing") return { event: "finished" };
-  const [dr, dc] = DIRS[dirName];
-  const r = game.pos.r + dr;
-  const c = game.pos.c + dc;
-  const check = canEnter(game, r, c);
-  if (!check.ok) {
-    // En una correspondencia, "otra línea" es un aviso útil; en cualquier otro sitio, es una pared.
-    const here = currentCell(game);
-    const target = cellAt(game, r, c);
-    const otherLine = check.reason === "wrong-line" && here.type === "station" && here.lines.length > 1 && target.lines.some((l) => here.lines.includes(l));
-    return { event: otherLine ? "change-line" : check.reason };
+function move(game, dirName) {
+  if (game.status !== "playing") {
+    return { event: "finished" };
+  }
+  const dir = DIRS[dirName];
+  const r = game.row + dir[0];
+  const c = game.col + dir[1];
+  const reason = canEnter(game, r, c);
+  if (reason !== "ok") {
+    return { event: reason }; // wall, line o closed
   }
 
-  game.pos = { r, c };
-  game.moves += 1;
+  game.row = r;
+  game.col = c;
+  game.moves++;
 
   let event = "moved";
-  if (isPieceAt(game, r, c) && !game.collected.has(key(r, c))) {
-    game.collected.add(key(r, c));
+  const piece = pieceAt(game, r, c);
+  if (piece !== null && piece.taken === false) {
+    piece.taken = true;
     event = "piece";
   }
+
   const cell = cellAt(game, r, c);
   if (cell.type === "station" && cell.id === game.level.end) {
-    if (piecesLeft(game) === 0) {
+    const left = piecesLeft(game);
+    if (left === 0) {
       game.status = "won";
       return { event: "won" };
     }
-    return { event: "missing-pieces", left: piecesLeft(game) };
+    return { event: "missing-pieces", left: left };
   }
-  return { event, station: cell.type === "station" ? cell : null };
+  if (cell.type === "station") {
+    return { event: event, station: cell };
+  }
+  return { event: event, station: null };
 }
 
-// En una correspondencia se puede elegir por qué línea seguir.
-export function chooseLine(game, line) {
-  const here = currentCell(game);
-  if (here.type !== "station" || !here.lines.includes(line)) return false;
+// En una estación con varias líneas se puede elegir por cuál seguir.
+function chooseLine(game, line) {
+  const here = cellAt(game, game.row, game.col);
+  if (here.type !== "station" || contains(here.lines, line) === false) {
+    return false;
+  }
   game.line = line;
   return true;
 }
 
-export function useHelp(game) {
-  game.helps += 1;
+function useHelp(game) {
+  game.helps++;
 }
 
-// La hora punta abre y cierra sus casillas (lo llama un temporizador de la pantalla).
-export function toggleRush(game) {
-  for (const [k, open] of game.rushCells) {
-    const [r, c] = k.split(",").map(Number);
-    // Si el jugador está encima, no se la cerramos.
-    if (open && game.pos.r === r && game.pos.c === c) continue;
-    game.rushCells.set(k, !open);
+// Pasa un segundo (lo llama un temporizador de la pantalla).
+// Si el nivel tiene tiempo límite y se acaba, el nivel termina.
+function tickSecond(game) {
+  if (game.status !== "playing") {
+    return;
+  }
+  game.seconds++;
+  if (game.level.timeLimit !== null && game.seconds >= game.level.timeLimit) {
+    game.status = "timeout";
   }
 }
 
-// Pasa un segundo. Si hay tiempo límite y se acaba, el nivel termina.
-export function tickSecond(game) {
-  if (game.status !== "playing") return;
-  game.seconds += 1;
-  if (game.level.timeLimit && game.seconds >= game.level.timeLimit) game.status = "timeout";
-}
-
 // Puntos: 1000 al empezar, -5 por movimiento, -50 por ayuda y +100 por trozo.
-export function score(game) {
-  const points = 1000 - 5 * game.moves - 50 * game.helps + 100 * game.collected.size;
-  return Math.max(0, points);
+function score(game) {
+  const taken = game.pieces.length - piecesLeft(game);
+  const points = 1000 - 5 * game.moves - 50 * game.helps + 100 * taken;
+  if (points < 0) {
+    return 0;
+  }
+  return points;
 }
 
 // Estrellas según los movimientos de más respecto a la mejor ruta.
-export function stars(game) {
+function stars(game) {
   const extra = game.moves - game.level.bestMoves;
-  if (extra <= 2 && game.helps === 0) return 3;
-  if (extra <= 8) return 2;
+  if (extra <= 2 && game.helps === 0) {
+    return 3;
+  }
+  if (extra <= 8) {
+    return 2;
+  }
   return 1;
 }
 
-export function result(game) {
-  return {
+// Resumen del intento para guardarlo.
+function result(game) {
+  const won = game.status === "won";
+  const summary = {
     level: game.level.id,
-    won: game.status === "won",
+    won: won,
     moves: game.moves,
     helps: game.helps,
     seconds: game.seconds,
-    pieces: game.collected.size,
-    score: game.status === "won" ? score(game) : 0,
-    stars: game.status === "won" ? stars(game) : 0,
+    score: 0,
+    stars: 0,
   };
+  if (won) {
+    summary.score = score(game);
+    summary.stars = stars(game);
+  }
+  return summary;
 }
